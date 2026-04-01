@@ -29,7 +29,7 @@
     </div>
 
     <div v-if="canTake" class="ticket-card-actions">
-      <button class="btn btn--primary btn--sm" @click.stop="onTake(ticket)">
+      <button class="btn btn--primary btn--sm" @click.stop="onTake?.(ticket)">
         Взять в работу
       </button>
     </div>
