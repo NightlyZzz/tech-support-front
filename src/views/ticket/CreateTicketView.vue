@@ -29,7 +29,7 @@
               maxlength="18"
               placeholder="+7 (___) ___-__-__"
               @input="handlePhoneInput"
-              @keypress="allowOnlyDigits"
+              @keydown="allowOnlyDigits"
             />
           </div>
 
@@ -86,6 +86,18 @@ const form = reactive({
 const displayPhone = ref('')
 
 const allowOnlyDigits = (event: KeyboardEvent): void => {
+  const allowedKeys = [
+    'Backspace',
+    'ArrowLeft',
+    'ArrowRight',
+    'Tab',
+    'Delete'
+  ]
+
+  if (allowedKeys.includes(event.key)) {
+    return
+  }
+
   if (!/[0-9]/.test(event.key)) {
     event.preventDefault()
   }
@@ -150,7 +162,7 @@ const loadTicketTypes = async (): Promise<void> => {
   try {
     const response = await getAllTicketTypes()
     ticketTypes.value = response.data ?? []
-  } catch (error) {
+  } catch {
     showToast('Ошибка загрузки типов заявок', 'error')
   }
 }
