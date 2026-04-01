@@ -4,18 +4,18 @@
       ←
     </button>
 
-    <button
-      v-for="page in pages"
-      :key="page"
-      class="btn"
-      :class="{ active: page === currentPage }"
-      @click="changePage(page)"
-      v-if="page !== '...'"
-    >
-      {{ page }}
-    </button>
+    <template v-for="page in pages" :key="page">
+      <button
+        v-if="typeof page === 'number'"
+        class="btn"
+        :class="{ active: page === currentPage }"
+        @click="changePage(page)"
+      >
+        {{ page }}
+      </button>
 
-    <span v-else class="dots">...</span>
+      <span v-else class="dots">...</span>
+    </template>
 
     <button class="btn" @click="changePage(currentPage + 1)" :disabled="currentPage === lastPage">
       →
@@ -31,14 +31,16 @@ const props = defineProps<{
   lastPage: number
 }>()
 
-const emit = defineEmits(['change'])
+const emit = defineEmits<{
+  (e: 'change', page: number): void
+}>()
 
 const changePage = (page: number) => {
   if (page < 1 || page > props.lastPage) return
   emit('change', page)
 }
 
-const pages = computed(() => {
+const pages = computed<(number | string)[]>(() => {
   const total = props.lastPage
   const current = props.currentPage
 
