@@ -259,3 +259,58 @@
     align-items: flex-start;
   }
 }
+
+.user-card.self.admin,
+.user-card.self.employee {
+  background: var(--c-accent-light);
+  border-color: var(--c-accent);
+}
+
+.user-card.self .user-avatar {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+}
+
+.user-card {
+  position: relative;
+  transition: box-shadow var(--t-base), border-color var(--t-base), transform var(--t-fast);
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+}
+
+.user-card.self {
+  background: var(--c-accent-light);
+  border-color: var(--c-accent);
+}
+
+.user-card.self.admin,
+.user-card.self.employee {
+  background: var(--c-accent-light);
+  border-color: var(--c-accent);
+}
+
+.user-card.self .user-avatar {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+}
+
+.user-card.self:hover {
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
+}
+
+.user-self-badge {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--c-accent);
+  background: #fff;
+  border: 1px solid var(--c-accent);
+  border-radius: 999px;
+  padding: 3px 10px;
+}

@@ -1,6 +1,5 @@
 import { getUser, logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
 import { Role } from '@/enums/role'
-import { User } from '@/user/user'
 import { getCurrentUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 import { TicketStatus } from '@/enums/ticketStatus'
@@ -12,35 +11,32 @@ export const refreshAuthData = async (token: string): Promise<void> => {
   if (now - lastRefresh < 15000) return
 
   try {
-    const response: Response = await getCurrentUser(token)
+    setUserToken(token)
 
-    if (!response.ok) {
-      throw new Error('Response is not OK')
-    }
-
-    const data: any = await response.json()
+    const data: any = await getCurrentUser()
 
     lastRefresh = now
-    setUserToken(token)
     setUserData(data.data)
-    setNavbarState((!!token && Object.keys(data.data).length > 0))
-  } catch (e: any) {
+    setNavbarState(!!token && Object.keys(data.data).length > 0)
+  } catch {
     showToast('Сессия истекла, войдите снова', 'info')
     logout()
   }
 }
 
 export const isUser = (): boolean => {
-  return getUser().getRole() === Role.User
+  const user = getUser()
+  return !!user && user.getRole() === Role.User
 }
 
 export const isEmployee = (): boolean => {
-  const user: User = getUser()
-  return user.getRole() === Role.Employee || user.getRole() === Role.Admin
+  const user = getUser()
+  return !!user && (user.getRole() === Role.Employee || user.getRole() === Role.Admin)
 }
 
 export const isAdmin = (): boolean => {
-  return getUser().getRole() === Role.Admin
+  const user = getUser()
+  return !!user && user.getRole() === Role.Admin
 }
 
 export const truncate = (text: string, max = 100): string => {

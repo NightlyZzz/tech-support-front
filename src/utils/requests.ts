@@ -1,204 +1,102 @@
-import { BACKEND_URL } from '@/utils/constants'
+import api from '@/utils/api'
+import publicApi from "@/utils/publicApi.ts";
 
-export const login = async (data: any): Promise<Response> => {
-  return fetch(BACKEND_URL + '/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
+export const login = async (data: any): Promise<any> => {
+  const res = await api.post('/auth/login', data)
+  return res.data
 }
 
-export const register = async (data: any): Promise<Response> => {
-  return fetch(BACKEND_URL + '/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
+export const register = async (data: any): Promise<any> => {
+  const res = await api.post('/auth/register', data)
+  return res.data
 }
 
-export const getCurrentUser = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getCurrentUser = async (): Promise<any> => {
+  const res = await api.get('/user')
+  return res.data
 }
 
-export const getAnotherUser = async (id: number, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user/' + id, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getAnotherUser = async (id: number): Promise<any> => {
+  const res = await api.get('/user/' + id)
+  return res.data
 }
 
-export const getAllUsers = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getAllUsers = async (): Promise<any> => {
+  const res = await api.get('/user/all')
+  return res.data
 }
 
-export const updateUser = async (data: any, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify(data)
-  })
+export const updateUser = async (data: any): Promise<any> => {
+  const res = await api.put('/user', data)
+  return res.data
 }
 
-export const updateAnotherUser = async (id: number, data: any, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user/' + id, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify(data)
-  })
+export const updateAnotherUser = async (id: number, data: any): Promise<any> => {
+  const res = await api.put('/user/' + id, data)
+  return res.data
 }
 
-export const deleteCurrentUser = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const deleteCurrentUser = async (): Promise<any> => {
+  const res = await api.delete('/user')
+  return res.data
 }
 
-export const deleteAnotherUser = async (id: number, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/user/' + id, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const deleteAnotherUser = async (id: number): Promise<any> => {
+  const res = await api.delete('/user/' + id)
+  return res.data
 }
 
-export const getAllDepartments = async (): Promise<Response> => {
-  return fetch(BACKEND_URL + '/department/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  })
+export const getAllDepartments = async (): Promise<any> => {
+  const res = await publicApi.get('/public/departments')
+  return res.data
 }
 
-export const getAllRoles = async (): Promise<Response> => {
-  return fetch(BACKEND_URL + '/role/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
+export const getAllRoles = async (): Promise<any> => {
+  const res = await publicApi.get('/public/roles')
+  return res.data
 }
 
-export const getTicket = async (id: number, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/' + id, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getTicket = async (id: number): Promise<any> => {
+  const res = await api.get('/ticket/' + id)
+  return res.data
 }
 
-export const getAllTickets = async (token: string, page = 1): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/all?page=' + page, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getAllTickets = async (page = 1): Promise<any> => {
+  const res = await api.get('/ticket/all?page=' + page)
+  return res.data
 }
 
-export const getAllTicketTypes = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/type/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getMyTickets = async (page = 1): Promise<any> => {
+  const res = await api.get('/ticket/my?page=' + page)
+  return res.data
 }
 
-export const getMyTickets = async (token: string, page = 1): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/my?page=' + page, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getAllTicketTypes = async (): Promise<any> => {
+  const res = await api.get('/ticket/type/all')
+  return res.data
 }
 
-export const createTicket = async (data: any, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify(data)
-  })
+export const createTicket = async (data: any): Promise<any> => {
+  const res = await api.post('/ticket', data)
+  return res.data
 }
 
-export const updateTicket = async (id: number, data: any, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/' + id, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify(data)
-  })
+export const updateTicket = async (id: number, data: any): Promise<any> => {
+  const res = await api.put('/ticket/' + id, data)
+  return res.data
 }
 
-export const getTicketLogs = async (ticketId: number, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/log/' + ticketId, {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    }
-  })
+export const getTicketLogs = async (ticketId: number): Promise<any> => {
+  const res = await api.get('/ticket/log/' + ticketId)
+  return res.data
 }
 
-export const attachTicketLog = async (ticketId: number, data: any, token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/log/' + ticketId, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
+export const attachTicketLog = async (ticketId: number, data: any): Promise<any> => {
+  const res = await api.post('/ticket/log/' + ticketId, data)
+  return res.data
 }
 
-export const getAllTicketStatuses = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/status/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    }
-  })
+export const getAllTicketStatuses = async (): Promise<any> => {
+  const res = await api.get('/ticket/status/all')
+  return res.data
 }

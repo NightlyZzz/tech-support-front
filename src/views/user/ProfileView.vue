@@ -62,7 +62,7 @@
         <div class="card">
           <p class="card-title">Подразделение</p>
           <Select
-            id="dept"
+            id="department"
             label="Подразделение"
             placeholder="Выберите подразделение"
             v-model="form.department_id"
@@ -74,8 +74,11 @@
 
         <div class="card">
           <p class="card-title">Действия</p>
-          <button :class="['btn', 'btn--primary', loading ? 'btn-loading' : '']"
-                  style="width:100%;margin-bottom:12px;" @click="saveChanges">
+          <button
+            :class="['btn','btn--primary', loading ? 'btn-loading' : '']"
+            style="width:100%;margin-bottom:12px;"
+            @click="saveChanges"
+          >
             Сохранить изменения
           </button>
           <div class="action-row">
@@ -90,14 +93,14 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { getUser, logout } from '@/user/data.ts'
-import { User } from '@/user/user.ts'
+import { getUser, logout } from '@/user/data'
+import { User } from '@/user/user'
 import Select from '@/components/Select.vue'
-import { deleteCurrentUser, getAllDepartments, updateUser } from '@/utils/requests.ts'
+import { deleteCurrentUser, getAllDepartments, updateUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 
 interface Department {
-  id: number;
+  id: number
   name: string
 }
 
@@ -111,82 +114,74 @@ interface ProfileForm {
   department_id: number
 }
 
-const user: User = getUser()
+const currentUser = getUser() as User
 
-const form: any = reactive<ProfileForm>({
-  first_name: user.getFirstName(),
-  last_name: user.getLastName(),
-  middle_name: user.getMiddleName(),
-  email: user.getEmail(),
-  secondary_email: user.getSecondaryEmail() || user.getEmail(),
+const form = reactive<ProfileForm>({
+  first_name: currentUser.getFirstName(),
+  last_name: currentUser.getLastName(),
+  middle_name: currentUser.getMiddleName(),
+  email: currentUser.getEmail(),
+  secondary_email: currentUser.getSecondaryEmail() || currentUser.getEmail(),
   new_password: '',
-  department_id: user.getDepartment()
+  department_id: currentUser.getDepartment()
 })
 
-const original: any = ref<ProfileForm | null>(null)
-original.value = {...form, new_password: ''}
+const originalForm = ref<ProfileForm>({...form})
 
-const showPassword: any = ref<boolean>(false)
-const departments: any = ref<Department[]>([])
-
+const departments = ref<Department[]>([])
+const showPassword = ref(false)
 const loading = ref(false)
 
-const saveChanges = async (): Promise<void> => {
+const saveChanges = async () => {
   const payload: Partial<ProfileForm> = {}
-  if (!original.value) return
-  for (const key in form) {
-    const typedKey: keyof ProfileForm = key as keyof ProfileForm
-    if (typedKey === 'new_password') {
-      if (form.new_password.trim().length >= 8) payload.new_password = form.new_password.trim()
+
+  const formKeys = Object.keys(form) as (keyof ProfileForm)[]
+
+  for (const key of formKeys) {
+    if (key === 'new_password') {
+      if (form.new_password.trim().length >= 8) {
+        payload.new_password = form.new_password.trim()
+      }
       continue
     }
-    if (form[typedKey] !== original.value[typedKey]) payload[typedKey] = form[typedKey]
+
+    if (form[key] !== originalForm.value[key]) {
+      payload[key] = form[key] as any
+    }
   }
-  if (Object.keys(payload).length === 0) {
-    showToast('Нет изменений для сохранения', 'info')
+
+  if (!Object.keys(payload).length) {
     return
   }
+
   loading.value = true
+
   try {
-    const response: Response = await updateUser(payload, user.getToken())
-    if (response.ok) {
-      if (payload.new_password) form.new_password = ''
-      original.value = {...form, new_password: ''}
-      showToast('Данные успешно обновлены', 'success')
-    } else {
-      showToast('Ошибка при сохранении', 'error')
-    }
+    await updateUser(payload)
+    originalForm.value = {...form}
+    form.new_password = ''
+    showToast('Сохранено', 'success')
+  } catch {
+    showToast('Ошибка', 'error')
   } finally {
     loading.value = false
   }
 }
 
-
-const confirmDelete = async (): Promise<void> => {
-  if (!confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) return
-  try {
-    const response: Response = await deleteCurrentUser(user.getToken())
-    if (response.ok) {
-      showToast('Аккаунт успешно удалён', 'success')
-      setTimeout(() => logout(), 1000)
-    } else {
-      const data: any = await response.json()
-      showToast(data.message ?? 'Не удалось удалить аккаунт', 'error')
-    }
-  } catch {
-    showToast('Произошла ошибка при удалении аккаунта', 'error')
+const confirmDelete = async () => {
+  if (!confirm('Удалить аккаунт?')) {
+    return
   }
+
+  await deleteCurrentUser()
+  logout()
 }
 
-const fetchDepartments = async (): Promise<void> => {
+const fetchDepartments = async () => {
   try {
-    const response: Response = await getAllDepartments()
-    if (response.ok) {
-      const data: any = await response.json()
-      departments.value = data.data
-    }
-  } catch (e: any) {
-    console.error('Ошибка при загрузке подразделений', e)
+    const response = await getAllDepartments()
+    departments.value = response.data ?? []
+  } catch {
   }
 }
 

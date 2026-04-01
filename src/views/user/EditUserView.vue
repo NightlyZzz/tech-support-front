@@ -43,7 +43,7 @@
         <div class="card">
           <p class="card-title">Подразделение</p>
           <Select
-            id="dept"
+            id="department"
             label="Подразделение"
             placeholder="Выберите подразделение"
             v-model="form.department_id"
@@ -81,79 +81,78 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getUser } from '@/user/data.ts'
 import router from '@/router'
 import Select from '@/components/Select.vue'
 import {
-  deleteAnotherUser, getAllDepartments, getAllRoles,
-  getAnotherUser, updateAnotherUser
-} from '@/utils/requests.ts'
+  deleteAnotherUser,
+  getAllDepartments,
+  getAllRoles,
+  getAnotherUser,
+  updateAnotherUser
+} from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 
 interface Department {
-  id: number;
+  id: number
   name: string
 }
 
 interface Role {
-  id: number;
+  id: number
   name: string
 }
 
-const userId: number = Number(useRoute().params.id)
-const departments: any = ref<Department[]>([])
-const roles: any = ref<Role[]>([])
-const token: string = getUser().getToken()
+const route = useRoute()
+const userId = Number(route.params.id)
 
-const form: any = reactive({
-  first_name: '', last_name: '', middle_name: '',
-  email: '', secondary_email: '', new_password: '',
-  department_id: null, role_id: null
+const departments = ref<Department[]>([])
+const roles = ref<Role[]>([])
+
+const form = reactive({
+  first_name: '',
+  last_name: '',
+  middle_name: '',
+  email: '',
+  secondary_email: '',
+  new_password: '',
+  department_id: null as number | null,
+  role_id: null as number | null
 })
 
-const fetchDepartments = async (): Promise<void> => {
+const fetchDepartments = async () => {
+  const response = await getAllDepartments()
+  departments.value = response.data
+}
+
+const fetchRoles = async () => {
+  const response = await getAllRoles()
+  roles.value = response.data
+}
+
+const fetchUser = async () => {
+  const response = await getAnotherUser(userId)
+  Object.assign(form, response.data)
+}
+
+const saveChanges = async () => {
   try {
-    const r = await getAllDepartments()
-    if (r.ok) departments.value = (await r.json()).data
-  } catch (e) {
-    console.error(e)
+    await updateAnotherUser(userId, form)
+    await router.push({name: 'all-users'})
+  } catch {
+    showToast('Ошибка при сохранении', 'error')
   }
 }
 
-const fetchRoles = async (): Promise<void> => {
-  try {
-    const r = await getAllRoles()
-    if (r.ok) roles.value = (await r.json()).data
-  } catch (e) {
-    console.error(e)
+const confirmDelete = async () => {
+  if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие необратимо.')) {
+    return
   }
-}
-
-const fetchUser = async (): Promise<void> => {
-  const r = await getAnotherUser(userId, token)
-  if (r.ok) Object.assign(form, (await r.json()).data)
-}
-
-const saveChanges = async (): Promise<void> => {
-  const r = await updateAnotherUser(userId, form, token)
-  if (r.ok) await router.push({name: 'all-users'})
-  else showToast('Ошибка при сохранении', 'error')
-}
-
-const confirmDelete = async (): Promise<void> => {
-  if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие необратимо.')) return
 
   try {
-    const r = await deleteAnotherUser(userId, token)
-    if (r.ok) {
-      showToast('Пользователь успешно удалён', 'success')
-      await router.push({name: 'all-users'})
-    } else {
-      const data: any = await r.json()
-      showToast(data.message ?? 'Не удалось удалить пользователя', 'error')
-    }
-  } catch (error) {
-    showToast('Произошла ошибка при удалении пользователя', 'error')
+    await deleteAnotherUser(userId)
+    await router.push({name: 'all-users'})
+  } catch {
+    showToast('Ошибка удаления', 'error')
   }
 }
 

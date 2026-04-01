@@ -2,17 +2,20 @@
   <div class="page">
     <div class="page-header">
       <h1 class="page-title">Пользователи</h1>
-      <span style="font-size:.875rem;color:var(--c-text-3);">{{ filteredUsers.length }} чел.</span>
+      <span style="font-size:.875rem;color:var(--c-text-3);">
+        {{ filteredUsers.length }} чел.
+      </span>
     </div>
 
     <div class="search-field">
       <span class="search-field-icon">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
              stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+          <circle cx="11" cy="11" r="8"/>
+          <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
         </svg>
       </span>
-      <input v-model="search" type="text" placeholder="Поиск по ФИО…"/>
+      <input v-model="searchQuery" type="text" placeholder="Поиск по ФИО…"/>
     </div>
 
     <div v-if="filteredUsers.length === 0" class="empty-state">
@@ -21,25 +24,35 @@
 
     <div v-else style="display:flex;flex-direction:column;gap:10px;">
       <div
-        v-for="(u, index) in filteredUsers"
-        :key="u.getId()"
-        :class="['user-card', 'animate-in', isCurrentUser(u.getId()) ? 'self' : u.getRole() === 2 ? 'employee' : u.getRole() === 3 ? 'admin' : '']"
+        v-for="(userItem, index) in filteredUsers"
+        :key="userItem.getId()"
+        :class="[
+          'user-card',
+          'animate-in',
+          getRoleClass(userItem),
+          isCurrentUser(userItem) ? 'self' : ''
+        ]"
         :style="{ animationDelay: index * 0.05 + 's' }"
-        @click="openUser(u.getId())">
+        @click="openUser(userItem.getId())"
+      >
         <div class="user-avatar">
-          {{ initials(u) }}
+          {{ getInitials(userItem) }}
         </div>
+
         <div class="user-card-body">
-          <div class="user-card-name">{{ u.getLastName() }} {{ u.getFirstName() }}
-            {{ u.getMiddleName() }}
+          <div class="user-card-name">
+            {{ userItem.getLastName() }} {{ userItem.getFirstName() }} {{
+              userItem.getMiddleName()
+            }}
           </div>
-          <div class="user-card-meta">{{ u.getRoleName() }} · {{ u.getDepartmentName() }}</div>
+          <div class="user-card-meta">
+            {{ userItem.getRoleName() }} · {{ userItem.getDepartmentName() }}
+          </div>
         </div>
-        <span v-if="isCurrentUser(u.getId())" class="user-self-badge">Вы</span>
-        <svg v-else width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-             stroke-width="2" style="color:var(--c-text-3);flex-shrink:0;">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-        </svg>
+
+        <div v-if="isCurrentUser(userItem)" class="user-self-badge">
+          Вы
+        </div>
       </div>
     </div>
   </div>
@@ -48,44 +61,91 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getUser } from '@/user/data.ts'
-import { User } from '@/user/user.ts'
-import { getAllUsers } from '@/utils/requests.ts'
+import { User } from '@/user/user'
+import { getAllUsers } from '@/utils/requests'
+import { getUser } from '@/user/data'
 
 const router = useRouter()
+
 const users = ref<User[]>([])
-const search = ref('')
-const currentUser: User = getUser()
+const searchQuery = ref('')
 
-const initials = (u: User) =>
-  (u.getLastName()[0] || '') + (u.getFirstName()[0] || '')
+const getInitials = (user: User): string => {
+  return (user.getLastName()[0] || '') + (user.getFirstName()[0] || '')
+}
 
-onMounted(async (): Promise<void> => {
-  const response: Response = await getAllUsers(currentUser.getToken())
+onMounted(async () => {
+  const response = await getAllUsers()
 
-  if (response.ok) {
-    const data: any = await response.json()
-    users.value = data.data.map((d: any) => new User(
-      '', d.id, d.email, d.first_name, d.last_name, d.middle_name,
-      d.role_id, d.role_name, d.department_id, d.department_name, d.secondary_email
-    ))
-  }
+  users.value = response.data.map((rawUser: any) => {
+    return new User(
+      '',
+      rawUser.id,
+      rawUser.email,
+      rawUser.first_name,
+      rawUser.last_name,
+      rawUser.middle_name,
+      rawUser.role_id,
+      rawUser.role_name,
+      rawUser.department_id,
+      rawUser.department_name,
+      rawUser.secondary_email
+    )
+  })
 })
 
-const isCurrentUser = (id: number) => id === currentUser.getId()
-
-const openUser = (id: number) => {
-  if (!isCurrentUser(id)) {
-    router.push({name: 'edit-user', params: {id}})
-  }
+const openUser = (userId: number): void => {
+  router.push({name: 'edit-user', params: {id: userId}})
 }
 
 const filteredUsers = computed(() => {
-  const q = search.value.toLowerCase()
-  return users.value.filter((u: User) =>
-    `${u.getLastName()} ${u.getFirstName()} ${u.getMiddleName()}`.toLowerCase().includes(q)
-  )
+  const query = searchQuery.value.toLowerCase()
+  const currentUser = getUser()
+
+  const filteredList = users.value.filter((userItem: User) => {
+    return `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`
+      .toLowerCase()
+      .includes(query)
+  })
+
+  if (!currentUser) {
+    return filteredList
+  }
+
+  return filteredList.sort((userA, userB) => {
+    if (userA.getId() === currentUser.getId()) {
+      return -1
+    }
+
+    if (userB.getId() === currentUser.getId()) {
+      return 1
+    }
+
+    return 0
+  })
 })
+
+const getRoleClass = (user: User): string => {
+  if (user.getRoleName() === 'Администратор') {
+    return 'admin'
+  }
+
+  if (user.getRoleName() === 'Сотрудник') {
+    return 'employee'
+  }
+
+  return ''
+}
+
+const isCurrentUser = (user: User): boolean => {
+  const currentUser = getUser()
+
+  if (!currentUser) {
+    return false
+  }
+
+  return currentUser.getId() === user.getId()
+}
 </script>
 
 <style scoped>

@@ -77,21 +77,21 @@ interface RegisterForm {
   middle_name: string
   email: string
   password: string
-  department_id: number
+  department_id: number | null
   remember: boolean
 }
 
-const form: any = reactive<RegisterForm>({
+const form = reactive<RegisterForm>({
   first_name: '',
   last_name: '',
   middle_name: '',
   email: '',
   password: '',
-  department_id: 0,
+  department_id: null,
   remember: false
 })
 
-const showPassword = ref<boolean>(false)
+const showPassword = ref(false)
 const departmentTypes = ref<DepartmentType[]>([])
 
 const handleRegister = async (): Promise<void> => {
@@ -100,34 +100,39 @@ const handleRegister = async (): Promise<void> => {
     return
   }
 
-  try {
-    const response: Response = await register(form)
+  if (!form.department_id) {
+    showToast('Выберите подразделение', 'error')
+    return
+  }
 
-    if (!response.ok) {
-      throw new Error('Response is not OK')
+  try {
+    const payload = {
+      ...form,
+      department_id: Number(form.department_id),
+      remember: form.remember ? 1 : 0
     }
 
-    const {token} = await response.json()
+    const data = await register(payload)
+
+    const token = data.token
+
+    localStorage.setItem('token', token)
+
     await refreshAuthData(token)
-    await router.push({name: 'home'})
-  } catch (error) {
-    console.log(error)
+
+    await router.push({ name: 'home' })
+  } catch (error: any) {
+    console.log(error.response?.data)
     showToast('Ошибка регистрации', 'error')
   }
 }
 
 const fetchDepartmentTypes = async (): Promise<void> => {
   try {
-    const response: Response = await getAllDepartments()
-
-    if (response.ok) {
-      const data = await response.json()
-      departmentTypes.value = data.data
-    } else {
-      console.error('Не удалось загрузить подразделения')
-    }
+    const data = await getAllDepartments()
+    departmentTypes.value = data.data
   } catch (e) {
-    console.error('Ошибка при загрузке подразделений', e)
+    console.error(e)
   }
 }
 

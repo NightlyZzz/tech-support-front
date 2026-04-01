@@ -9,7 +9,7 @@
       id="status-filter"
       label="Статус"
       placeholder="Выберите статус"
-      :items="statuses"
+      :items="statusesWithAll"
       v-model="selectedStatus"
       valueKey="id"
       labelKey="name"
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getAllTickets, updateTicket } from '@/utils/requests'
 import { getUser } from '@/user/data'
 import { isEmployee } from '@/utils/utils'
@@ -49,31 +49,40 @@ import { Ticket } from '@/ticket/ticket'
 
 const selectedStatus = ref<number>(0)
 
-const { currentPage, lastPage, setMeta } = usePagination()
-const { tickets, load } = useTickets(getAllTickets)
-const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
+const {currentPage, lastPage, setMeta} = usePagination()
+const {tickets, load} = useTickets(getAllTickets)
+const {loadPage} = usePaginationLoader(currentPage, load, setMeta)
+const {statuses, loadStatuses} = useTicketStatuses()
 
-const { statuses, loadStatuses } = useTicketStatuses()
+const statusesWithAll = computed(() => {
+  return [{id: 0, name: 'Все статусы'}, ...statuses.value]
+})
 
 const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
-const openTicket = (id: number) => {
+const openTicket = (ticketId: number) => {
   if (isEmployee()) {
-    router.push({ name: 'ticket', params: { id } })
+    router.push({name: 'ticket', params: {id: ticketId}})
   }
 }
 
 const takeToReview = async (ticket: Ticket) => {
-  const user = getUser()
-  const res = await updateTicket(
-    ticket.getId(),
-    { employee_id: user.getId() },
-    user.getToken()
-  )
+  try {
+    const currentUser = getUser()
 
-  if (!res.ok) return
+    if (!currentUser) {
+      return
+    }
 
-  ticket.setReview()
+    await updateTicket(
+      ticket.getId(),
+      {employee_id: currentUser.getId()}
+    )
+
+    ticket.setReview()
+  } catch (error) {
+    console.error('Ошибка при взятии заявки', error)
+  }
 }
 
 onMounted(async () => {

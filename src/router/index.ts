@@ -102,24 +102,29 @@ router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
   const requiresAuth: boolean = to.meta.auth
   const requiredRole: number = to.meta.role
 
+  let user = null
+
   if (authenticated) {
-    await refreshAuthData(getUser().getToken())
+    user = getUser()
+    if (user) {
+      await refreshAuthData(user.getToken())
+    }
   }
 
   if (requiresAuth && !authenticated) {
-    return next({name: 'auth'})
+    return next({ name: 'auth' })
   }
 
   if (to.name === 'home') {
-    return authenticated ? next({name: 'profile'}) : next({name: 'auth'})
+    return authenticated ? next({ name: 'profile' }) : next({ name: 'auth' })
   }
 
   if (to.name === 'auth' && authenticated) {
-    return next({name: 'profile'})
+    return next({ name: 'profile' })
   }
 
-  if (authenticated && requiredRole > getUser().getRole()) {
-    return next({name: 'home'})
+  if (authenticated && user && requiredRole > user.getRole()) {
+    return next({ name: 'home' })
   }
 
   return next()

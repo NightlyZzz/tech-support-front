@@ -18,14 +18,16 @@ export const setUserData = (data: any): void => {
   localStorage.setItem('user_data', JSON.stringify(data))
 }
 
-export const getUser = (): User => {
+export const getUser = (): User | null => {
   if (!isAuthenticated()) {
-    throw new Error('Not Authorized')
+    return null
   }
 
   const data: any = getUserData()
+  const token = getUserToken()
+
   return new User(
-    getUserToken() || '',
+    token || '',
     data.id,
     data.email,
     data.first_name,
@@ -40,7 +42,7 @@ export const getUser = (): User => {
 }
 
 export const isAuthenticated = (): boolean => {
-  return !!getUserToken() && Object.keys(getUserData()).length > 0
+  return !!getUserToken()
 }
 
 export const logout = (): void => {

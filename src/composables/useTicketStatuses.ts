@@ -1,6 +1,5 @@
 import { ref } from 'vue'
 import { getAllTicketStatuses } from '@/utils/requests'
-import { getUser } from '@/user/data'
 
 interface TicketStatusOption {
   id: number
@@ -10,14 +9,9 @@ interface TicketStatusOption {
 export const useTicketStatuses = () => {
   const statuses = ref<TicketStatusOption[]>([])
 
-  const loadStatuses = async () => {
-    const token = getUser().getToken()
-    const res = await getAllTicketStatuses(token)
-
-    if (res.ok) {
-      const json = await res.json()
-      statuses.value = [{ id: 0, name: 'Все статусы' }, ...(json.data ?? [])]
-    }
+  const loadStatuses = async (): Promise<void> => {
+    const response = await getAllTicketStatuses()
+    statuses.value = response.data ?? []
   }
 
   return {

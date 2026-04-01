@@ -9,7 +9,7 @@
       id="status-filter"
       label="Статус"
       placeholder="Выберите статус"
-      :items="statuses"
+      :items="statusesWithAll"
       v-model="selectedStatus"
       valueKey="id"
       labelKey="name"
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getMyTickets } from '@/utils/requests'
 import { isEmployee } from '@/utils/utils'
 import { usePagination } from '@/composables/usePagination'
@@ -45,16 +45,19 @@ import TicketList from '@/components/ticket/TicketList.vue'
 
 const selectedStatus = ref<number>(0)
 
-const { currentPage, lastPage, setMeta } = usePagination()
-const { tickets, load } = useTickets(getMyTickets)
-const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
+const {currentPage, lastPage, setMeta} = usePagination()
+const {tickets, load} = useTickets(getMyTickets)
+const {loadPage} = usePaginationLoader(currentPage, load, setMeta)
+const {statuses, loadStatuses} = useTicketStatuses()
 
-const { statuses, loadStatuses } = useTicketStatuses()
+const statusesWithAll = computed(() => {
+  return [{id: 0, name: 'Все статусы'}, ...statuses.value]
+})
 
 const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
-const openTicket = (id: number) => {
-  router.push({ name: 'ticket', params: { id } })
+const openTicket = (ticketId: number) => {
+  router.push({name: 'ticket', params: {id: ticketId}})
 }
 
 onMounted(async () => {

@@ -65,9 +65,8 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { getUser } from '@/user/data.ts'
 import Select from '@/components/Select.vue'
-import { createTicket, getAllTicketTypes } from '@/utils/requests.ts'
+import { createTicket, getAllTicketTypes } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 
 interface TicketType {
@@ -75,7 +74,6 @@ interface TicketType {
   name: string
 }
 
-const token: string = getUser().getToken()
 const ticketTypes = ref<TicketType[]>([])
 const loading = ref(false)
 
@@ -141,9 +139,7 @@ const descriptionRef = ref<HTMLTextAreaElement | null>(null)
 
 const autoResize = (): void => {
   const el = descriptionRef.value
-  if (!el) {
-    return
-  }
+  if (!el) return
 
   el.style.height = 'auto'
   el.style.height = el.scrollHeight + 'px'
@@ -151,14 +147,9 @@ const autoResize = (): void => {
 
 const fetchTicketTypes = async (): Promise<void> => {
   try {
-    const response: Response = await getAllTicketTypes(token)
-
-    if (response.ok) {
-      ticketTypes.value = (await response.json()).data
-    }
-  } catch (e) {
-    console.error(e)
-  }
+    const data = await getAllTicketTypes()
+    ticketTypes.value = data.data ?? []
+  } catch (e) {}
 }
 
 const submitTicket = async (): Promise<void> => {
@@ -170,29 +161,16 @@ const submitTicket = async (): Promise<void> => {
   loading.value = true
 
   try {
-    const response: Response = await createTicket(form, token)
+    const result = await createTicket(form)
 
-    let result: any = {}
+    showToast(result.message || 'Заявка успешно отправлена!', 'success')
 
-    try {
-      result = await response.json()
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      result = {}
-    }
-
-    if (response.ok) {
-      showToast(result.message || 'Заявка успешно отправлена!', 'success')
-      form.ticket_type_id = ''
-      form.description = ''
-      form.contact_phone = ''
-      displayPhone.value = ''
-    } else {
-      showToast(result.message || 'Ошибка при отправке заявки', 'error')
-    }
-  } catch (e) {
-    console.error(e)
-    showToast('Ошибка сети или сервер недоступен', 'error')
+    form.ticket_type_id = ''
+    form.description = ''
+    form.contact_phone = ''
+    displayPhone.value = ''
+  } catch (e: any) {
+    showToast(e?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
   } finally {
     loading.value = false
   }

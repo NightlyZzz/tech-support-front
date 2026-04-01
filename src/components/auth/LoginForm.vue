@@ -55,15 +55,15 @@ const showPassword: any = ref<boolean>(false)
 
 const handleLogin = async (): Promise<void> => {
   try {
-    const response: Response = await login(form)
+    const data = await login(form)
 
-    if (!response.ok) {
-      throw new Error('Response is not OK')
-    }
+    const token = data.token
 
-    const {token} = await response.json()
+    localStorage.setItem('token', token)
+
     await refreshAuthData(token)
-    await router.push({name: 'home'})
+
+    await router.push({ name: 'home' })
   } catch (error) {
     console.log(error)
     showToast('Неверный email или пароль', 'error')
