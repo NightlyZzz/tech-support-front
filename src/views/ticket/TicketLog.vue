@@ -107,49 +107,52 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import {
-  attachTicketLog, getAllTicketStatuses, getTicket,
-  getTicketLogs, updateTicket
-} from '@/utils/requests.ts'
-import { getUser } from '@/user/data.ts'
-import type { User } from '@/user/user.ts'
-import { TicketStatus } from '@/enums/ticketStatus.ts'
+import { getUser } from '@/user/data'
+import { TicketStatus } from '@/enums/ticketStatus'
 import Select from '@/components/Select.vue'
-import { Role } from '@/enums/role.ts'
+import { Role } from '@/enums/role'
+
+import { useTicketChat } from '@/composables/useTicketChat'
+import { useTicketDetails } from '@/composables/useTicketDetails'
+import { useTicketPolling } from '@/composables/useTicketPolling'
+import { useTicketStatuses } from '@/composables/useTicketStatuses'
 
 const route = useRoute()
 const ticketId = Number(route.params.id)
-const currentUser: User = getUser()
+const currentUser = getUser()
 
-const logs = ref<any[]>([])
-const newMessage = ref('')
-const chatBox = ref<HTMLElement | null>(null)
-const ticketStatus = ref<number | null>(null)
-const allStatuses = ref<any[]>([])
+const {
+  logs,
+  newMessage,
+  chatBox,
+  loadLogs,
+  sendLog
+} = useTicketChat(ticketId)
 
-const ticketSenderId = ref<number | null>(null)
-const ticketSenderName = ref('')
-const ticketType = ref('')
-const ticketDescription = ref('')
-const contactPhone = ref('')
-const createdAt = ref('')
+const {
+  ticketStatus,
+  ticketSenderId,
+  ticketSenderName,
+  ticketType,
+  ticketDescription,
+  contactPhone,
+  createdAt,
+  loadTicket,
+  updateStatus
+} = useTicketDetails(ticketId)
+
+const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
 
 const currentStatusName = computed(() => {
   if (ticketStatus.value === null) return ''
   return allStatuses.value.find(s => s.id === ticketStatus.value)?.name || ''
 })
 
-const statusBadgeClass = (id: number) => {
-  if (id === TicketStatus.Pending) return 'badge--pending'
-  if (id === TicketStatus.Review) return 'badge--review'
-  if (id === TicketStatus.Resolved) return 'badge--resolved'
-  return ''
-}
-
 const isOwnMessage = (log: any): boolean =>
-  log.sender_id === currentUser.getId() || log.employee_id === currentUser.getId()
+  log.sender_id === currentUser.getId() ||
+  log.employee_id === currentUser.getId()
 
 const getDisplayName = (log: any): string => {
   if (isOwnMessage(log)) return 'Вы'
@@ -158,61 +161,11 @@ const getDisplayName = (log: any): string => {
   return 'Удалённый пользователь'
 }
 
-const loadTicket = async (): Promise<void> => {
-  const res = await getTicket(ticketId, currentUser.getToken())
-  if (res.ok) {
-    const t = (await res.json()).data
-    ticketStatus.value = t?.status_id ?? null
-    ticketSenderName.value = t?.sender_name
-    ticketSenderId.value = t?.sender_id
-    ticketType.value = t?.type_name
-    ticketDescription.value = t?.description
-    contactPhone.value = t?.contact_phone || ''
-    createdAt.value = new Date(t?.created_at).toLocaleString('ru-RU')
-  }
-}
-
-const loadLogs = async (): Promise<void> => {
-  const response = await getTicketLogs(ticketId, currentUser.getToken())
-  if (response.ok) {
-    logs.value = (await response.json()).data
-    await scrollToBottom()
-  }
-}
-
-const sendLog = async (): Promise<void> => {
-  if (!newMessage.value.trim()) return
-
-  const response = await attachTicketLog(
-    ticketId, {message: newMessage.value}, currentUser.getToken()
-  )
-
-  if (response.ok) {
-    logs.value.push((await response.json()).data)
-    newMessage.value = ''
-    await scrollToBottom()
-  }
-}
-
-const scrollToBottom = async (): Promise<void> => {
-  await nextTick()
-  if (chatBox.value) chatBox.value.scrollTop = chatBox.value.scrollHeight
-}
-
-const loadStatuses = async (): Promise<void> => {
-  const res = await getAllTicketStatuses(currentUser.getToken())
-  if (res.ok) allStatuses.value = (await res.json()).data
-}
-
-const updateStatus = async (): Promise<void> => {
-  const res = await updateTicket(ticketId, {ticket_status_id: ticketStatus.value}, currentUser.getToken())
-  if (!res.ok) console.error('Ошибка при обновлении статуса')
-}
-
-const loadAll = async (): Promise<void> => {
-  await loadTicket()
-  await loadLogs()
-  await loadStatuses()
+const statusBadgeClass = (id: number) => {
+  if (id === TicketStatus.Pending) return 'badge--pending'
+  if (id === TicketStatus.Review) return 'badge--review'
+  if (id === TicketStatus.Resolved) return 'badge--resolved'
+  return ''
 }
 
 const formatPhoneNumber = (phone: string): string => {
@@ -221,15 +174,15 @@ const formatPhoneNumber = (phone: string): string => {
   return `+7 (${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7, 9)}-${d.slice(9, 11)}`
 }
 
-onMounted(async (): Promise<void> => {
-  await loadAll()
-})
+const loadAll = async () => {
+  await loadTicket()
+  await loadLogs()
+  await loadStatuses()
+}
 
-const interval = setInterval(async (): Promise<void> => {
-  await loadAll()
-}, 3 * 1000)
+onMounted(loadAll)
 
-onUnmounted(() => clearInterval(interval))
+useTicketPolling(loadAll, 3000)
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
-import { getUser, logout, setNavbarState, setUserData, setUserToken } from '@/user/data.ts'
-import { Role } from '@/enums/role.ts'
-import { User } from '@/user/user.ts'
-import { getCurrentUser } from '@/utils/requests.ts'
+import { getUser, logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
+import { Role } from '@/enums/role'
+import { User } from '@/user/user'
+import { getCurrentUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 import { TicketStatus } from '@/enums/ticketStatus'
 

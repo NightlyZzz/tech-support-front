@@ -8,6 +8,7 @@
     <Select
       id="status-filter"
       label="Статус"
+      placeholder="Выберите статус"
       :items="statuses"
       v-model="selectedStatus"
       valueKey="id"
@@ -29,35 +30,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { getMyTickets, getAllTicketStatuses } from '@/utils/requests'
+import { ref, onMounted } from 'vue'
+import { getMyTickets } from '@/utils/requests'
 import { isEmployee } from '@/utils/utils'
-import { usePagination } from '@/composables/usePagination.ts'
+import { usePagination } from '@/composables/usePagination'
 import { useTickets } from '@/composables/useTickets'
 import { usePaginationLoader } from '@/composables/usePaginationLoader'
+import { useTicketStatuses } from '@/composables/useTicketStatuses'
+import { useTicketFilter } from '@/composables/useTicketFilter'
 import router from '@/router'
 import Select from '@/components/Select.vue'
 import AppPagination from '@/components/AppPagination.vue'
 import TicketList from '@/components/ticket/TicketList.vue'
 
-interface TicketStatusOption {
-  id: number
-  name: string
-}
-
-const statuses = ref<TicketStatusOption[]>([])
 const selectedStatus = ref<number>(0)
 
 const { currentPage, lastPage, setMeta } = usePagination()
 const { tickets, load } = useTickets(getMyTickets)
-
 const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
 
-const filteredTickets = computed(() => {
-  return selectedStatus.value === 0
-    ? tickets.value
-    : tickets.value.filter(t => t.getStatusId() === selectedStatus.value)
-})
+const { statuses, loadStatuses } = useTicketStatuses()
+
+const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
 const openTicket = (id: number) => {
   router.push({ name: 'ticket', params: { id } })
@@ -65,14 +59,7 @@ const openTicket = (id: number) => {
 
 onMounted(async () => {
   await load(currentPage.value, setMeta)
-
-  const token = (await import('@/user/data')).getUser().getToken()
-  const res = await getAllTicketStatuses(token)
-
-  if (res.ok) {
-    const json = await res.json()
-    statuses.value = [{ id: 0, name: 'Все статусы' }, ...(json.data ?? [])]
-  }
+  await loadStatuses()
 })
 </script>
 
