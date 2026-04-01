@@ -42,7 +42,7 @@
       <div style="display:flex;flex-direction:column;gap:20px;">
         <div class="card">
           <p class="card-title">Подразделение</p>
-          <Select
+          <BaseSelect
             id="department"
             label="Подразделение"
             placeholder="Выберите подразделение"
@@ -55,7 +55,7 @@
 
         <div class="card">
           <p class="card-title">Роль</p>
-          <Select
+          <BaseSelect
             id="role"
             label="Роль"
             placeholder="Выберите роль"
@@ -82,7 +82,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import router from '@/router'
-import Select from '@/components/Select.vue'
+import BaseSelect from '@/components/BaseSelect.vue'
 import {
   deleteAnotherUser,
   getAllDepartments,

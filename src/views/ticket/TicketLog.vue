@@ -45,7 +45,7 @@
               style="margin-bottom:12px;display:inline-flex;">
           {{ currentStatusName }}
         </span>
-        <Select
+        <BaseSelect
           id="status"
           label="Изменить статус"
           placeholder="Выберите статус"
@@ -111,7 +111,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getUser } from '@/user/data'
 import { TicketStatus } from '@/enums/ticketStatus'
-import Select from '@/components/Select.vue'
+import BaseSelect from '@/components/BaseSelect.vue'
 import { Role } from '@/enums/role'
 
 import { useTicketChat } from '@/composables/useTicketChat'

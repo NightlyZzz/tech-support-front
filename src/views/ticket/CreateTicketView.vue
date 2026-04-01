@@ -9,7 +9,7 @@
         <p class="card-title">Информация о заявке</p>
 
         <div style="display:flex;flex-direction:column;gap:20px;">
-          <Select
+          <BaseSelect
             id="ticket_type"
             label="Тип запроса"
             placeholder="Выберите тип запроса"
@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import Select from '@/components/Select.vue'
+import BaseSelect from '@/components/BaseSelect.vue'
 import { createTicket, getAllTicketTypes } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 

@@ -5,7 +5,7 @@
       <span>{{ filteredTickets.length }} шт.</span>
     </div>
 
-    <Select
+    <BaseSelect
       id="status-filter"
       label="Статус"
       placeholder="Выберите статус"
@@ -42,27 +42,27 @@ import { usePaginationLoader } from '@/composables/usePaginationLoader'
 import { useTicketStatuses } from '@/composables/useTicketStatuses'
 import { useTicketFilter } from '@/composables/useTicketFilter'
 import router from '@/router'
-import Select from '@/components/Select.vue'
+import BaseSelect from '@/components/BaseSelect.vue'
 import AppPagination from '@/components/AppPagination.vue'
 import TicketList from '@/components/ticket/TicketList.vue'
 import { Ticket } from '@/ticket/ticket'
 
 const selectedStatus = ref<number>(0)
 
-const {currentPage, lastPage, setMeta} = usePagination()
-const {tickets, load} = useTickets(getAllTickets)
-const {loadPage} = usePaginationLoader(currentPage, load, setMeta)
-const {statuses, loadStatuses} = useTicketStatuses()
+const { currentPage, lastPage, setMeta } = usePagination()
+const { tickets, load } = useTickets(getAllTickets)
+const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
+const { statuses, loadStatuses } = useTicketStatuses()
 
 const statusesWithAll = computed(() => {
-  return [{id: 0, name: 'Все статусы'}, ...statuses.value]
+  return [{ id: 0, name: 'Все статусы' }, ...statuses.value]
 })
 
 const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
 const openTicket = (ticketId: number) => {
   if (isEmployee()) {
-    router.push({name: 'ticket', params: {id: ticketId}})
+    router.push({ name: 'ticket', params: { id: ticketId } })
   }
 }
 
@@ -76,7 +76,7 @@ const takeToReview = async (ticket: Ticket) => {
 
     await updateTicket(
       ticket.getId(),
-      {employee_id: currentUser.getId()}
+      { employee_id: currentUser.getId() }
     )
 
     ticket.setReview()

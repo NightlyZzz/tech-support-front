@@ -2,7 +2,8 @@
   <form @submit.prevent="handleLogin" class="auth-form">
     <div class="field">
       <label for="login-email">Электронная почта</label>
-      <input id="login-email" type="email" v-model="form.email" placeholder="you@example.com" required/>
+      <input id="login-email" type="email" v-model="form.email" placeholder="you@example.com"
+             required/>
     </div>
 
     <div class="field">

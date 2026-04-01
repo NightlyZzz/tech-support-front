@@ -9,7 +9,8 @@ export class Ticket {
     public statusName: string,
     public statusId: number,
     public senderName: string
-  ) {}
+  ) {
+  }
 
   getId(): number {
     return this.id

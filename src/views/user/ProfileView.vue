@@ -61,7 +61,7 @@
 
         <div class="card">
           <p class="card-title">Подразделение</p>
-          <Select
+          <BaseSelect
             id="department"
             label="Подразделение"
             placeholder="Выберите подразделение"
@@ -95,7 +95,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { getUser, logout } from '@/user/data'
 import { User } from '@/user/user'
-import Select from '@/components/Select.vue'
+import BaseSelect from '@/components/BaseSelect.vue'
 import { deleteCurrentUser, getAllDepartments, updateUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 

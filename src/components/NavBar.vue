@@ -42,13 +42,16 @@
     <router-link class="navbar-link" :to="{ name: 'my-tickets' }" @click="mobileOpen = false">
       Мои заявки
     </router-link>
-    <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser()" @click="mobileOpen = false">
+    <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser()"
+                 @click="mobileOpen = false">
       Создать заявку
     </router-link>
-    <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee()" @click="mobileOpen = false">
+    <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee()"
+                 @click="mobileOpen = false">
       Все заявки
     </router-link>
-    <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin()" @click="mobileOpen = false">
+    <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin()"
+                 @click="mobileOpen = false">
       Пользователи
     </router-link>
     <div style="height:1px;background:var(--c-border);margin:4px 0;"></div>

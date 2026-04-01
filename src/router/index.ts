@@ -19,13 +19,13 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: {auth: false}
+      meta: { auth: false }
     },
     {
       path: '/auth',
       name: 'auth',
       component: AuthView,
-      meta: {auth: false}
+      meta: { auth: false }
     },
     {
       path: '/profile',

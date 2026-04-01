@@ -2,7 +2,8 @@
   <form @submit.prevent="handleRegister" class="auth-form">
     <div class="field">
       <label for="reg-email">Электронная почта</label>
-      <input id="reg-email" type="email" v-model="form.email" placeholder="you@example.com" required/>
+      <input id="reg-email" type="email" v-model="form.email" placeholder="you@example.com"
+             required/>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -18,7 +19,8 @@
 
     <div class="field">
       <label for="reg-middle">Отчество</label>
-      <input id="reg-middle" type="text" v-model="form.middle_name" placeholder="Иванович" required/>
+      <input id="reg-middle" type="text" v-model="form.middle_name" placeholder="Иванович"
+             required/>
     </div>
 
     <div class="field">
@@ -39,7 +41,7 @@
       </div>
     </div>
 
-    <Select
+    <BaseSelect
       id="reg-department"
       label="Подразделение"
       placeholder="Выберите подразделение"
@@ -62,7 +64,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import router from '@/router'
 import { refreshAuthData } from '@/utils/utils'
-import Select from '@/components/Select.vue'
+import BaseSelect from '@/components/BaseSelect.vue'
 import { register, getAllDepartments } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 

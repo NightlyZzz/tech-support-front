@@ -1,23 +1,17 @@
-import { computed } from 'vue'
+import { computed, type Ref } from 'vue'
 import { Ticket } from '@/ticket/ticket'
 
-export const useTicketFilter = (tickets: any, selectedStatus: any) => {
+export const useTicketFilter = (
+  tickets: Ref<Ticket[]>,
+  selectedStatus: Ref<number>
+) => {
   return computed(() => {
-    let statusId = selectedStatus.value
-
-    if (typeof statusId === 'object' && statusId !== null) {
-      statusId = statusId.id
-    }
-
-    statusId = Number(statusId)
-
-    if (statusId === 0) {
+    if (selectedStatus.value === 0) {
       return tickets.value
     }
 
     return tickets.value.filter((ticket: Ticket) => {
-      const ticketStatusId = Number(ticket.getStatusId())
-      return ticketStatusId === statusId;
+      return ticket.getStatusId() === selectedStatus.value;
     })
   })
 }

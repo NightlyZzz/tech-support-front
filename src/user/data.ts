@@ -49,7 +49,7 @@ export const logout = (): void => {
   localStorage.removeItem('token')
   localStorage.removeItem('user_data')
   setNavbarState(false)
-  router.push({name: 'home'})
+  router.push({ name: 'home' })
 }
 
 const navbar: Ref<boolean, boolean> = ref<boolean>(false)
