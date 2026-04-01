@@ -78,6 +78,13 @@
   justify-content: flex-end;
 }
 
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
 .user-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);

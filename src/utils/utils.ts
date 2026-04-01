@@ -3,6 +3,7 @@ import { Role } from '@/enums/role.ts'
 import { User } from '@/user/user.ts'
 import { getCurrentUser } from '@/utils/requests.ts'
 import { showToast } from '@/utils/toast'
+import { TicketStatus } from '@/enums/ticketStatus'
 
 let lastRefresh = 0
 
@@ -61,4 +62,11 @@ export const formatTime = (dateString: string): string => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+export const getStatusBadge = (id: number): string => {
+  if (id === TicketStatus.Pending) return 'badge--pending'
+  if (id === TicketStatus.Review) return 'badge--review'
+  if (id === TicketStatus.Resolved) return 'badge--resolved'
+  return ''
 }
