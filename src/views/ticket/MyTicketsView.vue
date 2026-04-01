@@ -9,7 +9,7 @@
       id="status-filter"
       label="Статус"
       placeholder="Выберите статус"
-      :items="statusesWithAll"
+      :items="availableStatusesWithAll"
       v-model="selectedStatus"
       valueKey="id"
       labelKey="name"
@@ -30,9 +30,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getMyTickets } from '@/utils/requests'
 import { isEmployee } from '@/utils/utils'
+import { getUser } from '@/user/data'
+import { Role } from '@/enums/role'
+import { TicketStatus } from '@/enums/ticketStatus'
 import { usePagination } from '@/composables/usePagination'
 import { useTickets } from '@/composables/useTickets'
 import { usePaginationLoader } from '@/composables/usePaginationLoader'
@@ -50,22 +53,38 @@ const { tickets, load } = useTickets(getMyTickets)
 const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
 const { statuses, loadStatuses } = useTicketStatuses()
 
-const statusesWithAll = computed(() => {
+const currentUser = (() => {
+  const user = getUser()
+  if (!user) {
+    throw new Error('User not authorized')
+  }
+  return user
+})()
+
+const availableStatuses = computed(() => {
+  if (currentUser.role === Role.User) {
+    return statuses.value
+  }
+
+  return statuses.value.filter((statusItem) => {
+    return statusItem.id !== TicketStatus.Pending
+  })
+})
+
+const availableStatusesWithAll = computed(() => {
   return [
     { id: 0, name: 'Все статусы' },
-    ...statuses.value.filter((status) => {
-      return status.name !== 'Не рассмотрен'
-    })
+    ...availableStatuses.value
   ]
 })
 
 const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
-const openTicket = (ticketId: number) => {
+const openTicket = (ticketId: number): void => {
   router.push({ name: 'ticket', params: { id: ticketId } })
 }
 
-onMounted(async () => {
+onMounted(async (): Promise<void> => {
   await load(currentPage.value, setMeta)
   await loadStatuses()
 })

@@ -19,7 +19,9 @@
 
         <div class="ticket-field">
           <span class="ticket-field-label">Телефон</span>
-          <span class="ticket-field-value mono">{{ formatPhoneNumber(contactPhone) }}</span>
+          <span class="ticket-field-value mono">
+            {{ formatPhoneNumber(contactPhone) }}
+          </span>
         </div>
 
         <div class="ticket-field">
@@ -31,20 +33,28 @@
 
         <div class="ticket-field">
           <span class="ticket-field-label">Описание</span>
-          <span class="ticket-field-value"
-                style="white-space:pre-wrap;line-height:1.6;">{{ ticketDescription }}</span>
+          <span
+            class="ticket-field-value"
+            style="white-space:pre-wrap;line-height:1.6;"
+          >
+            {{ ticketDescription }}
+          </span>
         </div>
       </div>
 
       <div
         class="ticket-panel-card status-select-wrapper"
-        v-if="getUser().role !== Role.User && ticketStatus !== null"
+        v-if="currentUser.role !== Role.User && ticketStatus !== null"
       >
         <p class="ticket-panel-title">Статус заявки</p>
-        <span :class="['badge', statusBadgeClass(ticketStatus)]"
-              style="margin-bottom:12px;display:inline-flex;">
+
+        <span
+          :class="['badge', statusBadgeClass(ticketStatus)]"
+          style="margin-bottom:12px;display:inline-flex;"
+        >
           {{ currentStatusName }}
         </span>
+
         <BaseSelect
           id="status"
           label="Изменить статус"
@@ -53,7 +63,7 @@
           :modelValue="ticketStatus"
           valueKey="id"
           labelKey="name"
-          @update:modelValue="(val) => { ticketStatus = Number(val); updateStatus() }"
+          @update:modelValue="handleStatusChange"
         />
       </div>
     </aside>
@@ -64,21 +74,27 @@
           <div class="ticket-chat-header-title">Переписка</div>
           <div class="ticket-chat-header-sub">{{ logs.length }} сообщений</div>
         </div>
-        <span v-if="ticketStatus !== null" :class="['badge', statusBadgeClass(ticketStatus)]">
+
+        <span
+          v-if="ticketStatus !== null"
+          :class="['badge', statusBadgeClass(ticketStatus)]"
+        >
           {{ currentStatusName }}
         </span>
       </div>
 
       <div class="ticket-messages" ref="chatBox">
         <div
-          v-for="log in logs"
-          :key="log.id"
-          :class="['msg-row', isOwnMessage(log) ? 'own' : '']"
+          v-for="message in logs"
+          :key="message.id"
+          :class="['msg-row', isOwnMessage(message) ? 'own' : '']"
         >
           <div class="msg-bubble-wrap">
-            <div class="msg-meta">{{ getDisplayName(log) }}</div>
-            <div class="msg-bubble">{{ log.message }}</div>
-            <div class="msg-time">{{ new Date(log.created_at).toLocaleString('ru-RU') }}</div>
+            <div class="msg-meta">{{ getDisplayName(message) }}</div>
+            <div class="msg-bubble">{{ message.message }}</div>
+            <div class="msg-time">
+              {{ new Date(message.created_at).toLocaleString('ru-RU') }}
+            </div>
           </div>
         </div>
       </div>
@@ -94,7 +110,12 @@
           placeholder="Введите сообщение…"
           class="ticket-input"
         />
-        <button type="submit" class="btn btn--primary" :disabled="!newMessage.trim()">
+
+        <button
+          type="submit"
+          class="btn btn--primary"
+          :disabled="!newMessage.trim()"
+        >
           Отправить
         </button>
       </form>
@@ -111,17 +132,35 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getUser } from '@/user/data'
 import { TicketStatus } from '@/enums/ticketStatus'
-import BaseSelect from '@/components/BaseSelect.vue'
 import { Role } from '@/enums/role'
+import BaseSelect from '@/components/BaseSelect.vue'
 
 import { useTicketChat } from '@/composables/useTicketChat'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 import { useTicketPolling } from '@/composables/useTicketPolling'
 import { useTicketStatuses } from '@/composables/useTicketStatuses'
 
+interface TicketLog {
+  id: number
+  message: string
+  created_at: string
+  sender_id: number | null
+  sender_name: string
+  employee_id: number | null
+}
+
 const route = useRoute()
 const ticketId = Number(route.params.id)
-const currentUser = getUser()
+
+const currentUser = (() => {
+  const user = getUser()
+
+  if (!user) {
+    throw new Error('User not authorized')
+  }
+
+  return user
+})()
 
 const {
   logs,
@@ -146,43 +185,80 @@ const {
 const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
 
 const currentStatusName = computed(() => {
-  if (ticketStatus.value === null) return ''
-  return allStatuses.value.find(s => s.id === ticketStatus.value)?.name || ''
+  if (ticketStatus.value === null) {
+    return ''
+  }
+
+  const status = allStatuses.value.find(
+    (statusItem) => statusItem.id === ticketStatus.value
+  )
+
+  return status?.name || ''
 })
 
-const isOwnMessage = (log: any): boolean =>
-  log.sender_id === currentUser.getId() ||
-  log.employee_id === currentUser.getId()
+const isOwnMessage = (message: TicketLog): boolean => {
+  return (
+    message.sender_id === currentUser.getId() ||
+    message.employee_id === currentUser.getId()
+  )
+}
 
-const getDisplayName = (log: any): string => {
-  if (isOwnMessage(log)) return 'Вы'
-  if (log.sender_id !== null) return log.sender_name
-  if (log.employee_id !== null) return 'Сотрудник #' + log.employee_id
+const getDisplayName = (message: TicketLog): string => {
+  if (isOwnMessage(message)) {
+    return 'Вы'
+  }
+
+  if (message.sender_id !== null) {
+    return message.sender_name
+  }
+
+  if (message.employee_id !== null) {
+    return 'Сотрудник #' + message.employee_id
+  }
+
   return 'Удалённый пользователь'
 }
 
-const statusBadgeClass = (id: number) => {
-  if (id === TicketStatus.Pending) return 'badge--pending'
-  if (id === TicketStatus.Review) return 'badge--review'
-  if (id === TicketStatus.Resolved) return 'badge--resolved'
+const statusBadgeClass = (statusId: number): string => {
+  if (statusId === TicketStatus.Pending) {
+    return 'badge--pending'
+  }
+
+  if (statusId === TicketStatus.Review) {
+    return 'badge--review'
+  }
+
+  if (statusId === TicketStatus.Resolved) {
+    return 'badge--resolved'
+  }
+
   return ''
 }
 
 const formatPhoneNumber = (phone: string): string => {
-  const d = phone.replace(/\D/g, '').replace(/^8/, '7')
-  if (d.length < 10) return phone
-  return `+7 (${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7, 9)}-${d.slice(9, 11)}`
+  const digits = phone.replace(/\D/g, '').replace(/^8/, '7')
+
+  if (digits.length < 10) {
+    return phone
+  }
+
+  return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`
 }
 
-const loadAll = async () => {
+const handleStatusChange = (value: number): void => {
+  ticketStatus.value = Number(value)
+  updateStatus()
+}
+
+const loadAllData = async (): Promise<void> => {
   await loadTicket()
   await loadLogs()
   await loadStatuses()
 }
 
-onMounted(loadAll)
+onMounted(loadAllData)
 
-useTicketPolling(loadAll, 3000)
+useTicketPolling(loadAllData, 3000)
 </script>
 
 <style scoped>

@@ -13,10 +13,10 @@
             id="ticket_type"
             label="Тип запроса"
             placeholder="Выберите тип запроса"
-            v-model="form.ticket_type_id"
+            v-model="form.ticketTypeId"
             :items="ticketTypes"
-            label-key="name"
-            value-key="id"
+            labelKey="name"
+            valueKey="id"
           />
 
           <div class="field">
@@ -28,8 +28,8 @@
               inputmode="numeric"
               maxlength="18"
               placeholder="+7 (___) ___-__-__"
-              @input="formatPhone"
-              @keypress="onlyDigits"
+              @input="handlePhoneInput"
+              @keypress="allowOnlyDigits"
             />
           </div>
 
@@ -41,8 +41,8 @@
               maxlength="255"
               rows="3"
               placeholder="Опишите вашу проблему…"
-              @input="autoResize"
-              ref="descriptionRef"
+              @input="resizeTextarea"
+              ref="descriptionElement"
             ></textarea>
 
             <span style="font-size:.75rem;color:var(--c-text-3);text-align:right;">
@@ -51,7 +51,7 @@
           </div>
 
           <button
-            :class="['btn', 'btn--primary', loading ? 'btn-loading' : '']"
+            :class="['btn', 'btn--primary', isSubmitting ? 'btn-loading' : '']"
             style="width:100%;"
             @click="submitTicket"
           >
@@ -75,108 +75,115 @@ interface TicketType {
 }
 
 const ticketTypes = ref<TicketType[]>([])
-const loading = ref(false)
+const isSubmitting = ref(false)
 
 const form = reactive({
-  ticket_type_id: '',
+  ticketTypeId: 0 as number,
   description: '',
-  contact_phone: ''
+  contactPhone: ''
 })
 
 const displayPhone = ref('')
 
-const onlyDigits = (event: KeyboardEvent): void => {
+const allowOnlyDigits = (event: KeyboardEvent): void => {
   if (!/[0-9]/.test(event.key)) {
     event.preventDefault()
   }
 }
 
-const formatPhone = (event: Event): void => {
-  const input = event.target as HTMLInputElement
+const handlePhoneInput = (event: Event): void => {
+  const inputElement = event.target as HTMLInputElement
 
-  let raw = input.value.replace(/\D/g, '')
+  let digits = inputElement.value.replace(/\D/g, '')
 
-  if (!raw) {
-    form.contact_phone = ''
+  if (!digits) {
+    form.contactPhone = ''
     displayPhone.value = ''
     return
   }
 
-  if (raw.startsWith('8')) {
-    raw = '7' + raw.slice(1)
+  if (digits.startsWith('8')) {
+    digits = '7' + digits.slice(1)
   }
 
-  if (!raw.startsWith('7')) {
-    raw = '7' + raw
+  if (!digits.startsWith('7')) {
+    digits = '7' + digits
   }
 
-  raw = raw.slice(0, 11)
+  digits = digits.slice(0, 11)
 
-  form.contact_phone = '+' + raw
+  form.contactPhone = '+' + digits
 
-  let formatted = '+7'
+  let formattedPhone = '+7'
 
-  if (raw.length > 1) {
-    formatted += ' (' + raw.slice(1, 4)
+  if (digits.length > 1) {
+    formattedPhone += ' (' + digits.slice(1, 4)
   }
 
-  if (raw.length >= 4) {
-    formatted += ') ' + raw.slice(4, 7)
+  if (digits.length >= 4) {
+    formattedPhone += ') ' + digits.slice(4, 7)
   }
 
-  if (raw.length >= 7) {
-    formatted += '-' + raw.slice(7, 9)
+  if (digits.length >= 7) {
+    formattedPhone += '-' + digits.slice(7, 9)
   }
 
-  if (raw.length >= 9) {
-    formatted += '-' + raw.slice(9, 11)
+  if (digits.length >= 9) {
+    formattedPhone += '-' + digits.slice(9, 11)
   }
 
-  displayPhone.value = formatted
+  displayPhone.value = formattedPhone
 }
 
-const descriptionRef = ref<HTMLTextAreaElement | null>(null)
+const descriptionElement = ref<HTMLTextAreaElement | null>(null)
 
-const autoResize = (): void => {
-  const el = descriptionRef.value
-  if (!el) return
+const resizeTextarea = (): void => {
+  if (!descriptionElement.value) {
+    return
+  }
 
-  el.style.height = 'auto'
-  el.style.height = el.scrollHeight + 'px'
+  descriptionElement.value.style.height = 'auto'
+  descriptionElement.value.style.height = descriptionElement.value.scrollHeight + 'px'
 }
 
-const fetchTicketTypes = async (): Promise<void> => {
+const loadTicketTypes = async (): Promise<void> => {
   try {
-    const data = await getAllTicketTypes()
-    ticketTypes.value = data.data ?? []
-  } catch (e) {}
+    const response = await getAllTicketTypes()
+    ticketTypes.value = response.data ?? []
+  } catch (error) {
+    showToast('Ошибка загрузки типов заявок', 'error')
+  }
 }
 
 const submitTicket = async (): Promise<void> => {
-  if (!form.ticket_type_id || !form.description.trim() || !form.contact_phone) {
+  if (!form.ticketTypeId || !form.description.trim() || !form.contactPhone) {
     showToast('Пожалуйста, заполните все поля', 'error')
     return
   }
 
-  loading.value = true
+  isSubmitting.value = true
 
   try {
-    const result = await createTicket(form)
+    const response = await createTicket({
+      ticket_type_id: form.ticketTypeId,
+      description: form.description,
+      contact_phone: form.contactPhone
+    })
 
-    showToast(result.message || 'Заявка успешно отправлена!', 'success')
+    showToast(response.message || 'Заявка успешно отправлена!', 'success')
 
-    form.ticket_type_id = ''
+    form.ticketTypeId = 0
     form.description = ''
-    form.contact_phone = ''
+    form.contactPhone = ''
     displayPhone.value = ''
-  } catch (e: any) {
-    showToast(e?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
+  } catch (error: any) {
+    showToast(error?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
   } finally {
-    loading.value = false
+    isSubmitting.value = false
   }
 }
 
-onMounted(fetchTicketTypes)
+onMounted(loadTicketTypes)
 </script>
 
 <style scoped>
