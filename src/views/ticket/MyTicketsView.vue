@@ -2,7 +2,9 @@
   <div class="page">
     <div class="page-header">
       <h1 class="page-title">Мои заявки</h1>
-      <span style="font-size:.875rem;color:var(--c-text-3);">{{ filteredTickets.length }} шт.</span>
+      <span style="font-size:.875rem;color:var(--c-text-3);">
+        {{ filteredTickets.length }} шт.
+      </span>
     </div>
 
     <Select
@@ -32,7 +34,9 @@
             <div class="ticket-card-title">{{ ticket.type_name }}</div>
             <div class="ticket-card-id">#{{ ticket.id }}</div>
           </div>
-          <span :class="['badge', statusBadgeClass(ticket.status_id)]">{{ ticket.status_name }}</span>
+          <span :class="['badge', statusBadgeClass(ticket.status_id)]">
+            {{ ticket.status_name }}
+          </span>
         </div>
 
         <div class="ticket-card-meta">
@@ -54,6 +58,12 @@
         </div>
       </div>
     </div>
+
+    <Pagination
+      :current-page="currentPage"
+      :last-page="lastPage"
+      @change="loadPage"
+    />
   </div>
 </template>
 
@@ -65,6 +75,7 @@ import router from '@/router'
 import { formatDate, formatTime, isEmployee, truncate } from '@/utils/utils'
 import Select from '@/components/Select.vue'
 import { TicketStatus } from '@/enums/ticketStatus'
+import Pagination from '@/components/Pagination.vue'
 
 interface Ticket {
   id: number
@@ -77,7 +88,7 @@ interface Ticket {
 }
 
 interface TicketStatusOption {
-  id: number;
+  id: number
   name: string
 }
 
@@ -86,6 +97,9 @@ const filteredTickets = ref<Ticket[]>([])
 const statuses = ref<TicketStatusOption[]>([])
 const selectedStatus = ref<number>(0)
 
+const currentPage = ref(1)
+const lastPage = ref(1)
+
 const statusBadgeClass = (id: number) => {
   if (id === TicketStatus.Pending) return 'badge--pending'
   if (id === TicketStatus.Review) return 'badge--review'
@@ -93,7 +107,9 @@ const statusBadgeClass = (id: number) => {
   return ''
 }
 
-const openTicket = (id: number) => router.push({name: 'ticket', params: {id}})
+const openTicket = (id: number) => {
+  router.push({ name: 'ticket', params: { id } })
+}
 
 const filterTickets = () => {
   filteredTickets.value = Number(selectedStatus.value) === 0
@@ -101,14 +117,53 @@ const filterTickets = () => {
     : allTickets.value.filter(t => t.status_id === Number(selectedStatus.value))
 }
 
-onMounted(async (): Promise<void> => {
+const loadTickets = async () => {
   const token = getUser().getToken()
-  const [ticketsRes, statusesRes] = await Promise.all([getMyTickets(token), getAllTicketStatuses(token)])
+  const res = await getMyTickets(token, currentPage.value)
 
-  if (ticketsRes.ok && statusesRes.ok) {
-    allTickets.value = (await ticketsRes.json()).data
+  if (!res.ok) return
+
+  const json = await res.json()
+
+  allTickets.value = json.data ?? []
+
+  const rawLastPage = json.meta?.last_page ?? 1
+  lastPage.value = Array.isArray(rawLastPage) ? rawLastPage[0] : rawLastPage
+
+  if (currentPage.value > lastPage.value) {
+    currentPage.value = lastPage.value || 1
+  }
+
+  filterTickets()
+}
+
+const loadPage = async (page: number) => {
+  currentPage.value = page
+  await loadTickets()
+}
+
+onMounted(async () => {
+  const token = getUser().getToken()
+
+  const [ticketsRes, statusesRes] = await Promise.all([
+    getMyTickets(token, currentPage.value),
+    getAllTicketStatuses(token)
+  ])
+
+  if (ticketsRes.ok) {
+    const json = await ticketsRes.json()
+
+    allTickets.value = json.data ?? []
+
+    const rawLastPage = json.meta?.last_page ?? 1
+    lastPage.value = Array.isArray(rawLastPage) ? rawLastPage[0] : rawLastPage
+
     filteredTickets.value = [...allTickets.value]
-    statuses.value = [{id: 0, name: 'Все статусы'}, ...(await statusesRes.json()).data]
+  }
+
+  if (statusesRes.ok) {
+    const json = await statusesRes.json()
+    statuses.value = [{ id: 0, name: 'Все статусы' }, ...(json.data ?? [])]
   }
 })
 

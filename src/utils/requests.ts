@@ -120,8 +120,8 @@ export const getTicket = async (id: number, token: string): Promise<Response> =>
   })
 }
 
-export const getAllTickets = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/all', {
+export const getAllTickets = async (token: string, page = 1): Promise<Response> => {
+  return fetch(BACKEND_URL + '/ticket/all?page=' + page, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -140,8 +140,8 @@ export const getAllTicketTypes = async (token: string): Promise<Response> => {
   })
 }
 
-export const getMyTickets = async (token: string): Promise<Response> => {
-  return fetch(BACKEND_URL + '/ticket/my', {
+export const getMyTickets = async (token: string, page = 1): Promise<Response> => {
+  return fetch(BACKEND_URL + '/ticket/my?page=' + page, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
