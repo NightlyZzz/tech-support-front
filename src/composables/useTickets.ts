@@ -1,11 +1,15 @@
 import { ref } from 'vue'
-import { mapTickets } from '@/ticket/data'
-import { getUser } from '@/user/data'
+import { mapTickets } from '@/ticket/data.ts'
+import { getUser } from '@/user/data.ts'
+import type { Ticket } from '@/ticket/ticket.ts'
 
-export const useTickets = (api: Function) => {
-  const tickets = ref<any[]>([])
+type ApiFunction = (token: string, page: number) => Promise<Response>
+type SetMetaFunction = (meta: any) => void
 
-  const load = async (page: number, setMeta: Function) => {
+export const useTickets = (api: ApiFunction) => {
+  const tickets = ref<Ticket[]>([])
+
+  const load = async (page: number, setMeta: SetMetaFunction): Promise<void> => {
     const token = getUser().getToken()
     const res = await api(token, page)
 
