@@ -28,7 +28,7 @@
             <b>Описание:</b> {{ truncate(ticket.getDescription(), 50) }}
         </div>
 
-        <div v-if="canTake" class="ticket-card-actions">
+        <div v-if="canTake === true" class="ticket-card-actions">
             <button class="btn btn--primary btn--sm" @click.stop="onTake?.(ticket)">
                 Взять в работу
             </button>

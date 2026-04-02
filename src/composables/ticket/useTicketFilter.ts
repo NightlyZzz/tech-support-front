@@ -1,8 +1,8 @@
 import { computed, type Ref } from 'vue'
-import { Ticket } from '@/ticket/ticket'
+import type { Ticket } from '@/ticket/ticket'
 
 export const useTicketFilter = (
-        tickets: Ref<Ticket[]>,
+        tickets: Ref<Ticket[], Ticket[]>,
         selectedStatus: Ref<number>
 ) => {
     return computed(() => {
@@ -10,8 +10,8 @@ export const useTicketFilter = (
             return tickets.value
         }
 
-        return tickets.value.filter((ticket: Ticket) => {
-            return ticket.getStatusId() === selectedStatus.value;
-        })
+        return tickets.value.filter(ticket =>
+                ticket.getStatusId() === selectedStatus.value
+        )
     })
 }

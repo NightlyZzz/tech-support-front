@@ -39,7 +39,9 @@ export const usePhoneInput = (form: any) => {
     const displayPhone = computed(() => {
         const phone = form.contactPhone
 
-        if (!phone) return ''
+        if (!phone) {
+            return ''
+        }
 
         const digits = phone.replace(/\D/g, '')
 

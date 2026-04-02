@@ -128,15 +128,14 @@
 
 <script setup lang="ts">
     import { useRoute } from 'vue-router'
+    import { computed } from 'vue'
     import { Role } from '@/enums/role'
     import BaseSelect from '@/components/BaseSelect.vue'
 
     import { useTicketAccess } from '@/composables/ticket/useTicketAccess'
-
     import { useTicketChat } from '@/composables/ticket/useTicketChat'
     import { useTicketDetails } from '@/composables/ticket/useTicketDetails'
     import { useTicketStatuses } from '@/composables/ticket/useTicketStatuses'
-
     import { useTicketMeta } from '@/composables/ticket/useTicketMeta'
     import { useTicketMessages } from '@/composables/ticket/useTicketMessages'
     import { useTicketPage } from '@/composables/ticket/useTicketPage'
@@ -153,19 +152,31 @@
     } = useTicketChat(ticketId)
 
     const {
-        ticketStatus,
-        ticketSenderId,
-        ticketSenderName,
-        ticketType,
-        ticketDescription,
-        contactPhone,
-        createdAt,
+        ticket,
         loadTicket,
-        updateStatus,
-        assignedEmployeeId
+        updateStatus
     } = useTicketDetails(ticketId)
 
     const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
+
+    const ticketStatus = computed({
+        get: () => ticket.value?.getStatusId() ?? null,
+        set: (value: number | null) => {
+            if (!ticket.value || value === null) {
+                return
+            }
+
+            ticket.value.setStatus(value)
+        }
+    })
+
+    const ticketSenderId = computed(() => ticket.value?.getSenderId() ?? null)
+    const ticketSenderName = computed(() => ticket.value?.getSenderName() ?? '')
+    const ticketType = computed(() => ticket.value?.getTypeName() ?? '')
+    const ticketDescription = computed(() => ticket.value?.getDescription() ?? '')
+    const contactPhone = computed(() => ticket.value?.getContactPhone() ?? '')
+    const createdAt = computed(() => ticket.value?.getCreatedAt() ?? '')
+    const assignedEmployeeId = computed(() => ticket.value?.getEmployeeId() ?? null)
 
     const {
         currentUser,

@@ -63,17 +63,13 @@
             return statuses.value
         }
 
-        return statuses.value.filter((statusItem) => {
-            return statusItem.id !== TicketStatus.Pending
-        })
+        return statuses.value.filter(statusItem => statusItem.id !== TicketStatus.Pending)
     })
 
-    const availableStatusesWithAll = computed(() => {
-        return [
-            { id: 0, name: 'Все статусы' },
-            ...availableStatuses.value
-        ]
-    })
+    const availableStatusesWithAll = computed(() => [
+        { id: 0, name: 'Все статусы' },
+        ...availableStatuses.value
+    ])
 
     const filteredTickets = useTicketFilter(tickets, selectedStatus)
 

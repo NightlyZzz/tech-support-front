@@ -55,9 +55,10 @@
     const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
     const { statuses, loadStatuses } = useTicketStatuses()
 
-    const statusesWithAll = computed(() => {
-        return [{ id: 0, name: 'Все статусы' }, ...statuses.value]
-    })
+    const statusesWithAll = computed(() => [
+        { id: 0, name: 'Все статусы' },
+        ...statuses.value
+    ])
 
     const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
@@ -68,20 +69,16 @@
     }
 
     const takeToReview = async (ticket: Ticket) => {
-        try {
-            if (!user.value) {
-                return
-            }
-
-            await updateTicket(
-                    ticket.getId(),
-                    { employee_id: user.value.getId() }
-            )
-
-            ticket.setReview()
-        } catch (error) {
-            console.error('Ошибка при взятии заявки', error)
+        if (!user.value) {
+            return
         }
+
+        await updateTicket(
+                ticket.getId(),
+                { employee_id: user.value.getId() }
+        )
+
+        ticket.setReview(user.value.getId())
     }
 
     onMounted(async () => {

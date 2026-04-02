@@ -1,35 +1,37 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { getTicket, updateTicket } from '@/api/ticket.api.ts'
+import { mapTicket } from '@/ticket/data'
+import { Ticket } from '@/ticket/ticket'
 
 export const useTicketDetails = (ticketId: number) => {
-    const ticketStatus = ref<number | null>(null)
-    const ticketSenderId = ref<number | null>(null)
-    const ticketSenderName = ref('')
-    const ticketType = ref('')
-    const ticketDescription = ref('')
-    const contactPhone = ref('')
-    const createdAt = ref('')
-    const assignedEmployeeId = ref<number | null>(null)
+    const ticket = ref<Ticket | null>(null)
 
     const loadTicket = async () => {
         const response = await getTicket(ticketId)
-        const data = response.data
-
-        ticketStatus.value = data.status_id ?? null
-        ticketSenderId.value = data.user_id ?? null
-        ticketSenderName.value = data.user_name ?? ''
-        ticketType.value = data.type_name ?? ''
-        ticketDescription.value = data.description ?? ''
-        contactPhone.value = data.contact_phone ?? ''
-        createdAt.value = data.created_at ?? ''
-        assignedEmployeeId.value = data.assigned_employee_id ?? null
+        ticket.value = mapTicket(response.data)
     }
 
     const updateStatus = async () => {
-        await updateTicket(ticketId, { ticket_status_id: ticketStatus.value })
+        if (!ticket.value) {
+            return
+        }
+
+        await updateTicket(ticketId, {
+            ticket_status_id: ticket.value.getStatusId()
+        })
     }
 
+    const ticketStatus = computed(() => ticket.value?.getStatusId() ?? null)
+    const ticketSenderId = computed(() => ticket.value?.getSenderId() ?? null)
+    const ticketSenderName = computed(() => ticket.value?.getSenderName() ?? '')
+    const ticketType = computed(() => ticket.value?.getTypeName() ?? '')
+    const ticketDescription = computed(() => ticket.value?.getDescription() ?? '')
+    const contactPhone = computed(() => ticket.value?.getContactPhone() ?? '')
+    const createdAt = computed(() => ticket.value?.getCreatedAt() ?? '')
+    const assignedEmployeeId = computed(() => ticket.value?.getEmployeeId() ?? null)
+
     return {
+        ticket,
         ticketStatus,
         ticketSenderId,
         ticketSenderName,

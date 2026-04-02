@@ -11,7 +11,7 @@
                 :onClick="onClick"
                 :showUser="showUser"
                 :onTake="onTake"
-                :canTake="canTake && ticket.canTake()"
+                :canTake="Boolean(canTake) && ticket.canTake()"
         />
     </div>
 </template>
