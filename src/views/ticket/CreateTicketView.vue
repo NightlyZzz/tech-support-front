@@ -22,6 +22,7 @@
                     <div class="field">
                         <label for="contact_phone">Контактный телефон</label>
                         <input
+                                :key="phoneKey"
                                 :value="displayPhone"
                                 id="contact_phone"
                                 type="tel"
@@ -51,7 +52,7 @@
                     <button
                             :class="['btn', 'btn--primary', isSubmitting ? 'btn-loading' : '']"
                             style="width:100%;"
-                            @click="submitTicket"
+                            @click="handleSubmit"
                     >
                         Отправить заявку
                     </button>
@@ -62,6 +63,7 @@
 </template>
 
 <script setup lang="ts">
+    import { ref } from 'vue'
     import BaseSelect from '@/components/BaseSelect.vue'
     import { useCreateTicket } from '@/composables/ticket/useCreateTicket'
     import { usePhoneInput } from '@/composables/common/usePhoneInput'
@@ -69,6 +71,13 @@
     const { form, ticketTypes, isSubmitting, submitTicket } = useCreateTicket()
 
     const { displayPhone, handlePhoneInput, allowOnlyDigits } = usePhoneInput(form)
+
+    const phoneKey = ref(0)
+
+    const handleSubmit = async () => {
+        await submitTicket()
+        phoneKey.value++
+    }
 </script>
 
 <style scoped>

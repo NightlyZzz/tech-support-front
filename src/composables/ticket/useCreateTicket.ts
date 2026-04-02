@@ -27,10 +27,24 @@ export const useCreateTicket = () => {
     }
 
     const submitTicket = async (): Promise<void> => {
-        if (!form.ticketTypeId || !form.description.trim() || !form.contactPhone) {
-            showToast('Пожалуйста, заполните все поля', 'error')
+        let digits = form.contactPhone.replace(/\D/g, '')
+
+        if (digits.startsWith('8')) {
+            digits = '7' + digits.slice(1)
+        }
+
+        if (!digits.startsWith('7')) {
+            digits = '7' + digits
+        }
+
+        digits = digits.slice(0, 11)
+
+        if (!form.ticketTypeId || !form.description.trim() || digits.length < 11) {
+            showToast('Пожалуйста, заполните все поля корректно', 'error')
             return
         }
+
+        const phone = '+' + digits
 
         isSubmitting.value = true
 
@@ -38,7 +52,7 @@ export const useCreateTicket = () => {
             const response = await createTicket({
                 ticket_type_id: form.ticketTypeId,
                 description: form.description,
-                contact_phone: form.contactPhone
+                contact_phone: phone
             })
 
             showToast(response.message || 'Заявка успешно отправлена!', 'success')

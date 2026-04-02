@@ -1,6 +1,5 @@
 import { ref } from 'vue'
 import { getTicket, updateTicket } from '@/api/ticket.api.ts'
-import router from "@/router";
 
 export const useTicketDetails = (ticketId: number) => {
     const ticketStatus = ref<number | null>(null)
@@ -13,22 +12,17 @@ export const useTicketDetails = (ticketId: number) => {
     const assignedEmployeeId = ref<number | null>(null)
 
     const loadTicket = async () => {
-        try {
-            const response = await getTicket(ticketId)
+        const response = await getTicket(ticketId)
+        const data = response.data
 
-            ticketStatus.value = response.data.status_id
-            ticketSenderId.value = response.data.user_id
-            ticketSenderName.value = response.data.user_name
-            ticketType.value = response.data.type_name
-            ticketDescription.value = response.data.description
-            contactPhone.value = response.data.phone
-            createdAt.value = response.data.created_at
-            assignedEmployeeId.value = response.data.assigned_employee_id
-        } catch (error: any) {
-            if (error.response?.status === 403 || error.response?.status === 404) {
-                await router.push({ name: 'home' })
-            }
-        }
+        ticketStatus.value = data.status_id ?? null
+        ticketSenderId.value = data.user_id ?? null
+        ticketSenderName.value = data.user_name ?? ''
+        ticketType.value = data.type_name ?? ''
+        ticketDescription.value = data.description ?? ''
+        contactPhone.value = data.contact_phone ?? ''
+        createdAt.value = data.created_at ?? ''
+        assignedEmployeeId.value = data.assigned_employee_id ?? null
     }
 
     const updateStatus = async () => {

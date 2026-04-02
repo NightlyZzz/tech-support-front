@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { BACKEND_URL } from '@/utils/constants'
+import router from '@/router'
 import { getUserToken } from '@/user/data'
+import { BACKEND_URL } from '@/utils/constants'
 
 export const apiClient = axios.create({
     baseURL: BACKEND_URL,
@@ -9,7 +10,7 @@ export const apiClient = axios.create({
     }
 })
 
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(config => {
     const token = getUserToken()
 
     if (token) {
@@ -18,3 +19,29 @@ apiClient.interceptors.request.use((config) => {
 
     return config
 })
+
+apiClient.interceptors.response.use(
+        response => response,
+        async error => {
+            const status = error.response?.status
+            const token = getUserToken()
+
+            if (status === 401) {
+                if (token) {
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('user_data')
+
+                    await router.push({ name: 'login' })
+                }
+
+                return Promise.reject(error)
+            }
+
+            if (status === 403) {
+                await router.push({ name: 'home' })
+                return Promise.reject(error)
+            }
+
+            return Promise.reject(error)
+        }
+)

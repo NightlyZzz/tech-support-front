@@ -1,8 +1,6 @@
-import { ref } from 'vue'
+import { computed } from 'vue'
 
 export const usePhoneInput = (form: any) => {
-    const displayPhone = ref('')
-
     const allowOnlyDigits = (event: KeyboardEvent): void => {
         const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete']
 
@@ -22,7 +20,6 @@ export const usePhoneInput = (form: any) => {
 
         if (!digits) {
             form.contactPhone = ''
-            displayPhone.value = ''
             return
         }
 
@@ -37,27 +34,35 @@ export const usePhoneInput = (form: any) => {
         digits = digits.slice(0, 11)
 
         form.contactPhone = '+' + digits
+    }
 
-        let formattedPhone = '+7'
+    const displayPhone = computed(() => {
+        const phone = form.contactPhone
+
+        if (!phone) return ''
+
+        const digits = phone.replace(/\D/g, '')
+
+        let formatted = '+7'
 
         if (digits.length > 1) {
-            formattedPhone += ' (' + digits.slice(1, 4)
+            formatted += ' (' + digits.slice(1, 4)
         }
 
         if (digits.length >= 4) {
-            formattedPhone += ') ' + digits.slice(4, 7)
+            formatted += ') ' + digits.slice(4, 7)
         }
 
         if (digits.length >= 7) {
-            formattedPhone += '-' + digits.slice(7, 9)
+            formatted += '-' + digits.slice(7, 9)
         }
 
         if (digits.length >= 9) {
-            formattedPhone += '-' + digits.slice(9, 11)
+            formatted += '-' + digits.slice(9, 11)
         }
 
-        displayPhone.value = formattedPhone
-    }
+        return formatted
+    })
 
     return {
         displayPhone,

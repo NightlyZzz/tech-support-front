@@ -160,11 +160,11 @@
             setUserData(userResponse.data)
 
             await router.push({ name: 'home' })
-        } catch (e: any) {
-            console.log('REGISTER ERROR FULL:', e)
+        } catch (error: any) {
+            console.log('REGISTER ERROR FULL:', error)
 
-            if (e.response) {
-                const data = e.response.data as LaravelError
+            if (error.response) {
+                const data = error.response.data as LaravelError
 
                 if (data.errors) {
                     const firstError = Object.values(data.errors)[0][0]

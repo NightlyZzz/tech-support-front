@@ -29,7 +29,11 @@ export const useTicketMeta = (
         return status.name
     })
 
-    const formatPhoneNumber = (phone: string): string => {
+    const formatPhoneNumber = (phone?: string | null): string => {
+        if (!phone) {
+            return '—'
+        }
+
         const digits = phone.replace(/\D/g, '').replace(/^8/, '7')
 
         if (digits.length < 10) {
