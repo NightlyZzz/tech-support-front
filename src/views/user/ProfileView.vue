@@ -82,7 +82,7 @@
                         Сохранить изменения
                     </button>
                     <div class="action-row">
-                        <button class="btn btn--secondary" @click="logout">Выйти</button>
+                        <button class="btn btn--secondary" @click="handleLogout">Выйти</button>
                         <button class="btn btn--danger" @click="confirmDelete">Удалить аккаунт</button>
                     </div>
                 </div>
@@ -136,9 +136,12 @@
     const showPassword = ref(false)
     const loading = ref(false)
 
+    const handleLogout = async () => {
+        await logout()
+    }
+
     const saveChanges = async () => {
         const payload: Partial<ProfileForm> = {}
-
         const formKeys = Object.keys(form) as (keyof ProfileForm)[]
 
         for (const key of formKeys) {
@@ -178,7 +181,7 @@
         }
 
         await deleteCurrentUser()
-        logout()
+        await logout()
     }
 
     const fetchDepartments = async () => {

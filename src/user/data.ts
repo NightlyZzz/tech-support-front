@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { User } from '@/user/user'
 import router from '@/router'
+import { logoutRequest } from '@/api/auth.api'
 
 const user = ref<User | null>(null)
 
@@ -52,11 +53,18 @@ export const isAuthenticated = (): boolean => {
     return !!user.value
 }
 
-export const logout = (): void => {
+export const logout = async (): Promise<void> => {
+    try {
+        await logoutRequest()
+    } catch (e) {
+        console.log('LOGOUT ERROR:', e)
+    }
+
     localStorage.removeItem('token')
     localStorage.removeItem('user_data')
     user.value = null
-    router.push({ name: 'home' })
+
+    await router.push({ name: 'home' })
 }
 
 export const getUserToken = (): string | null => {

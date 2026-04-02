@@ -58,7 +58,7 @@
                         required
                 />
                 <label class="check-label" style="margin-top:4px;">
-                    <input type="checkbox" v-model="showPassword" />
+                    <input type="checkbox" v-model="showPassword"/>
                     Показать пароль
                 </label>
             </div>
@@ -75,7 +75,7 @@
         />
 
         <label class="check-label">
-            <input type="checkbox" v-model="form.remember" />
+            <input type="checkbox" v-model="form.remember"/>
             Запомнить меня
         </label>
 
