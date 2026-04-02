@@ -44,14 +44,6 @@ export class Ticket {
         return this.statusId === TicketStatus.Pending
     }
 
-    isReview(): boolean {
-        return this.statusId === TicketStatus.Review
-    }
-
-    isResolved(): boolean {
-        return this.statusId === TicketStatus.Resolved
-    }
-
     canTake(): boolean {
         return this.isPending()
     }

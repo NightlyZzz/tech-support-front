@@ -23,7 +23,7 @@
                 :canTake="isEmployee"
         />
 
-        <AppPagination
+        <BasePagination
                 :current-page="currentPage"
                 :last-page="lastPage"
                 @change="loadPage"
@@ -42,7 +42,7 @@
     import { useTicketFilter } from '@/composables/ticket/useTicketFilter'
     import router from '@/router'
     import BaseSelect from '@/components/BaseSelect.vue'
-    import AppPagination from '@/components/AppPagination.vue'
+    import BasePagination from '@/components/BasePagination.vue'
     import TicketList from '@/components/ticket/TicketList.vue'
     import { Ticket } from '@/ticket/ticket'
 
