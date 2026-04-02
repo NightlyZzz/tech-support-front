@@ -14,101 +14,101 @@ import { useAuth } from '@/composables/auth/useAuth'
 import type { User } from '@/user/user.ts'
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-      meta: { auth: false }
-    },
-    {
-      path: '/auth',
-      name: 'auth',
-      component: AuthView,
-      meta: { auth: false }
-    },
-    {
-      path: '/profile',
-      name: 'profile',
-      component: ProfileView,
-      meta: { auth: true }
-    },
-    {
-      path: '/user/all',
-      name: 'all-users',
-      component: AllUsersView,
-      meta: { auth: true }
-    },
-    {
-      path: '/user/:id/edit',
-      name: 'edit-user',
-      component: EditUserView,
-      meta: { auth: true }
-    },
-    {
-      path: '/ticket/create',
-      name: 'create-ticket',
-      component: CreateTicketView,
-      meta: { auth: true }
-    },
-    {
-      path: '/ticket/my',
-      name: 'my-tickets',
-      component: MyTicketsView,
-      meta: { auth: true }
-    },
-    {
-      path: '/ticket/all',
-      name: 'all-tickets',
-      component: AllTicketsView,
-      meta: { auth: true }
-    },
-    {
-      path: '/ticket/:id',
-      name: 'ticket',
-      component: TicketLog,
-      meta: { auth: true }
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      redirect: '/'
-    }
-  ]
+    history: createWebHistory(),
+    routes: [
+        {
+            path: '/',
+            name: 'home',
+            component: HomeView,
+            meta: { auth: false }
+        },
+        {
+            path: '/auth',
+            name: 'auth',
+            component: AuthView,
+            meta: { auth: false }
+        },
+        {
+            path: '/profile',
+            name: 'profile',
+            component: ProfileView,
+            meta: { auth: true }
+        },
+        {
+            path: '/user/all',
+            name: 'all-users',
+            component: AllUsersView,
+            meta: { auth: true }
+        },
+        {
+            path: '/user/:id/edit',
+            name: 'edit-user',
+            component: EditUserView,
+            meta: { auth: true }
+        },
+        {
+            path: '/ticket/create',
+            name: 'create-ticket',
+            component: CreateTicketView,
+            meta: { auth: true }
+        },
+        {
+            path: '/ticket/my',
+            name: 'my-tickets',
+            component: MyTicketsView,
+            meta: { auth: true }
+        },
+        {
+            path: '/ticket/all',
+            name: 'all-tickets',
+            component: AllTicketsView,
+            meta: { auth: true }
+        },
+        {
+            path: '/ticket/:id',
+            name: 'ticket',
+            component: TicketLog,
+            meta: { auth: true }
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/'
+        }
+    ]
 })
 
 router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
-  const authenticated: boolean = isAuthenticated()
-  const requiresAuth: boolean = to.meta.auth ?? false
+    const authenticated: boolean = isAuthenticated()
+    const requiresAuth: boolean = to.meta.auth ?? false
 
-  let currentUser: User | null = null
+    let currentUser: User | null = null
 
-  if (authenticated) {
-    const { user } = useAuth()
-    currentUser = user.value
-
-    if (currentUser) {
-      await refreshAuthData(currentUser.getToken())
-    }
-  }
-
-  if (requiresAuth && !authenticated) {
-    return next({ name: 'auth' })
-  }
-
-  if (to.name === 'home') {
     if (authenticated) {
-      return next({ name: 'profile' })
+        const { user } = useAuth()
+        currentUser = user.value
+
+        if (currentUser) {
+            await refreshAuthData(currentUser.getToken())
+        }
     }
 
-    return next({ name: 'auth' })
-  }
+    if (requiresAuth && !authenticated) {
+        return next({ name: 'auth' })
+    }
 
-  if (to.name === 'auth' && authenticated) {
-    return next({ name: 'profile' })
-  }
+    if (to.name === 'home') {
+        if (authenticated) {
+            return next({ name: 'profile' })
+        }
 
-  return next()
+        return next({ name: 'auth' })
+    }
+
+    if (to.name === 'auth' && authenticated) {
+        return next({ name: 'profile' })
+    }
+
+    return next()
 })
 
 export default router

@@ -43,26 +43,26 @@
         <div class="card">
           <p class="card-title">Подразделение</p>
           <BaseSelect
-            id="department"
-            label="Подразделение"
-            placeholder="Выберите подразделение"
-            v-model="form.department_id"
-            :items="departments"
-            label-key="name"
-            value-key="id"
+              id="department"
+              label="Подразделение"
+              placeholder="Выберите подразделение"
+              v-model="form.department_id"
+              :items="departments"
+              label-key="name"
+              value-key="id"
           />
         </div>
 
         <div class="card">
           <p class="card-title">Роль</p>
           <BaseSelect
-            id="role"
-            label="Роль"
-            placeholder="Выберите роль"
-            v-model="form.role_id"
-            :items="roles"
-            label-key="name"
-            value-key="id"
+              id="role"
+              label="Роль"
+              placeholder="Выберите роль"
+              v-model="form.role_id"
+              :items="roles"
+              label-key="name"
+              value-key="id"
           />
         </div>
 
@@ -79,91 +79,91 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import router from '@/router'
-import BaseSelect from '@/components/BaseSelect.vue'
-import {
-  deleteAnotherUser,
-  getAllDepartments,
-  getAllRoles,
-  getAnotherUser,
-  updateAnotherUser
-} from '@/utils/requests'
-import { showToast } from '@/utils/toast'
+  import { onMounted, reactive, ref } from 'vue'
+  import { useRoute } from 'vue-router'
+  import router from '@/router'
+  import BaseSelect from '@/components/BaseSelect.vue'
+  import {
+    deleteAnotherUser,
+    getAllDepartments,
+    getAllRoles,
+    getAnotherUser,
+    updateAnotherUser
+  } from '@/utils/requests'
+  import { showToast } from '@/utils/toast'
 
-interface Department {
-  id: number
-  name: string
-}
-
-interface Role {
-  id: number
-  name: string
-}
-
-const route = useRoute()
-const userId = Number(route.params.id)
-
-const departments = ref<Department[]>([])
-const roles = ref<Role[]>([])
-
-const form = reactive({
-  first_name: '',
-  last_name: '',
-  middle_name: '',
-  email: '',
-  secondary_email: '',
-  new_password: '',
-  department_id: null as number | null,
-  role_id: null as number | null
-})
-
-const fetchDepartments = async () => {
-  const response = await getAllDepartments()
-  departments.value = response.data
-}
-
-const fetchRoles = async () => {
-  const response = await getAllRoles()
-  roles.value = response.data
-}
-
-const fetchUser = async () => {
-  const response = await getAnotherUser(userId)
-  Object.assign(form, response.data)
-}
-
-const saveChanges = async () => {
-  try {
-    await updateAnotherUser(userId, form)
-    await router.push({name: 'all-users'})
-  } catch {
-    showToast('Ошибка при сохранении', 'error')
-  }
-}
-
-const confirmDelete = async () => {
-  if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие необратимо.')) {
-    return
+  interface Department {
+    id: number
+    name: string
   }
 
-  try {
-    await deleteAnotherUser(userId)
-    await router.push({name: 'all-users'})
-  } catch {
-    showToast('Ошибка удаления', 'error')
+  interface Role {
+    id: number
+    name: string
   }
-}
 
-onMounted(async () => {
-  await fetchDepartments()
-  await fetchRoles()
-  await fetchUser()
-})
+  const route = useRoute()
+  const userId = Number(route.params.id)
+
+  const departments = ref<Department[]>([])
+  const roles = ref<Role[]>([])
+
+  const form = reactive({
+    first_name: '',
+    last_name: '',
+    middle_name: '',
+    email: '',
+    secondary_email: '',
+    new_password: '',
+    department_id: null as number | null,
+    role_id: null as number | null
+  })
+
+  const fetchDepartments = async () => {
+    const response = await getAllDepartments()
+    departments.value = response.data
+  }
+
+  const fetchRoles = async () => {
+    const response = await getAllRoles()
+    roles.value = response.data
+  }
+
+  const fetchUser = async () => {
+    const response = await getAnotherUser(userId)
+    Object.assign(form, response.data)
+  }
+
+  const saveChanges = async () => {
+    try {
+      await updateAnotherUser(userId, form)
+      await router.push({ name: 'all-users' })
+    } catch {
+      showToast('Ошибка при сохранении', 'error')
+    }
+  }
+
+  const confirmDelete = async () => {
+    if (!confirm('Вы уверены, что хотите удалить этого пользователя? Это действие необратимо.')) {
+      return
+    }
+
+    try {
+      await deleteAnotherUser(userId)
+      await router.push({ name: 'all-users' })
+    } catch {
+      showToast('Ошибка удаления', 'error')
+    }
+  }
+
+  onMounted(async () => {
+    await fetchDepartments()
+    await fetchRoles()
+    await fetchUser()
+  })
 </script>
 
 <style scoped>
-@import '@/assets/base.css';
-@import '@/assets/list.css';
+  @import '@/assets/base.css';
+  @import '@/assets/list.css';
 </style>

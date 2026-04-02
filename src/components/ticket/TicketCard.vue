@@ -37,14 +37,14 @@
 </template>
 
 <script setup lang="ts">
-import { Ticket } from '@/ticket/ticket'
-import { formatDate, formatTime, truncate, getStatusBadge } from '@/utils/utils'
+  import { Ticket } from '@/ticket/ticket'
+  import { formatDate, formatTime, truncate, getStatusBadge } from '@/utils/utils'
 
-defineProps<{
-  ticket: Ticket
-  onClick: (id: number) => void
-  onTake?: (ticket: Ticket) => void
-  showUser?: boolean
-  canTake?: boolean
-}>()
+  defineProps<{
+    ticket: Ticket
+    onClick: (id: number) => void
+    onTake?: (ticket: Ticket) => void
+    showUser?: boolean
+    canTake?: boolean
+  }>()
 </script>

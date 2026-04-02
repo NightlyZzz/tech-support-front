@@ -3,28 +3,28 @@ import router from '@/router'
 import { useTicketPolling } from '@/composables/ticket/useTicketPolling'
 
 export const useTicketPage = (
-  loadTicket: () => Promise<void>,
-  loadLogs: () => Promise<void>,
-  loadStatuses: () => Promise<void>,
-  canOpen: any
+    loadTicket: () => Promise<void>,
+    loadLogs: () => Promise<void>,
+    loadStatuses: () => Promise<void>,
+    canOpen: any
 ) => {
-  const loadAllData = async (): Promise<void> => {
-    await loadTicket()
+    const loadAllData = async (): Promise<void> => {
+        await loadTicket()
 
-    if (!canOpen.value) {
-      await router.push({ name: 'all-tickets' })
-      return
+        if (!canOpen.value) {
+            await router.push({ name: 'all-tickets' })
+            return
+        }
+
+        await loadLogs()
+        await loadStatuses()
     }
 
-    await loadLogs()
-    await loadStatuses()
-  }
+    onMounted(loadAllData)
 
-  onMounted(loadAllData)
+    useTicketPolling(loadAllData, 3000)
 
-  useTicketPolling(loadAllData, 3000)
-
-  return {
-    loadAllData
-  }
+    return {
+        loadAllData
+    }
 }

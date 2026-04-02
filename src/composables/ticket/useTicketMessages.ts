@@ -1,29 +1,29 @@
 export const useTicketMessages = (currentUser: any) => {
-  const isOwnMessage = (message: any): boolean => {
-    return (
-      message.sender_id === currentUser.value?.getId() ||
-      message.employee_id === currentUser.value?.getId()
-    )
-  }
-
-  const getDisplayName = (message: any): string => {
-    if (isOwnMessage(message)) {
-      return 'Вы'
+    const isOwnMessage = (message: any): boolean => {
+        return (
+            message.sender_id === currentUser.value?.getId() ||
+            message.employee_id === currentUser.value?.getId()
+        )
     }
 
-    if (message.sender_id !== null) {
-      return message.sender_name
+    const getDisplayName = (message: any): string => {
+        if (isOwnMessage(message)) {
+            return 'Вы'
+        }
+
+        if (message.sender_id !== null) {
+            return message.sender_name
+        }
+
+        if (message.employee_id !== null) {
+            return 'Сотрудник #' + message.employee_id
+        }
+
+        return 'Удалённый пользователь'
     }
 
-    if (message.employee_id !== null) {
-      return 'Сотрудник #' + message.employee_id
+    return {
+        isOwnMessage,
+        getDisplayName
     }
-
-    return 'Удалённый пользователь'
-  }
-
-  return {
-    isOwnMessage,
-    getDisplayName
-  }
 }

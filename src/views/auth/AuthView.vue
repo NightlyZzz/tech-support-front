@@ -29,17 +29,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import LoginForm from '@/components/auth/LoginForm.vue'
-import RegisterForm from '@/components/auth/RegisterForm.vue'
-import { COMPANY_NAME } from '@/utils/constants'
+  import { ref } from 'vue'
+  import LoginForm from '@/components/auth/LoginForm.vue'
+  import RegisterForm from '@/components/auth/RegisterForm.vue'
+  import { COMPANY_NAME } from '@/utils/constants'
 
-const enum Mode { Login, Register }
+  const enum Mode { Login, Register }
 
-const mode = ref<Mode>(Mode.Login)
+  const mode = ref<Mode>(Mode.Login)
 </script>
 
 <style scoped>
-@import '@/assets/base.css';
-@import '@/assets/auth.css';
+  @import '@/assets/base.css';
+  @import '@/assets/auth.css';
 </style>

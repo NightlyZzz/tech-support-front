@@ -5,43 +5,43 @@ import { showToast } from '@/utils/toast'
 import { useAuth } from '@/composables/auth/useAuth'
 
 const api = axios.create({
-  baseURL: BACKEND_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+    baseURL: BACKEND_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
 })
 
 api.interceptors.request.use((config) => {
-  const { user } = useAuth()
-  const currentUser = user.value
+    const { user } = useAuth()
+    const currentUser = user.value
 
-  if (
-    currentUser &&
-    currentUser.getToken() &&
-    !config.url?.startsWith('/public')
-  ) {
-    config.headers.Authorization = 'Bearer ' + currentUser.getToken()
-  }
+    if (
+        currentUser &&
+        currentUser.getToken() &&
+        !config.url?.startsWith('/public')
+    ) {
+        config.headers.Authorization = 'Bearer ' + currentUser.getToken()
+    }
 
-  return config
+    return config
 })
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const url = error?.config?.url || ''
+    (response) => response,
+    (error) => {
+        const url = error?.config?.url || ''
 
-    if (
-      error?.response?.status === 401 &&
-      !url.startsWith('/public') &&
-      !url.startsWith('/auth')
-    ) {
-      logout()
-      showToast('Сессия истекла, войдите снова', 'info')
+        if (
+            error?.response?.status === 401 &&
+            !url.startsWith('/public') &&
+            !url.startsWith('/auth')
+        ) {
+            logout()
+            showToast('Сессия истекла, войдите снова', 'info')
+        }
+
+        throw error
     }
-
-    throw error
-  }
 )
 
 export default api

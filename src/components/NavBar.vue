@@ -62,15 +62,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAuth } from '@/composables/auth/useAuth'
-import { COMPANY_NAME } from '@/utils/constants'
+  import { ref } from 'vue'
+  import { useAuth } from '@/composables/auth/useAuth'
+  import { COMPANY_NAME } from '@/utils/constants'
 
-const mobileOpen = ref(false)
+  const mobileOpen = ref(false)
 
-const { isAdmin, isEmployee, isUser } = useAuth()
+  const { isAdmin, isEmployee, isUser } = useAuth()
 </script>
 
 <style scoped>
-@import '@/assets/navbar.css';
+  @import '@/assets/navbar.css';
 </style>
