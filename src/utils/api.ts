@@ -2,7 +2,7 @@ import axios from 'axios'
 import { BACKEND_URL } from '@/utils/constants'
 import { logout } from '@/user/data'
 import { showToast } from '@/utils/toast'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 
 const api = axios.create({
   baseURL: BACKEND_URL,

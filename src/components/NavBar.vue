@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 import { COMPANY_NAME } from '@/utils/constants'
 
 const mobileOpen = ref(false)

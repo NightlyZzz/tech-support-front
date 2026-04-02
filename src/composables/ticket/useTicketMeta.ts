@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 import { getStatusBadge } from '@/utils/utils'
 
 export const useTicketMeta = (

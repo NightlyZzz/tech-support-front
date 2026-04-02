@@ -133,13 +133,13 @@ import { TicketStatus } from '@/enums/ticketStatus'
 import { Role } from '@/enums/role'
 import BaseSelect from '@/components/BaseSelect.vue'
 
-import { useTicketChat } from '@/composables/useTicketChat'
-import { useTicketDetails } from '@/composables/useTicketDetails'
-import { useTicketStatuses } from '@/composables/useTicketStatuses'
+import { useTicketChat } from '@/composables/ticket/useTicketChat'
+import { useTicketDetails } from '@/composables/ticket/useTicketDetails'
+import { useTicketStatuses } from '@/composables/ticket/useTicketStatuses'
 
-import { useTicketMeta } from '@/composables/useTicketMeta'
-import { useTicketMessages } from '@/composables/useTicketMessages'
-import { useTicketPage } from '@/composables/useTicketPage'
+import { useTicketMeta } from '@/composables/ticket/useTicketMeta'
+import { useTicketMessages } from '@/composables/ticket/useTicketMessages'
+import { useTicketPage } from '@/composables/ticket/useTicketPage'
 
 const route = useRoute()
 const ticketId = Number(route.params.id)

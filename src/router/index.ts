@@ -10,7 +10,7 @@ import AllTicketsView from '@/views/ticket/AllTicketsView.vue'
 import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import TicketLog from '@/views/ticket/TicketLog.vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 import type { User } from '@/user/user.ts'
 
 const router = createRouter({

@@ -63,8 +63,8 @@
 
 <script setup lang="ts">
 import BaseSelect from '@/components/BaseSelect.vue'
-import { useCreateTicket } from '@/composables/useCreateTicket'
-import { usePhoneInput } from '@/composables/usePhoneInput'
+import { useCreateTicket } from '@/composables/ticket/useCreateTicket'
+import { usePhoneInput } from '@/composables/common/usePhoneInput'
 
 const { form, ticketTypes, isSubmitting, submitTicket } = useCreateTicket()
 

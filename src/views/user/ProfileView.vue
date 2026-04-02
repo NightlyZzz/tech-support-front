@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 import { logout } from '@/user/data'
 import BaseSelect from '@/components/BaseSelect.vue'
 import { deleteCurrentUser, getAllDepartments, updateUser } from '@/utils/requests'

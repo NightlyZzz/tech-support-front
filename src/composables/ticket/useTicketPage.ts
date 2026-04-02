@@ -1,6 +1,6 @@
 import { onMounted } from 'vue'
 import router from '@/router'
-import { useTicketPolling } from '@/composables/useTicketPolling'
+import { useTicketPolling } from '@/composables/ticket/useTicketPolling'
 
 export const useTicketPage = (
   loadTicket: () => Promise<void>,
