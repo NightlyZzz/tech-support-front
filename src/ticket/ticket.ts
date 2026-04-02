@@ -2,13 +2,13 @@ import { TicketStatus } from '@/enums/ticketStatus'
 
 export class Ticket {
     constructor(
-        public id: number,
-        public description: string,
-        public createdAt: string,
-        public typeName: string,
-        public statusName: string,
-        public statusId: number,
-        public senderName: string
+            public id: number,
+            public description: string,
+            public createdAt: string,
+            public typeName: string,
+            public statusName: string,
+            public statusId: number,
+            public senderName: string
     ) {
     }
 

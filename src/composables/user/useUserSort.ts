@@ -7,9 +7,9 @@ type SortOptions = {
 
 export const useUserSort = () => {
     const sortUsers = (
-        users: User[],
-        currentUserId: number | null,
-        options: SortOptions = {}
+            users: User[],
+            currentUserId: number | null,
+            options: SortOptions = {}
     ): User[] => {
         const rolePriority: Record<number, number> = {}
 

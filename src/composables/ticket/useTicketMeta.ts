@@ -3,9 +3,9 @@ import { useAuth } from '@/composables/auth/useAuth'
 import { getStatusBadge } from '@/utils/utils'
 
 export const useTicketMeta = (
-    ticketStatus: any,
-    allStatuses: any,
-    updateStatus: () => void
+        ticketStatus: any,
+        allStatuses: any,
+        updateStatus: () => void
 ) => {
     const { user } = useAuth()
 

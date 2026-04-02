@@ -27,17 +27,17 @@ export const getUser = (): User | null => {
     const token = getUserToken()
 
     return new User(
-        token || '',
-        data.id,
-        data.email,
-        data.first_name,
-        data.last_name,
-        data.middle_name,
-        data.role_id,
-        data.role_name,
-        data.department_id,
-        data.department_name,
-        data.secondary_email
+            token || '',
+            data.id,
+            data.email,
+            data.first_name,
+            data.last_name,
+            data.middle_name,
+            data.role_id,
+            data.role_name,
+            data.department_id,
+            data.department_name,
+            data.secondary_email
     )
 }
 

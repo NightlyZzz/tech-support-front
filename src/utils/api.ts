@@ -15,11 +15,7 @@ api.interceptors.request.use((config) => {
     const { user } = useAuth()
     const currentUser = user.value
 
-    if (
-        currentUser &&
-        currentUser.getToken() &&
-        !config.url?.startsWith('/public')
-    ) {
+    if (currentUser && currentUser.getToken() && !config.url?.startsWith('/public')) {
         config.headers.Authorization = 'Bearer ' + currentUser.getToken()
     }
 
@@ -27,21 +23,17 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        const url = error?.config?.url || ''
+        (response) => response,
+        (error) => {
+            const url = error?.config?.url || ''
 
-        if (
-            error?.response?.status === 401 &&
-            !url.startsWith('/public') &&
-            !url.startsWith('/auth')
-        ) {
-            logout()
-            showToast('Сессия истекла, войдите снова', 'info')
+            if (error?.response?.status === 401 && !url.startsWith('/public') && !url.startsWith('/auth')) {
+                logout()
+                showToast('Сессия истекла, войдите снова', 'info')
+            }
+
+            throw error
         }
-
-        throw error
-    }
 )
 
 export default api

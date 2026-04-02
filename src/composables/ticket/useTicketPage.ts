@@ -3,10 +3,10 @@ import router from '@/router'
 import { useTicketPolling } from '@/composables/ticket/useTicketPolling'
 
 export const useTicketPage = (
-    loadTicket: () => Promise<void>,
-    loadLogs: () => Promise<void>,
-    loadStatuses: () => Promise<void>,
-    canOpen: any
+        loadTicket: () => Promise<void>,
+        loadLogs: () => Promise<void>,
+        loadStatuses: () => Promise<void>,
+        canOpen: any
 ) => {
     const loadAllData = async (): Promise<void> => {
         await loadTicket()

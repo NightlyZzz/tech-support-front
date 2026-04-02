@@ -1,16 +1,16 @@
 export class User {
     constructor(
-        public token: string,
-        public id: number,
-        public email: string,
-        public firstName: string,
-        public lastName: string,
-        public middleName: string,
-        public role: number,
-        public roleName: string,
-        public department: number,
-        public departmentName: string,
-        public secondaryEmail?: string
+            public token: string,
+            public id: number,
+            public email: string,
+            public firstName: string,
+            public lastName: string,
+            public middleName: string,
+            public role: number,
+            public roleName: string,
+            public department: number,
+            public departmentName: string,
+            public secondaryEmail?: string
     ) {
     }
 
