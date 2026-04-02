@@ -8,7 +8,10 @@ let lastRefresh = 0
 
 export const refreshAuthData = async (token: string): Promise<void> => {
   const now = Date.now()
-  if (now - lastRefresh < 15000) return
+
+  if (now - lastRefresh < 15000) {
+    return
+  }
 
   try {
     setUserToken(token)
@@ -26,27 +29,55 @@ export const refreshAuthData = async (token: string): Promise<void> => {
 
 export const isUser = (): boolean => {
   const user = getUser()
-  return !!user && user.getRole() === Role.User
+
+  if (!user) {
+    return false
+  }
+
+  return user.getRole() === Role.User;
 }
 
 export const isEmployee = (): boolean => {
   const user = getUser()
-  return !!user && (user.getRole() === Role.Employee || user.getRole() === Role.Admin)
+
+  if (!user) {
+    return false
+  }
+
+  if (user.getRole() === Role.Employee) {
+    return true
+  }
+
+  return user.getRole() === Role.Admin;
 }
 
 export const isAdmin = (): boolean => {
   const user = getUser()
-  return !!user && user.getRole() === Role.Admin
+
+  if (!user) {
+    return false
+  }
+
+  return user.getRole() === Role.Admin;
 }
 
 export const truncate = (text: string, max = 100): string => {
-  if (!text) return ''
-  if (text.length <= max) return text
+  if (!text) {
+    return ''
+  }
+
+  if (text.length <= max) {
+    return text
+  }
 
   const trimmed = text.slice(0, max)
   const lastSpace = trimmed.lastIndexOf(' ')
 
-  return (lastSpace > 0 ? trimmed.slice(0, lastSpace) : trimmed) + '...'
+  if (lastSpace > 0) {
+    return trimmed.slice(0, lastSpace) + '...'
+  }
+
+  return trimmed + '...'
 }
 
 export const formatDate = (dateString: string): string => {
@@ -60,9 +91,18 @@ export const formatTime = (dateString: string): string => {
   })
 }
 
-export const getStatusBadge = (id: number): string => {
-  if (id === TicketStatus.Pending) return 'badge--pending'
-  if (id === TicketStatus.Review) return 'badge--review'
-  if (id === TicketStatus.Resolved) return 'badge--resolved'
+export const getStatusBadge = (statusId: number): string => {
+  if (statusId === TicketStatus.Pending) {
+    return 'badge--pending'
+  }
+
+  if (statusId === TicketStatus.Review) {
+    return 'badge--review'
+  }
+
+  if (statusId === TicketStatus.Resolved) {
+    return 'badge--resolved'
+  }
+
   return ''
 }

@@ -33,10 +33,7 @@
 
         <div class="ticket-field">
           <span class="ticket-field-label">Описание</span>
-          <span
-            class="ticket-field-value"
-            style="white-space:pre-wrap;line-height:1.6;"
-          >
+          <span class="ticket-field-value" style="white-space:pre-wrap;line-height:1.6;">
             {{ ticketDescription }}
           </span>
         </div>
@@ -49,7 +46,7 @@
         <p class="ticket-panel-title">Статус заявки</p>
 
         <span
-          :class="['badge', statusBadgeClass(ticketStatus)]"
+          :class="['badge', getStatusBadge(ticketStatus)]"
           style="margin-bottom:12px;display:inline-flex;"
         >
           {{ currentStatusName }}
@@ -77,7 +74,7 @@
 
         <span
           v-if="ticketStatus !== null"
-          :class="['badge', statusBadgeClass(ticketStatus)]"
+          :class="['badge', getStatusBadge(ticketStatus)]"
         >
           {{ currentStatusName }}
         </span>
@@ -128,39 +125,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getUser } from '@/user/data'
 import { TicketStatus } from '@/enums/ticketStatus'
 import { Role } from '@/enums/role'
 import BaseSelect from '@/components/BaseSelect.vue'
 
 import { useTicketChat } from '@/composables/useTicketChat'
 import { useTicketDetails } from '@/composables/useTicketDetails'
-import { useTicketPolling } from '@/composables/useTicketPolling'
 import { useTicketStatuses } from '@/composables/useTicketStatuses'
 
-interface TicketLog {
-  id: number
-  message: string
-  created_at: string
-  sender_id: number | null
-  sender_name: string
-  employee_id: number | null
-}
+import { useTicketMeta } from '@/composables/useTicketMeta'
+import { useTicketMessages } from '@/composables/useTicketMessages'
+import { useTicketPage } from '@/composables/useTicketPage'
 
 const route = useRoute()
 const ticketId = Number(route.params.id)
-
-const currentUser = (() => {
-  const user = getUser()
-
-  if (!user) {
-    throw new Error('User not authorized')
-  }
-
-  return user
-})()
 
 const {
   logs,
@@ -184,81 +163,20 @@ const {
 
 const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
 
-const currentStatusName = computed(() => {
-  if (ticketStatus.value === null) {
-    return ''
-  }
+const {
+  currentUser,
+  currentStatusName,
+  formatPhoneNumber,
+  handleStatusChange,
+  getStatusBadge
+} = useTicketMeta(ticketStatus, allStatuses, updateStatus)
 
-  const status = allStatuses.value.find(
-    (statusItem) => statusItem.id === ticketStatus.value
-  )
+const {
+  isOwnMessage,
+  getDisplayName
+} = useTicketMessages(currentUser)
 
-  return status?.name || ''
-})
-
-const isOwnMessage = (message: TicketLog): boolean => {
-  return (
-    message.sender_id === currentUser.getId() ||
-    message.employee_id === currentUser.getId()
-  )
-}
-
-const getDisplayName = (message: TicketLog): string => {
-  if (isOwnMessage(message)) {
-    return 'Вы'
-  }
-
-  if (message.sender_id !== null) {
-    return message.sender_name
-  }
-
-  if (message.employee_id !== null) {
-    return 'Сотрудник #' + message.employee_id
-  }
-
-  return 'Удалённый пользователь'
-}
-
-const statusBadgeClass = (statusId: number): string => {
-  if (statusId === TicketStatus.Pending) {
-    return 'badge--pending'
-  }
-
-  if (statusId === TicketStatus.Review) {
-    return 'badge--review'
-  }
-
-  if (statusId === TicketStatus.Resolved) {
-    return 'badge--resolved'
-  }
-
-  return ''
-}
-
-const formatPhoneNumber = (phone: string): string => {
-  const digits = phone.replace(/\D/g, '').replace(/^8/, '7')
-
-  if (digits.length < 10) {
-    return phone
-  }
-
-  return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`
-}
-
-const handleStatusChange = (value: number): void => {
-  ticketStatus.value = Number(value)
-  updateStatus()
-}
-
-const loadAllData = async (): Promise<void> => {
-  await loadTicket()
-  await loadLogs()
-  await loadStatuses()
-}
-
-onMounted(loadAllData)
-
-useTicketPolling(loadAllData, 3000)
+useTicketPage(loadTicket, loadLogs, loadStatuses)
 </script>
 
 <style scoped>

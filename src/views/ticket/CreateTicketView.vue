@@ -41,8 +41,6 @@
               maxlength="255"
               rows="3"
               placeholder="Опишите вашу проблему…"
-              @input="resizeTextarea"
-              ref="descriptionElement"
             ></textarea>
 
             <span style="font-size:.75rem;color:var(--c-text-3);text-align:right;">
@@ -64,138 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
 import BaseSelect from '@/components/BaseSelect.vue'
-import { createTicket, getAllTicketTypes } from '@/utils/requests'
-import { showToast } from '@/utils/toast'
+import { useCreateTicket } from '@/composables/useCreateTicket'
+import { usePhoneInput } from '@/composables/usePhoneInput'
 
-interface TicketType {
-  id: number
-  name: string
-}
+const { form, ticketTypes, isSubmitting, submitTicket } = useCreateTicket()
 
-const ticketTypes = ref<TicketType[]>([])
-const isSubmitting = ref(false)
-
-const form = reactive({
-  ticketTypeId: 0 as number,
-  description: '',
-  contactPhone: ''
-})
-
-const displayPhone = ref('')
-
-const allowOnlyDigits = (event: KeyboardEvent): void => {
-  const allowedKeys = [
-    'Backspace',
-    'ArrowLeft',
-    'ArrowRight',
-    'Tab',
-    'Delete'
-  ]
-
-  if (allowedKeys.includes(event.key)) {
-    return
-  }
-
-  if (!/[0-9]/.test(event.key)) {
-    event.preventDefault()
-  }
-}
-
-const handlePhoneInput = (event: Event): void => {
-  const inputElement = event.target as HTMLInputElement
-
-  let digits = inputElement.value.replace(/\D/g, '')
-
-  if (!digits) {
-    form.contactPhone = ''
-    displayPhone.value = ''
-    return
-  }
-
-  if (digits.startsWith('8')) {
-    digits = '7' + digits.slice(1)
-  }
-
-  if (!digits.startsWith('7')) {
-    digits = '7' + digits
-  }
-
-  digits = digits.slice(0, 11)
-
-  form.contactPhone = '+' + digits
-
-  let formattedPhone = '+7'
-
-  if (digits.length > 1) {
-    formattedPhone += ' (' + digits.slice(1, 4)
-  }
-
-  if (digits.length >= 4) {
-    formattedPhone += ') ' + digits.slice(4, 7)
-  }
-
-  if (digits.length >= 7) {
-    formattedPhone += '-' + digits.slice(7, 9)
-  }
-
-  if (digits.length >= 9) {
-    formattedPhone += '-' + digits.slice(9, 11)
-  }
-
-  displayPhone.value = formattedPhone
-}
-
-const descriptionElement = ref<HTMLTextAreaElement | null>(null)
-
-const resizeTextarea = (): void => {
-  if (!descriptionElement.value) {
-    return
-  }
-
-  descriptionElement.value.style.height = 'auto'
-  descriptionElement.value.style.height = descriptionElement.value.scrollHeight + 'px'
-}
-
-const loadTicketTypes = async (): Promise<void> => {
-  try {
-    const response = await getAllTicketTypes()
-    ticketTypes.value = response.data ?? []
-  } catch {
-    showToast('Ошибка загрузки типов заявок', 'error')
-  }
-}
-
-const submitTicket = async (): Promise<void> => {
-  if (!form.ticketTypeId || !form.description.trim() || !form.contactPhone) {
-    showToast('Пожалуйста, заполните все поля', 'error')
-    return
-  }
-
-  isSubmitting.value = true
-
-  try {
-    const response = await createTicket({
-      ticket_type_id: form.ticketTypeId,
-      description: form.description,
-      contact_phone: form.contactPhone
-    })
-
-    showToast(response.message || 'Заявка успешно отправлена!', 'success')
-
-    form.ticketTypeId = 0
-    form.description = ''
-    form.contactPhone = ''
-    displayPhone.value = ''
-  } catch (error: any) {
-    showToast(error?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
-  } finally {
-    isSubmitting.value = false
-  }
-}
-
-onMounted(loadTicketTypes)
+const { displayPhone, handlePhoneInput, allowOnlyDigits } = usePhoneInput(form)
 </script>
 
 <style scoped>
