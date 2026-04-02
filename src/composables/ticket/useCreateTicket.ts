@@ -1,5 +1,5 @@
 import { reactive, ref, onMounted } from 'vue'
-import { createTicket, getAllTicketTypes } from '@/utils/requests'
+import { createTicket, getAllTicketTypes } from '@/api/ticket.api.ts'
 import { showToast } from '@/utils/toast'
 
 interface TicketType {

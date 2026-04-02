@@ -96,7 +96,7 @@
     import { useAuth } from '@/composables/auth/useAuth'
     import { logout } from '@/user/data'
     import BaseSelect from '@/components/BaseSelect.vue'
-    import { deleteCurrentUser, getAllDepartments, updateUser } from '@/utils/requests'
+    import { deleteCurrentUser, getAllDepartments, updateUser } from '@/api/user.api.ts'
     import { showToast } from '@/utils/toast'
 
     interface Department {

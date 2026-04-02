@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getAllTicketStatuses } from '@/utils/requests'
+import { getAllTicketStatuses } from '@/api/ticket.api.ts'
 
 interface TicketStatusOption {
     id: number

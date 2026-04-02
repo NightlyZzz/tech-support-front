@@ -59,7 +59,7 @@
     import { computed, onMounted, ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { useAuth } from '@/composables/auth/useAuth'
-    import { getAllUsers } from '@/utils/requests'
+    import { getAllUsers } from '@/api/user.api'
     import { User } from '@/user/user'
     import { Role } from '@/enums/role'
     import { useUserSort } from '@/composables/user/useUserSort'

@@ -37,7 +37,7 @@
     import { reactive, ref } from 'vue'
     import { refreshAuthData } from '@/utils/utils'
     import router from '@/router'
-    import { login } from '@/utils/requests'
+    import { login } from '@/api/auth.api.ts'
     import { showToast } from '@/utils/toast'
 
     interface LoginForm {

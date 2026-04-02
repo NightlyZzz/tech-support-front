@@ -1,5 +1,5 @@
 import { ref, nextTick } from 'vue'
-import { attachTicketLog, getTicketLogs } from '@/utils/requests'
+import { attachTicketLog, getTicketLogs } from '@/api/ticket.api.ts'
 
 export const useTicketChat = (ticketId: number) => {
     const logs = ref<any[]>([])

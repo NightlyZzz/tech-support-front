@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
     import { ref, onMounted, computed } from 'vue'
-    import { getAllTickets, updateTicket } from '@/utils/requests'
+    import { getAllTickets, updateTicket } from '@/api/ticket.api.ts'
     import { useAuth } from '@/composables/auth/useAuth'
     import { usePagination } from '@/composables/common/usePagination'
     import { useTickets } from '@/composables/ticket/useTickets'

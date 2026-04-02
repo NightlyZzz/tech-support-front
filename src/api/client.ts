@@ -4,14 +4,14 @@ import { logout } from '@/user/data'
 import { showToast } from '@/utils/toast'
 import { useAuth } from '@/composables/auth/useAuth'
 
-const api = axios.create({
+export const apiClient = axios.create({
     baseURL: BACKEND_URL,
     headers: {
         'Content-Type': 'application/json'
     }
 })
 
-api.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config) => {
     const { user } = useAuth()
     const currentUser = user.value
 
@@ -22,7 +22,7 @@ api.interceptors.request.use((config) => {
     return config
 })
 
-api.interceptors.response.use(
+apiClient.interceptors.response.use(
         (response) => response,
         (error) => {
             const url = error?.config?.url || ''
@@ -35,5 +35,3 @@ api.interceptors.response.use(
             throw error
         }
 )
-
-export default api

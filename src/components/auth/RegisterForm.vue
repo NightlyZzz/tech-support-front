@@ -65,7 +65,8 @@
     import router from '@/router'
     import { refreshAuthData } from '@/utils/utils'
     import BaseSelect from '@/components/BaseSelect.vue'
-    import { register, getAllDepartments } from '@/utils/requests'
+    import { register } from '@/api/auth.api.ts'
+    import { getAllDepartments } from '@/api/user.api.ts'
     import { showToast } from '@/utils/toast'
 
     interface DepartmentType {

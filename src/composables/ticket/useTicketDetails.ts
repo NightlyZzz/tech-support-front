@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getTicket, updateTicket } from '@/utils/requests'
+import { getTicket, updateTicket } from '@/api/ticket.api.ts'
 
 export const useTicketDetails = (ticketId: number) => {
     const ticketStatus = ref<number | null>(null)

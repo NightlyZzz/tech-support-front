@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue'
-    import { getMyTickets } from '@/utils/requests'
+    import { getMyTickets } from '@/api/ticket.api.ts'
     import { Role } from '@/enums/role'
     import { TicketStatus } from '@/enums/ticketStatus'
     import { usePagination } from '@/composables/common/usePagination'

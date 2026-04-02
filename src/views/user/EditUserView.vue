@@ -89,7 +89,7 @@
         getAllRoles,
         getAnotherUser,
         updateAnotherUser
-    } from '@/utils/requests'
+    } from '@/api/user.api.ts'
     import { showToast } from '@/utils/toast'
 
     interface Department {

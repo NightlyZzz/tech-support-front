@@ -1,5 +1,5 @@
 import { logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
-import { getCurrentUser } from '@/utils/requests'
+import { getCurrentUser } from '@/api/auth.api.ts'
 import { showToast } from '@/utils/toast'
 import { TicketStatus } from '@/enums/ticketStatus'
 
