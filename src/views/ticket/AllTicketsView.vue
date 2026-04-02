@@ -20,7 +20,7 @@
       :onClick="openTicket"
       :onTake="takeToReview"
       :showUser="true"
-      :canTake="isEmployee()"
+      :canTake="isEmployee"
     />
 
     <AppPagination
@@ -34,8 +34,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { getAllTickets, updateTicket } from '@/utils/requests'
-import { getUser } from '@/user/data'
-import { isEmployee } from '@/utils/utils'
+import { useAuth } from '@/composables/useAuth'
 import { usePagination } from '@/composables/usePagination'
 import { useTickets } from '@/composables/useTickets'
 import { usePaginationLoader } from '@/composables/usePaginationLoader'
@@ -46,6 +45,8 @@ import BaseSelect from '@/components/BaseSelect.vue'
 import AppPagination from '@/components/AppPagination.vue'
 import TicketList from '@/components/ticket/TicketList.vue'
 import { Ticket } from '@/ticket/ticket'
+
+const { user, isEmployee } = useAuth()
 
 const selectedStatus = ref<number>(0)
 
@@ -61,22 +62,20 @@ const statusesWithAll = computed(() => {
 const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
 const openTicket = (ticketId: number) => {
-  if (isEmployee()) {
+  if (isEmployee.value) {
     router.push({ name: 'ticket', params: { id: ticketId } })
   }
 }
 
 const takeToReview = async (ticket: Ticket) => {
   try {
-    const currentUser = getUser()
-
-    if (!currentUser) {
+    if (!user.value) {
       return
     }
 
     await updateTicket(
       ticket.getId(),
-      { employee_id: currentUser.getId() }
+      { employee_id: user.value.getId() }
     )
 
     ticket.setReview()

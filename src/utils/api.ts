@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { BACKEND_URL } from '@/utils/constants'
-import { getUser, logout } from '@/user/data'
+import { logout } from '@/user/data'
 import { showToast } from '@/utils/toast'
+import { useAuth } from '@/composables/useAuth'
 
 const api = axios.create({
   baseURL: BACKEND_URL,
@@ -11,12 +12,15 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const user = getUser()
+  const { user } = useAuth()
+  const currentUser = user.value
 
-  console.log('TOKEN:', user?.getToken())
-
-  if (user && user.getToken() && !config.url?.startsWith('/public')) {
-    config.headers.Authorization = 'Bearer ' + user.getToken()
+  if (
+    currentUser &&
+    currentUser.getToken() &&
+    !config.url?.startsWith('/public')
+  ) {
+    config.headers.Authorization = 'Bearer ' + currentUser.getToken()
   }
 
   return config
@@ -25,10 +29,6 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401) {
-      console.log('401 FROM:', error.config.url)
-    }
-
     const url = error?.config?.url || ''
 
     if (

@@ -9,8 +9,7 @@
 
     <div class="search-field">
       <span class="search-field-icon">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-             stroke-width="2">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/>
           <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
         </svg>
@@ -41,9 +40,7 @@
 
         <div class="user-card-body">
           <div class="user-card-name">
-            {{ userItem.getLastName() }} {{ userItem.getFirstName() }} {{
-              userItem.getMiddleName()
-            }}
+            {{ userItem.getLastName() }} {{ userItem.getFirstName() }} {{ userItem.getMiddleName() }}
           </div>
           <div class="user-card-meta">
             {{ userItem.getRoleName() }} · {{ userItem.getDepartmentName() }}
@@ -61,17 +58,19 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { User } from '@/user/user'
+import { useAuth } from '@/composables/useAuth'
 import { getAllUsers } from '@/utils/requests'
-import { getUser } from '@/user/data'
+import { User } from '@/user/user'
 
 const router = useRouter()
+
+const { user } = useAuth()
 
 const users = ref<User[]>([])
 const searchQuery = ref('')
 
-const getInitials = (user: User): string => {
-  return (user.getLastName()[0] || '') + (user.getFirstName()[0] || '')
+const getInitials = (userItem: User): string => {
+  return (userItem.getLastName()[0] || '') + (userItem.getFirstName()[0] || '')
 }
 
 onMounted(async () => {
@@ -95,12 +94,12 @@ onMounted(async () => {
 })
 
 const openUser = (userId: number): void => {
-  router.push({name: 'edit-user', params: {id: userId}})
+  router.push({ name: 'edit-user', params: { id: userId } })
 }
 
 const filteredUsers = computed(() => {
   const query = searchQuery.value.toLowerCase()
-  const currentUser = getUser()
+  const currentUser = user.value
 
   const filteredList = users.value.filter((userItem: User) => {
     return `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`
@@ -125,26 +124,24 @@ const filteredUsers = computed(() => {
   })
 })
 
-const getRoleClass = (user: User): string => {
-  if (user.getRoleName() === 'Администратор') {
+const getRoleClass = (userItem: User): string => {
+  if (userItem.getRoleName() === 'Администратор') {
     return 'admin'
   }
 
-  if (user.getRoleName() === 'Сотрудник') {
+  if (userItem.getRoleName() === 'Сотрудник') {
     return 'employee'
   }
 
   return ''
 }
 
-const isCurrentUser = (user: User): boolean => {
-  const currentUser = getUser()
-
-  if (!currentUser) {
+const isCurrentUser = (userItem: User): boolean => {
+  if (!user.value) {
     return false
   }
 
-  return currentUser.getId() === user.getId()
+  return user.value.getId() === userItem.getId()
 }
 </script>
 

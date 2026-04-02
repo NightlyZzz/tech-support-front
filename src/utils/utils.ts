@@ -1,8 +1,8 @@
-import { getUser, logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
-import { Role } from '@/enums/role'
+import { logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
 import { getCurrentUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 import { TicketStatus } from '@/enums/ticketStatus'
+import { useAuth } from '@/composables/useAuth'
 
 let lastRefresh = 0
 
@@ -28,37 +28,18 @@ export const refreshAuthData = async (token: string): Promise<void> => {
 }
 
 export const isUser = (): boolean => {
-  const user = getUser()
-
-  if (!user) {
-    return false
-  }
-
-  return user.getRole() === Role.User;
+  const { isUser } = useAuth()
+  return isUser.value
 }
 
 export const isEmployee = (): boolean => {
-  const user = getUser()
-
-  if (!user) {
-    return false
-  }
-
-  if (user.getRole() === Role.Employee) {
-    return true
-  }
-
-  return user.getRole() === Role.Admin;
+  const { isEmployee } = useAuth()
+  return isEmployee.value
 }
 
 export const isAdmin = (): boolean => {
-  const user = getUser()
-
-  if (!user) {
-    return false
-  }
-
-  return user.getRole() === Role.Admin;
+  const { isAdmin } = useAuth()
+  return isAdmin.value
 }
 
 export const truncate = (text: string, max = 100): string => {

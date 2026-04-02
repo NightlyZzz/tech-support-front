@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AuthView from '@/views/auth/AuthView.vue'
 import ProfileView from '@/views/user/ProfileView.vue'
 import HomeView from '@/views/HomeView.vue'
-import { getUser, isAuthenticated } from '@/user/data.ts'
+import { isAuthenticated } from '@/user/data.ts'
 import { refreshAuthData } from '@/utils/utils'
 import CreateTicketView from '@/views/ticket/CreateTicketView.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
@@ -10,7 +10,8 @@ import AllTicketsView from '@/views/ticket/AllTicketsView.vue'
 import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import { Role } from '@/enums/role.ts'
-import TicketLog from "@/views/ticket/TicketLog.vue";
+import TicketLog from '@/views/ticket/TicketLog.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -94,7 +95,7 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       redirect: '/'
     }
-  ],
+  ]
 })
 
 router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
@@ -102,12 +103,14 @@ router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
   const requiresAuth: boolean = to.meta.auth
   const requiredRole: number = to.meta.role
 
-  let user = null
+  let currentUser = null
 
   if (authenticated) {
-    user = getUser()
-    if (user) {
-      await refreshAuthData(user.getToken())
+    const { user } = useAuth()
+    currentUser = user.value
+
+    if (currentUser) {
+      await refreshAuthData(currentUser.getToken())
     }
   }
 
@@ -116,14 +119,18 @@ router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
   }
 
   if (to.name === 'home') {
-    return authenticated ? next({ name: 'profile' }) : next({ name: 'auth' })
+    if (authenticated) {
+      return next({ name: 'profile' })
+    }
+
+    return next({ name: 'auth' })
   }
 
   if (to.name === 'auth' && authenticated) {
     return next({ name: 'profile' })
   }
 
-  if (authenticated && user && requiredRole > user.getRole()) {
+  if (authenticated && currentUser && requiredRole > currentUser.getRole()) {
     return next({ name: 'home' })
   }
 

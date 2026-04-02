@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { getUser } from '@/user/data'
+import { useAuth } from '@/composables/useAuth'
 import { getStatusBadge } from '@/utils/utils'
 
 export const useTicketMeta = (
@@ -7,15 +7,15 @@ export const useTicketMeta = (
   allStatuses: any,
   updateStatus: () => void
 ) => {
-  const currentUser = (() => {
-    const user = getUser()
+  const { user } = useAuth()
 
-    if (!user) {
+  const currentUser = computed(() => {
+    if (!user.value) {
       throw new Error('User not authorized')
     }
 
-    return user
-  })()
+    return user.value
+  })
 
   const currentStatusName = computed(() => {
     if (ticketStatus.value === null) {
