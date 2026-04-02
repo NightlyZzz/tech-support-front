@@ -127,11 +127,11 @@
 </template>
 
 <script setup lang="ts">
-    import { computed } from 'vue'
     import { useRoute } from 'vue-router'
-    import { TicketStatus } from '@/enums/ticketStatus'
     import { Role } from '@/enums/role'
     import BaseSelect from '@/components/BaseSelect.vue'
+
+    import { useTicketAccess } from '@/composables/ticket/useTicketAccess'
 
     import { useTicketChat } from '@/composables/ticket/useTicketChat'
     import { useTicketDetails } from '@/composables/ticket/useTicketDetails'
@@ -180,41 +180,10 @@
         getDisplayName
     } = useTicketMessages(currentUser)
 
-    const canWrite = computed(() => {
-        if (!currentUser.value) {
-            return false
-        }
-
-        if (currentUser.value.getRole() === Role.User) {
-            return ticketStatus.value !== TicketStatus.Resolved;
-        }
-
-        if (ticketStatus.value !== TicketStatus.Review) {
-            return false
-        }
-
-        if (currentUser.value.getRole() === Role.Admin) {
-            return true
-        }
-
-        return assignedEmployeeId.value === currentUser.value.getId();
-    })
-
-    const canOpen = computed(() => {
-        if (!currentUser.value) {
-            return false
-        }
-
-        if (currentUser.value.getRole() === Role.User) {
-            return true
-        }
-
-        if (currentUser.value.getRole() === Role.Admin) {
-            return true
-        }
-
-        return assignedEmployeeId.value === currentUser.value.getId();
-    })
+    const {
+        canOpen,
+        canWrite
+    } = useTicketAccess(ticketStatus, assignedEmployeeId)
 
     useTicketPage(loadTicket, loadLogs, loadStatuses, canOpen)
 </script>

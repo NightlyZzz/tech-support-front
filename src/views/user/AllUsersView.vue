@@ -58,7 +58,7 @@
 <script setup lang="ts">
     import { computed, onMounted, ref } from 'vue'
     import { useRouter } from 'vue-router'
-    import { useAuth } from '@/composables/auth/useAuth'
+    import { useUser } from '@/composables/user/useUser'
     import { getAllUsers } from '@/api/user.api'
     import { User } from '@/user/user'
     import { Role } from '@/enums/role'
@@ -66,7 +66,7 @@
 
     const router = useRouter()
 
-    const { user } = useAuth()
+    const { user } = useUser()
 
     const { sortUsers } = useUserSort()
 

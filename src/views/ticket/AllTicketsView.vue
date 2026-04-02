@@ -34,7 +34,7 @@
 <script setup lang="ts">
     import { ref, onMounted, computed } from 'vue'
     import { getAllTickets, updateTicket } from '@/api/ticket.api.ts'
-    import { useAuth } from '@/composables/auth/useAuth'
+    import { useUser } from '@/composables/user/useUser'
     import { usePagination } from '@/composables/common/usePagination'
     import { useTickets } from '@/composables/ticket/useTickets'
     import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
@@ -46,7 +46,7 @@
     import TicketList from '@/components/ticket/TicketList.vue'
     import { Ticket } from '@/ticket/ticket'
 
-    const { user, isEmployee } = useAuth()
+    const { user, isEmployee } = useUser()
 
     const selectedStatus = ref<number>(0)
 

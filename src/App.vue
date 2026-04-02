@@ -1,6 +1,15 @@
+<script setup lang="ts">
+    import { computed } from 'vue'
+    import NavBar from '@/components/NavBar.vue'
+    import BaseToast from '@/components/BaseToast.vue'
+    import { getUser } from '@/user/data'
+
+    const isAuthenticated = computed(() => !!getUser())
+</script>
+
 <template>
     <div id="app">
-        <NavBar v-if="getNavbarState()"/>
+        <NavBar v-if="isAuthenticated"/>
         <RouterView v-slot="{ Component }">
             <Transition name="page" mode="out-in">
                 <component :is="Component" :key="$route.fullPath"/>
@@ -9,9 +18,3 @@
         <BaseToast/>
     </div>
 </template>
-
-<script setup lang="ts">
-    import NavBar from '@/components/NavBar.vue'
-    import { getNavbarState } from '@/user/data.ts'
-    import BaseToast from "@/components/BaseToast.vue";
-</script>

@@ -1,30 +1,4 @@
-import { logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
-import { getCurrentUser } from '@/api/auth.api.ts'
-import { showToast } from '@/utils/toast'
 import { TicketStatus } from '@/enums/ticketStatus'
-
-let lastRefresh = 0
-
-export const refreshAuthData = async (token: string): Promise<void> => {
-    const now = Date.now()
-
-    if (now - lastRefresh < 15000) {
-        return
-    }
-
-    try {
-        setUserToken(token)
-
-        const data: any = await getCurrentUser()
-
-        lastRefresh = now
-        setUserData(data.data)
-        setNavbarState(!!token && Object.keys(data.data).length > 0)
-    } catch {
-        showToast('Сессия истекла, войдите снова', 'info')
-        logout()
-    }
-}
 
 export const truncate = (text: string, max = 100): string => {
     if (!text) {

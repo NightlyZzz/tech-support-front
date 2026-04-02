@@ -1,17 +1,14 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router'
 import AuthView from '@/views/auth/AuthView.vue'
 import ProfileView from '@/views/user/ProfileView.vue'
 import HomeView from '@/views/HomeView.vue'
-import { isAuthenticated } from '@/user/data.ts'
-import { refreshAuthData } from '@/utils/utils'
+import { isAuthenticated } from '@/user/data'
 import CreateTicketView from '@/views/ticket/CreateTicketView.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import AllTicketsView from '@/views/ticket/AllTicketsView.vue'
 import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import TicketLog from '@/views/ticket/TicketLog.vue'
-import { useAuth } from '@/composables/auth/useAuth'
-import type { User } from '@/user/user.ts'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -77,38 +74,27 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
-    const authenticated: boolean = isAuthenticated()
-    const requiresAuth: boolean = to.meta.auth ?? false
-
-    let currentUser: User | null = null
-
-    if (authenticated) {
-        const { user } = useAuth()
-        currentUser = user.value
-
-        if (currentUser) {
-            await refreshAuthData(currentUser.getToken())
-        }
-    }
+router.beforeEach((
+        to: RouteLocationNormalized,
+        from: RouteLocationNormalized,
+        next: NavigationGuardNext
+) => {
+    const authenticated = isAuthenticated()
+    const requiresAuth = to.meta.auth ?? false
 
     if (requiresAuth && !authenticated) {
         return next({ name: 'auth' })
     }
 
-    if (to.name === 'home') {
-        if (authenticated) {
-            return next({ name: 'profile' })
-        }
-
-        return next({ name: 'auth' })
-    }
-
-    if (to.name === 'auth' && authenticated) {
+    if (authenticated && to.name === 'auth') {
         return next({ name: 'profile' })
     }
 
-    return next()
+    if (to.name === 'home') {
+        return next({ name: authenticated ? 'profile' : 'auth' })
+    }
+
+    next()
 })
 
 export default router

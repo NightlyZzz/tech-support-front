@@ -1,33 +1,29 @@
-import { User } from '@/user/user.ts'
+import { ref } from 'vue'
+import { User } from '@/user/user'
 import router from '@/router'
-import { type Ref, ref } from 'vue'
 
-const getUserToken = (): string | null => {
-    return localStorage.getItem('token')
-}
+const user = ref<User | null>(null)
 
 const getUserData = (): any => {
-    return JSON.parse(localStorage.getItem('user_data') || '{}')
-}
-
-export const setUserToken = (token: string): void => {
-    localStorage.setItem('token', token)
-}
-
-export const setUserData = (data: any): void => {
-    localStorage.setItem('user_data', JSON.stringify(data))
-}
-
-export const getUser = (): User | null => {
-    if (!isAuthenticated()) {
+    try {
+        const data = localStorage.getItem('user_data')
+        return data ? JSON.parse(data) : null
+    } catch {
         return null
     }
+}
 
-    const data: any = getUserData()
+export const initUser = (): void => {
     const token = getUserToken()
+    const data = getUserData()
 
-    return new User(
-            token || '',
+    if (!token || !data) {
+        user.value = null
+        return
+    }
+
+    user.value = new User(
+            token,
             data.id,
             data.email,
             data.first_name,
@@ -41,23 +37,28 @@ export const getUser = (): User | null => {
     )
 }
 
+export const setUserToken = (token: string): void => {
+    localStorage.setItem('token', token)
+}
+
+export const setUserData = (data: any): void => {
+    localStorage.setItem('user_data', JSON.stringify(data))
+    initUser()
+}
+
+export const getUser = () => user
+
 export const isAuthenticated = (): boolean => {
-    return !!getUserToken()
+    return !!user.value
 }
 
 export const logout = (): void => {
     localStorage.removeItem('token')
     localStorage.removeItem('user_data')
-    setNavbarState(false)
+    user.value = null
     router.push({ name: 'home' })
 }
 
-const navbar: Ref<boolean, boolean> = ref<boolean>(false)
-
-export const setNavbarState = (value: boolean): void => {
-    navbar.value = value
-}
-
-export const getNavbarState = (): boolean => {
-    return navbar.value
+export const getUserToken = (): string | null => {
+    return localStorage.getItem('token')
 }

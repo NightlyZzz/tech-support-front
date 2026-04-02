@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useAuth } from '@/composables/auth/useAuth'
+import { useUser } from '@/composables/user/useUser'
 import { getStatusBadge } from '@/utils/utils'
 
 export const useTicketMeta = (
@@ -7,7 +7,7 @@ export const useTicketMeta = (
         allStatuses: any,
         updateStatus: () => void
 ) => {
-    const { user } = useAuth()
+    const { user } = useUser()
 
     const currentUser = computed(() => {
         return user.value ?? null

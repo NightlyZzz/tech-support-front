@@ -43,9 +43,9 @@
     import BaseSelect from '@/components/BaseSelect.vue'
     import BasePagination from '@/components/BasePagination.vue'
     import TicketList from '@/components/ticket/TicketList.vue'
-    import { useAuth } from '@/composables/auth/useAuth'
+    import { useUser } from '@/composables/user/useUser'
 
-    const { user, isEmployee } = useAuth()
+    const { user, isEmployee } = useUser()
 
     const selectedStatus = ref<number>(0)
 

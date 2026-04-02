@@ -93,7 +93,7 @@
 
 <script setup lang="ts">
     import { onMounted, reactive, ref } from 'vue'
-    import { useAuth } from '@/composables/auth/useAuth'
+    import { useUser } from '@/composables/user/useUser'
     import { logout } from '@/user/data'
     import BaseSelect from '@/components/BaseSelect.vue'
     import { deleteCurrentUser, getAllDepartments, updateUser } from '@/api/user.api.ts'
@@ -114,7 +114,7 @@
         department_id: number
     }
 
-    const { user } = useAuth()
+    const { user } = useUser()
 
     if (!user.value) {
         throw new Error('User not authorized')
