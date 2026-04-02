@@ -9,9 +9,9 @@ import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import AllTicketsView from '@/views/ticket/AllTicketsView.vue'
 import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
-import { Role } from '@/enums/role.ts'
 import TicketLog from '@/views/ticket/TicketLog.vue'
 import { useAuth } from '@/composables/useAuth'
+import type { User } from '@/user/user.ts'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -32,64 +32,43 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: ProfileView,
-      meta: {
-        auth: true,
-        role: Role.User
-      }
+      meta: { auth: true }
     },
     {
       path: '/user/all',
       name: 'all-users',
       component: AllUsersView,
-      meta: {
-        auth: true,
-        role: Role.Admin
-      }
+      meta: { auth: true }
     },
     {
       path: '/user/:id/edit',
       name: 'edit-user',
       component: EditUserView,
-      meta: {
-        auth: true,
-        role: Role.Admin
-      }
+      meta: { auth: true }
     },
     {
       path: '/ticket/create',
       name: 'create-ticket',
       component: CreateTicketView,
-      meta: {
-        auth: true,
-        role: Role.User
-      }
+      meta: { auth: true }
     },
     {
       path: '/ticket/my',
       name: 'my-tickets',
       component: MyTicketsView,
-      meta: {
-        auth: true,
-        role: Role.User
-      }
+      meta: { auth: true }
     },
     {
       path: '/ticket/all',
       name: 'all-tickets',
       component: AllTicketsView,
-      meta: {
-        auth: true,
-        role: Role.Employee
-      }
+      meta: { auth: true }
     },
     {
       path: '/ticket/:id',
       name: 'ticket',
       component: TicketLog,
-      meta: {
-        auth: true,
-        role: Role.User
-      }
+      meta: { auth: true }
     },
     {
       path: '/:pathMatch(.*)*',
@@ -100,10 +79,9 @@ const router = createRouter({
 
 router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
   const authenticated: boolean = isAuthenticated()
-  const requiresAuth: boolean = to.meta.auth
-  const requiredRole: number = to.meta.role
+  const requiresAuth: boolean = to.meta.auth ?? false
 
-  let currentUser = null
+  let currentUser: User | null = null
 
   if (authenticated) {
     const { user } = useAuth()
@@ -128,10 +106,6 @@ router.beforeEach(async (to: any, from: any, next: any): Promise<any> => {
 
   if (to.name === 'auth' && authenticated) {
     return next({ name: 'profile' })
-  }
-
-  if (authenticated && currentUser && requiredRole > currentUser.getRole()) {
-    return next({ name: 'home' })
   }
 
   return next()

@@ -2,7 +2,6 @@ import { logout, setNavbarState, setUserData, setUserToken } from '@/user/data'
 import { getCurrentUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
 import { TicketStatus } from '@/enums/ticketStatus'
-import { useAuth } from '@/composables/useAuth'
 
 let lastRefresh = 0
 
@@ -25,21 +24,6 @@ export const refreshAuthData = async (token: string): Promise<void> => {
     showToast('Сессия истекла, войдите снова', 'info')
     logout()
   }
-}
-
-export const isUser = (): boolean => {
-  const { isUser } = useAuth()
-  return isUser.value
-}
-
-export const isEmployee = (): boolean => {
-  const { isEmployee } = useAuth()
-  return isEmployee.value
-}
-
-export const isAdmin = (): boolean => {
-  const { isAdmin } = useAuth()
-  return isAdmin.value
 }
 
 export const truncate = (text: string, max = 100): string => {

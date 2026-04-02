@@ -3,7 +3,7 @@ import { getUser } from '@/user/data'
 import { Role } from '@/enums/role'
 
 export const useAuth = () => {
-  const user = computed(() => getUser())
+  const user = computed(() => getUser() ?? null)
 
   const isUser = computed(() => {
     if (!user.value) {
@@ -18,11 +18,7 @@ export const useAuth = () => {
       return false
     }
 
-    if (user.value.getRole() === Role.Employee) {
-      return true
-    }
-
-    return user.value.getRole() === Role.Admin
+    return user.value.getRole() >= Role.Employee
   })
 
   const isAdmin = computed(() => {

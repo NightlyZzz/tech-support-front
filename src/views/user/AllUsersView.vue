@@ -61,10 +61,14 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { getAllUsers } from '@/utils/requests'
 import { User } from '@/user/user'
+import { Role } from '@/enums/role'
+import { useUserSort } from '@/composables/useUserSort'
 
 const router = useRouter()
 
 const { user } = useAuth()
+
+const { sortUsers } = useUserSort()
 
 const users = ref<User[]>([])
 const searchQuery = ref('')
@@ -99,7 +103,7 @@ const openUser = (userId: number): void => {
 
 const filteredUsers = computed(() => {
   const query = searchQuery.value.toLowerCase()
-  const currentUser = user.value
+  const currentUserId = user.value?.getId() ?? null
 
   const filteredList = users.value.filter((userItem: User) => {
     return `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`
@@ -107,20 +111,9 @@ const filteredUsers = computed(() => {
       .includes(query)
   })
 
-  if (!currentUser) {
-    return filteredList
-  }
-
-  return filteredList.sort((userA, userB) => {
-    if (userA.getId() === currentUser.getId()) {
-      return -1
-    }
-
-    if (userB.getId() === currentUser.getId()) {
-      return 1
-    }
-
-    return 0
+  return sortUsers(filteredList, currentUserId, {
+    pinCurrentUser: true,
+    roleOrder: [Role.Admin, Role.Employee, Role.User]
   })
 })
 

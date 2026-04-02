@@ -1,5 +1,5 @@
 <template>
-  <div class="ticket-layout">
+  <div class="ticket-layout" v-if="canOpen">
     <aside class="ticket-panel">
       <div class="ticket-panel-card">
         <p class="ticket-panel-title">Заявка</p>
@@ -13,7 +13,9 @@
         <div class="ticket-field">
           <span class="ticket-field-label">Пользователь</span>
           <span class="ticket-field-value">
-            {{ ticketSenderId === currentUser.getId() ? 'Вы' : ticketSenderName }}
+            {{
+              currentUser?.getId() && ticketSenderId === currentUser.getId() ? 'Вы' : ticketSenderName
+            }}
           </span>
         </div>
 
@@ -41,7 +43,7 @@
 
       <div
         class="ticket-panel-card status-select-wrapper"
-        v-if="currentUser.role !== Role.User && ticketStatus !== null"
+        v-if="currentUser?.getRole() !== Role.User && ticketStatus !== null"
       >
         <p class="ticket-panel-title">Статус заявки</p>
 
@@ -99,7 +101,7 @@
       <form
         class="ticket-input-area"
         @submit.prevent="sendLog"
-        v-if="ticketStatus !== TicketStatus.Resolved"
+        v-if="canWrite"
       >
         <input
           v-model="newMessage"
@@ -111,7 +113,7 @@
         <button
           type="submit"
           class="btn btn--primary"
-          :disabled="!newMessage.trim()"
+          :disabled="!newMessage.trim() || !canWrite"
         >
           Отправить
         </button>
@@ -125,6 +127,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { TicketStatus } from '@/enums/ticketStatus'
 import { Role } from '@/enums/role'
@@ -158,7 +161,8 @@ const {
   contactPhone,
   createdAt,
   loadTicket,
-  updateStatus
+  updateStatus,
+  assignedEmployeeId
 } = useTicketDetails(ticketId)
 
 const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
@@ -176,7 +180,43 @@ const {
   getDisplayName
 } = useTicketMessages(currentUser)
 
-useTicketPage(loadTicket, loadLogs, loadStatuses)
+const canWrite = computed(() => {
+  if (!currentUser.value) {
+    return false
+  }
+
+  if (currentUser.value.getRole() === Role.User) {
+    return ticketStatus.value !== TicketStatus.Resolved;
+  }
+
+  if (ticketStatus.value !== TicketStatus.Review) {
+    return false
+  }
+
+  if (currentUser.value.getRole() === Role.Admin) {
+    return true
+  }
+
+  return assignedEmployeeId.value === currentUser.value.getId();
+})
+
+const canOpen = computed(() => {
+  if (!currentUser.value) {
+    return false
+  }
+
+  if (currentUser.value.getRole() === Role.User) {
+    return true
+  }
+
+  if (currentUser.value.getRole() === Role.Admin) {
+    return true
+  }
+
+  return assignedEmployeeId.value === currentUser.value.getId();
+})
+
+useTicketPage(loadTicket, loadLogs, loadStatuses, canOpen)
 </script>
 
 <style scoped>

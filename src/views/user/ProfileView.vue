@@ -93,8 +93,8 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { getUser, logout } from '@/user/data'
-import { User } from '@/user/user'
+import { useAuth } from '@/composables/useAuth'
+import { logout } from '@/user/data'
 import BaseSelect from '@/components/BaseSelect.vue'
 import { deleteCurrentUser, getAllDepartments, updateUser } from '@/utils/requests'
 import { showToast } from '@/utils/toast'
@@ -114,19 +114,23 @@ interface ProfileForm {
   department_id: number
 }
 
-const currentUser = getUser() as User
+const { user } = useAuth()
+
+if (!user.value) {
+  throw new Error('User not authorized')
+}
 
 const form = reactive<ProfileForm>({
-  first_name: currentUser.getFirstName(),
-  last_name: currentUser.getLastName(),
-  middle_name: currentUser.getMiddleName(),
-  email: currentUser.getEmail(),
-  secondary_email: currentUser.getSecondaryEmail() || currentUser.getEmail(),
+  first_name: user.value.getFirstName(),
+  last_name: user.value.getLastName(),
+  middle_name: user.value.getMiddleName(),
+  email: user.value.getEmail(),
+  secondary_email: user.value.getSecondaryEmail() || user.value.getEmail(),
   new_password: '',
-  department_id: currentUser.getDepartment()
+  department_id: user.value.getDepartment()
 })
 
-const originalForm = ref<ProfileForm>({...form})
+const originalForm = ref<ProfileForm>({ ...form })
 
 const departments = ref<Department[]>([])
 const showPassword = ref(false)
@@ -158,7 +162,7 @@ const saveChanges = async () => {
 
   try {
     await updateUser(payload)
-    originalForm.value = {...form}
+    originalForm.value = { ...form }
     form.new_password = ''
     showToast('Сохранено', 'success')
   } catch {
@@ -181,8 +185,7 @@ const fetchDepartments = async () => {
   try {
     const response = await getAllDepartments()
     departments.value = response.data ?? []
-  } catch {
-  }
+  } catch {}
 }
 
 onMounted(fetchDepartments)

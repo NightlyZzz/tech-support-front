@@ -1,8 +1,8 @@
 export const useTicketMessages = (currentUser: any) => {
   const isOwnMessage = (message: any): boolean => {
     return (
-      message.sender_id === currentUser.getId() ||
-      message.employee_id === currentUser.getId()
+      message.sender_id === currentUser.value?.getId() ||
+      message.employee_id === currentUser.value?.getId()
     )
   }
 

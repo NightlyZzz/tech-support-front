@@ -10,11 +10,7 @@ export const useTicketMeta = (
   const { user } = useAuth()
 
   const currentUser = computed(() => {
-    if (!user.value) {
-      throw new Error('User not authorized')
-    }
-
-    return user.value
+    return user.value ?? null
   })
 
   const currentStatusName = computed(() => {

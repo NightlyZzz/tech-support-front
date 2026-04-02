@@ -18,7 +18,7 @@
     <TicketList
       :tickets="filteredTickets"
       :onClick="openTicket"
-      :showUser="isEmployee()"
+      :showUser="isEmployee"
     />
 
     <AppPagination
@@ -32,8 +32,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getMyTickets } from '@/utils/requests'
-import { isEmployee } from '@/utils/utils'
-import { getUser } from '@/user/data'
 import { Role } from '@/enums/role'
 import { TicketStatus } from '@/enums/ticketStatus'
 import { usePagination } from '@/composables/usePagination'
@@ -45,6 +43,9 @@ import router from '@/router'
 import BaseSelect from '@/components/BaseSelect.vue'
 import AppPagination from '@/components/AppPagination.vue'
 import TicketList from '@/components/ticket/TicketList.vue'
+import { useAuth } from '@/composables/useAuth'
+
+const { user, isEmployee } = useAuth()
 
 const selectedStatus = ref<number>(0)
 
@@ -53,16 +54,10 @@ const { tickets, load } = useTickets(getMyTickets)
 const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
 const { statuses, loadStatuses } = useTicketStatuses()
 
-const currentUser = (() => {
-  const user = getUser()
-  if (!user) {
-    throw new Error('User not authorized')
-  }
-  return user
-})()
-
 const availableStatuses = computed(() => {
-  if (currentUser.role === Role.User) {
+  if (!user.value) return []
+
+  if (user.value.getRole() === Role.User) {
     return statuses.value
   }
 

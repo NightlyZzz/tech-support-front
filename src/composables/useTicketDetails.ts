@@ -9,10 +9,12 @@ export const useTicketDetails = (ticketId: number) => {
   const ticketDescription = ref('')
   const contactPhone = ref('')
   const createdAt = ref('')
+  const assignedEmployeeId = ref<number | null>(null)
 
   const loadTicket = async () => {
     const t = (await getTicket(ticketId)).data
 
+    assignedEmployeeId.value = t?.employee_id ?? null
     ticketStatus.value = t?.status_id ?? null
     ticketSenderName.value = t?.sender_name
     ticketSenderId.value = t?.sender_id
@@ -34,6 +36,7 @@ export const useTicketDetails = (ticketId: number) => {
     ticketDescription,
     contactPhone,
     createdAt,
+    assignedEmployeeId,
     loadTicket,
     updateStatus
   }

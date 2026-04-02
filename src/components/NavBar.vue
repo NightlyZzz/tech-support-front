@@ -9,13 +9,13 @@
       <router-link class="navbar-link" :to="{ name: 'my-tickets' }">
         Мои заявки
       </router-link>
-      <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser()">
+      <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser">
         Создать заявку
       </router-link>
-      <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee()">
+      <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee">
         Все заявки
       </router-link>
-      <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin()">
+      <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin">
         Пользователи
       </router-link>
     </div>
@@ -42,15 +42,15 @@
     <router-link class="navbar-link" :to="{ name: 'my-tickets' }" @click="mobileOpen = false">
       Мои заявки
     </router-link>
-    <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser()"
+    <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser"
                  @click="mobileOpen = false">
       Создать заявку
     </router-link>
-    <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee()"
+    <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee"
                  @click="mobileOpen = false">
       Все заявки
     </router-link>
-    <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin()"
+    <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin"
                  @click="mobileOpen = false">
       Пользователи
     </router-link>
@@ -63,10 +63,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { isAdmin, isEmployee, isUser } from '@/utils/utils'
+import { useAuth } from '@/composables/useAuth'
 import { COMPANY_NAME } from '@/utils/constants'
 
 const mobileOpen = ref(false)
+
+const { isAdmin, isEmployee, isUser } = useAuth()
 </script>
 
 <style scoped>
