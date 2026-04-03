@@ -1,11 +1,5 @@
 import { ref } from 'vue'
-
-interface PaginationMeta {
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
+import type { PaginationMeta } from '@/types/common'
 
 export const usePagination = () => {
     const currentPage = ref<number>(1)
