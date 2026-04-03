@@ -1,14 +1,22 @@
 import { ref, nextTick } from 'vue'
 import { attachTicketLog, getTicketLogs } from '@/api/ticket.api.ts'
 
+type TicketLog = {
+    id: number
+    message: string
+    created_at: string
+    user_id: number
+    user_name: string
+}
+
 export const useTicketChat = (ticketId: number) => {
-    const logs = ref<any[]>([])
+    const logs = ref<TicketLog[]>([])
     const newMessage = ref('')
     const chatBox = ref<HTMLElement | null>(null)
 
     const loadLogs = async () => {
-        const res = await getTicketLogs(ticketId)
-        logs.value = res.data
+        const data = await getTicketLogs(ticketId)
+        logs.value = data
         await scrollToBottom()
     }
 
@@ -17,8 +25,11 @@ export const useTicketChat = (ticketId: number) => {
             return
         }
 
-        const res = await attachTicketLog(ticketId, { message: newMessage.value })
-        logs.value.push(res.data)
+        const newLog = await attachTicketLog(ticketId, {
+            message: newMessage.value
+        })
+
+        logs.value.push(newLog)
         newMessage.value = ''
         await scrollToBottom()
     }
