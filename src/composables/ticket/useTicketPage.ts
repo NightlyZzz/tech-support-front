@@ -1,4 +1,4 @@
-import { onMounted } from 'vue'
+import { onMounted, type Ref } from 'vue'
 import router from '@/router'
 import { useTicketPolling } from '@/composables/ticket/useTicketPolling'
 
@@ -6,7 +6,7 @@ export const useTicketPage = (
         loadTicket: () => Promise<void>,
         loadLogs: () => Promise<void>,
         loadStatuses: () => Promise<void>,
-        canOpen: any
+        canOpen: Ref<boolean>
 ) => {
     const loadAllData = async (): Promise<void> => {
         await loadTicket()
@@ -16,8 +16,10 @@ export const useTicketPage = (
             return
         }
 
-        await loadLogs()
-        await loadStatuses()
+        await Promise.all([
+            loadLogs(),
+            loadStatuses()
+        ])
     }
 
     onMounted(loadAllData)
