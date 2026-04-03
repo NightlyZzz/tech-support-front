@@ -1,32 +1,31 @@
-import { computed } from 'vue'
+import { computed, type Ref } from 'vue'
 import { useUser } from '@/composables/user/useUser'
 import { getStatusBadge } from '@/utils/utils'
 
+type Status = {
+    id: number
+    name: string
+}
+
 export const useTicketMeta = (
-        ticketStatus: any,
-        allStatuses: any,
+        ticketStatus: Ref<number | null>,
+        allStatuses: Ref<Status[]>,
         updateStatus: () => void
 ) => {
     const { user } = useUser()
 
-    const currentUser = computed(() => {
-        return user.value ?? null
-    })
+    const currentUser = computed(() => user.value ?? null)
 
     const currentStatusName = computed(() => {
         if (ticketStatus.value === null) {
             return ''
         }
 
-        const status = allStatuses.value.find((statusItem: any) => {
-            return statusItem.id === ticketStatus.value
-        })
+        const status = allStatuses.value.find(
+                statusItem => statusItem.id === ticketStatus.value
+        )
 
-        if (!status) {
-            return ''
-        }
-
-        return status.name
+        return status ? status.name : ''
     })
 
     const formatPhoneNumber = (phone?: string | null): string => {
@@ -44,7 +43,7 @@ export const useTicketMeta = (
     }
 
     const handleStatusChange = (value: number): void => {
-        ticketStatus.value = Number(value)
+        ticketStatus.value = value
         updateStatus()
     }
 
