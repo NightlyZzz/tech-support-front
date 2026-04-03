@@ -1,16 +1,17 @@
 import { apiClient } from '@/api/client'
+import type { TicketApi, PaginatedResponse } from '@/types/ticket'
 
-export const getTicket = async (id: number): Promise<any> => {
+export const getTicket = async (id: number): Promise<TicketApi> => {
     const response = await apiClient.get('/ticket/' + id)
     return response.data
 }
 
-export const getAllTickets = async (page = 1): Promise<any> => {
+export const getAllTickets = async (page = 1): Promise<PaginatedResponse<TicketApi>> => {
     const response = await apiClient.get('/ticket/all?page=' + page)
     return response.data
 }
 
-export const getMyTickets = async (page = 1): Promise<any> => {
+export const getMyTickets = async (page = 1): Promise<PaginatedResponse<TicketApi>> => {
     const response = await apiClient.get('/ticket/my?page=' + page)
     return response.data
 }

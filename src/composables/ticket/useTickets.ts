@@ -1,8 +1,9 @@
 import { ref } from 'vue'
 import { mapTickets } from '@/ticket/data'
 import type { Ticket } from '@/ticket/ticket'
+import type { PaginatedResponse, TicketApi } from '@/types/ticket'
 
-type ApiFunction = (page: number) => Promise<any>
+type ApiFunction = (page: number) => Promise<PaginatedResponse<TicketApi>>
 type SetMetaFunction = (meta: any) => void
 
 export const useTickets = (api: ApiFunction) => {
@@ -10,7 +11,7 @@ export const useTickets = (api: ApiFunction) => {
 
     const load = async (page: number, setMeta: SetMetaFunction): Promise<void> => {
         const json = await api(page)
-        tickets.value = mapTickets(json.data ?? []) as Ticket[]
+        tickets.value = mapTickets(json.data)
         setMeta(json.meta)
     }
 
