@@ -1,12 +1,24 @@
-export const useTicketMessages = (currentUser: any) => {
-    const isOwnMessage = (message: any): boolean => {
+import type { Ref } from 'vue'
+import type { User } from '@/user/user'
+
+interface TicketMessage {
+    id: number
+    message: string
+    sender_id: number | null
+    employee_id: number | null
+    sender_name: string
+    created_at: string
+}
+
+export const useTicketMessages = (currentUser: Ref<User | null>) => {
+    const isOwnMessage = (message: TicketMessage): boolean => {
         return (
                 message.sender_id === currentUser.value?.getId() ||
                 message.employee_id === currentUser.value?.getId()
         )
     }
 
-    const getDisplayName = (message: any): string => {
+    const getDisplayName = (message: TicketMessage): string => {
         if (isOwnMessage(message)) {
             return 'Вы'
         }

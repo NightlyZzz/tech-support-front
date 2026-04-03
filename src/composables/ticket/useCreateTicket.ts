@@ -7,6 +7,18 @@ interface TicketType {
     name: string
 }
 
+interface CreateTicketResponse {
+    message?: string
+}
+
+interface ApiError {
+    response?: {
+        data?: {
+            message?: string
+        }
+    }
+}
+
 export const useCreateTicket = () => {
     const ticketTypes = ref<TicketType[]>([])
     const isSubmitting = ref(false)
@@ -49,7 +61,7 @@ export const useCreateTicket = () => {
         isSubmitting.value = true
 
         try {
-            const response = await createTicket({
+            const response: CreateTicketResponse = await createTicket({
                 ticket_type_id: form.ticketTypeId,
                 description: form.description,
                 contact_phone: phone
@@ -60,8 +72,9 @@ export const useCreateTicket = () => {
             form.ticketTypeId = 0
             form.description = ''
             form.contactPhone = ''
-        } catch (error: any) {
-            showToast(error?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
+        } catch (error: unknown) {
+            const err = error as ApiError
+            showToast(err?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
         } finally {
             isSubmitting.value = false
         }
