@@ -6,7 +6,8 @@ export const usePagination = () => {
     const lastPage = ref<number>(1)
 
     const setMeta = (meta: PaginationMeta) => {
-        lastPage.value = meta.last_page
+        const raw = meta.last_page
+        lastPage.value = Array.isArray(raw) ? raw[0] : raw
 
         if (currentPage.value > lastPage.value) {
             currentPage.value = lastPage.value || 1

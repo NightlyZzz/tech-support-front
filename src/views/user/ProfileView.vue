@@ -1,5 +1,9 @@
 <template>
-    <div class="page">
+    <div v-if="!user" class="page">
+        Загрузка...
+    </div>
+
+    <div v-else class="page">
         <div class="page-header">
             <h1 class="page-title">Профиль</h1>
         </div>
@@ -92,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-    import { onMounted, reactive, ref } from 'vue'
+    import { onMounted, reactive, ref, watch } from 'vue'
     import { useUser } from '@/composables/user/useUser'
     import { logout } from '@/user/data'
     import BaseSelect from '@/components/BaseSelect.vue'
@@ -116,21 +120,32 @@
 
     const { user } = useUser()
 
-    if (!user.value) {
-        throw new Error('User not authorized')
-    }
-
     const form = reactive<ProfileForm>({
-        first_name: user.value.getFirstName(),
-        last_name: user.value.getLastName(),
-        middle_name: user.value.getMiddleName(),
-        email: user.value.getEmail(),
-        secondary_email: user.value.getSecondaryEmail() || user.value.getEmail(),
+        first_name: '',
+        last_name: '',
+        middle_name: '',
+        email: '',
+        secondary_email: '',
         new_password: '',
-        department_id: user.value.getDepartment()
+        department_id: 0
     })
 
     const originalForm = ref<ProfileForm>({ ...form })
+
+    watch(user, (u) => {
+        if (!u) {
+            return
+        }
+
+        form.first_name = u.getFirstName()
+        form.last_name = u.getLastName()
+        form.middle_name = u.getMiddleName()
+        form.email = u.getEmail()
+        form.secondary_email = u.getSecondaryEmail() || u.getEmail()
+        form.department_id = u.getDepartment()
+
+        originalForm.value = { ...form }
+    }, { immediate: true })
 
     const departments = ref<Department[]>([])
     const showPassword = ref(false)

@@ -9,27 +9,13 @@ import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import TicketLog from '@/views/ticket/TicketLog.vue'
 import { Role } from '@/enums/role'
-import { getUserToken } from '@/user/data'
-
-const getUserData = () => {
-    const data = localStorage.getItem('user_data')
-    return data ? JSON.parse(data) : null
-}
+import { getUserToken, getUser } from '@/user/data'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        {
-            path: '/',
-            name: 'home',
-            component: HomeView
-        },
-
-        {
-            path: '/home',
-            redirect: '/'
-        },
-
+        { path: '/', name: 'home', component: HomeView },
+        { path: '/home', redirect: '/' },
         { path: '/auth', name: 'auth', component: AuthView },
 
         {
@@ -94,7 +80,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const token = getUserToken()
     const isAuth = !!token
-    const userData = getUserData()
+    const user = getUser().value
 
     if (to.meta.requiresAuth && !isAuth) {
         return next({ name: 'auth' })
@@ -110,8 +96,8 @@ router.beforeEach((to, from, next) => {
 
     const role = to.meta.role
 
-    if (role && userData) {
-        const userRole = userData.role_id
+    if (role && user) {
+        const userRole = user.getRole()
 
         if (role === 'admin' && userRole !== Role.Admin) {
             return next({ name: 'profile' })

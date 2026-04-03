@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import type { User } from '@/user/user'
 
-interface TicketMessage {
+export interface TicketMessage {
     id: number
     message: string
     sender_id: number | null
@@ -12,9 +12,15 @@ interface TicketMessage {
 
 export const useTicketMessages = (currentUser: Ref<User | null>) => {
     const isOwnMessage = (message: TicketMessage): boolean => {
+        const userId = currentUser.value?.getId()
+
+        if (!userId) {
+            return false
+        }
+
         return (
-                message.sender_id === currentUser.value?.getId() ||
-                message.employee_id === currentUser.value?.getId()
+                message.sender_id === userId ||
+                message.employee_id === userId
         )
     }
 
@@ -24,7 +30,7 @@ export const useTicketMessages = (currentUser: Ref<User | null>) => {
         }
 
         if (message.sender_id !== null) {
-            return message.sender_name
+            return message.sender_name || 'Пользователь #' + message.sender_id
         }
 
         if (message.employee_id !== null) {

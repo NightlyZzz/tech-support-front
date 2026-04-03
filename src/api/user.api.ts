@@ -6,8 +6,8 @@ export const getAnotherUser = async (id: number): Promise<any> => {
     return response.data
 }
 
-export const getAllUsers = async (): Promise<any> => {
-    const response = await apiClient.get('/user/all')
+export const getAllUsers = async (page = 1): Promise<any> => {
+    const response = await apiClient.get('/user/all?page=' + page)
     return response.data
 }
 

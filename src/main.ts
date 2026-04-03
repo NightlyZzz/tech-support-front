@@ -10,8 +10,13 @@ import '@/assets/list.css'
 import '@/assets/navbar.css'
 import '@/assets/ticket.css'
 
-const app = createApp(App)
+const bootstrap = async () => {
+    const app = createApp(App)
 
-initUser()
-app.use(router)
-app.mount('#app')
+    await initUser()
+
+    app.use(router)
+    app.mount('#app')
+}
+
+bootstrap()

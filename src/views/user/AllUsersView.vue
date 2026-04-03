@@ -3,17 +3,17 @@
         <div class="page-header">
             <h1 class="page-title">Пользователи</h1>
             <span style="font-size:.875rem;color:var(--c-text-3);">
-        {{ filteredUsers.length }} чел.
-      </span>
+                {{ filteredUsers.length }} чел.
+            </span>
         </div>
 
         <div class="search-field">
-      <span class="search-field-icon">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-        </svg>
-      </span>
+            <span class="search-field-icon">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+                </svg>
+            </span>
             <input v-model="searchQuery" type="text" placeholder="Поиск по ФИО…"/>
         </div>
 
@@ -26,11 +26,11 @@
                     v-for="(userItem, index) in filteredUsers"
                     :key="userItem.getId()"
                     :class="[
-          'user-card',
-          'animate-in',
-          getRoleClass(userItem),
-          isCurrentUser(userItem) ? 'self' : ''
-        ]"
+                    'user-card',
+                    'animate-in',
+                    getRoleClass(userItem),
+                    isCurrentUser(userItem) ? 'self' : ''
+                ]"
                     :style="{ animationDelay: index * 0.05 + 's' }"
                     @click="openUser(userItem.getId())"
             >
@@ -52,6 +52,12 @@
                 </div>
             </div>
         </div>
+
+        <BasePagination
+                :current-page="currentPage"
+                :last-page="lastPage"
+                @change="loadPage"
+        />
     </div>
 </template>
 
@@ -60,42 +66,31 @@
     import { useRouter } from 'vue-router'
     import { useUser } from '@/composables/user/useUser'
     import { getAllUsers } from '@/api/user.api'
-    import { User } from '@/user/user'
     import { Role } from '@/enums/role'
     import { useUserSort } from '@/composables/user/useUserSort'
+    import { useUsers } from '@/composables/user/useUsers'
+    import { usePagination } from '@/composables/common/usePagination'
+    import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
+    import BasePagination from '@/components/BasePagination.vue'
 
     const router = useRouter()
 
     const { user } = useUser()
-
     const { sortUsers } = useUserSort()
 
-    const users = ref<User[]>([])
     const searchQuery = ref('')
 
-    const getInitials = (userItem: User): string => {
-        return (userItem.getLastName()[0] || '') + (userItem.getFirstName()[0] || '')
-    }
+    const { currentPage, lastPage, setMeta } = usePagination()
+    const { users, load } = useUsers(getAllUsers)
+    const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
 
     onMounted(async () => {
-        const response = await getAllUsers()
-
-        users.value = response.data.map((rawUser: any) => {
-            return new User(
-                    '',
-                    rawUser.id,
-                    rawUser.email,
-                    rawUser.first_name,
-                    rawUser.last_name,
-                    rawUser.middle_name,
-                    rawUser.role_id,
-                    rawUser.role_name,
-                    rawUser.department_id,
-                    rawUser.department_name,
-                    rawUser.secondary_email
-            )
-        })
+        await load(currentPage.value, setMeta)
     })
+
+    const getInitials = (userItem: any): string => {
+        return (userItem.getLastName()[0] || '') + (userItem.getFirstName()[0] || '')
+    }
 
     const openUser = (userId: number): void => {
         router.push({ name: 'edit-user', params: { id: userId } })
@@ -105,7 +100,7 @@
         const query = searchQuery.value.toLowerCase()
         const currentUserId = user.value?.getId() ?? null
 
-        const filteredList = users.value.filter((userItem: User) => {
+        const filteredList = users.value.filter((userItem: any) => {
             return `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`.toLowerCase().includes(query)
         })
 
@@ -115,7 +110,7 @@
         })
     })
 
-    const getRoleClass = (userItem: User): string => {
+    const getRoleClass = (userItem: any): string => {
         if (userItem.getRoleName() === 'Администратор') {
             return 'admin'
         }
@@ -127,11 +122,10 @@
         return ''
     }
 
-    const isCurrentUser = (userItem: User): boolean => {
+    const isCurrentUser = (userItem: any): boolean => {
         if (!user.value) {
             return false
         }
-
         return user.value.getId() === userItem.getId()
     }
 </script>

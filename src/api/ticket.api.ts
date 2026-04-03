@@ -1,9 +1,10 @@
 import { apiClient } from '@/api/client'
 import type { TicketApi, PaginatedResponse } from '@/types/ticket'
+import type { TicketLog } from '@/types/ticket'
 
 export const getTicket = async (id: number): Promise<TicketApi> => {
     const response = await apiClient.get('/ticket/' + id)
-    return response.data
+    return response.data.data
 }
 
 export const getAllTickets = async (page = 1): Promise<PaginatedResponse<TicketApi>> => {
@@ -31,9 +32,9 @@ export const updateTicket = async (id: number, data: any): Promise<any> => {
     return response.data
 }
 
-export const getTicketLogs = async (ticketId: number): Promise<any> => {
+export const getTicketLogs = async (ticketId: number): Promise<TicketLog[]> => {
     const response = await apiClient.get('/ticket/log/' + ticketId)
-    return response.data
+    return response.data.data
 }
 
 export const attachTicketLog = async (ticketId: number, data: any): Promise<any> => {

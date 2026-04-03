@@ -12,6 +12,15 @@ export type TicketApi = {
     sender_name: string
 }
 
+export type TicketLog = {
+    id: number
+    message: string
+    created_at: string
+    sender_id: number | null
+    employee_id: number | null
+    sender_name: string
+}
+
 export type PaginationMeta = {
     current_page: number
     last_page: number

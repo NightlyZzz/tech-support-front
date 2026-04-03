@@ -10,8 +10,8 @@ export const useTicketStatuses = () => {
     const statuses = ref<TicketStatusOption[]>([])
 
     const loadStatuses = async (): Promise<void> => {
-        const data = await getAllTicketStatuses()
-        statuses.value = data ?? []
+        const response = await getAllTicketStatuses()
+        statuses.value = response.data ?? []
     }
 
     return {

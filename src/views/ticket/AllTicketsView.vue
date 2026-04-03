@@ -63,9 +63,21 @@
     const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
     const openTicket = (ticketId: number) => {
-        if (isEmployee.value) {
-            router.push({ name: 'ticket', params: { id: ticketId } })
+        if (!isEmployee.value) {
+            return
         }
+
+        const ticket = tickets.value.find(t => t.getId() === ticketId)
+
+        if (!ticket) {
+            return
+        }
+
+        if (!ticket.getEmployeeId()) {
+            return
+        }
+
+        router.push({ name: 'ticket', params: { id: ticketId } })
     }
 
     const takeToReview = async (ticket: Ticket) => {

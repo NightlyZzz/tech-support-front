@@ -1,5 +1,4 @@
 import { onMounted, type Ref } from 'vue'
-import router from '@/router'
 import { useTicketPolling } from '@/composables/ticket/useTicketPolling'
 
 export const useTicketPage = (
@@ -12,7 +11,6 @@ export const useTicketPage = (
         await loadTicket()
 
         if (!canOpen.value) {
-            await router.push({ name: 'all-tickets' })
             return
         }
 

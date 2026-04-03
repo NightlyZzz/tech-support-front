@@ -5,8 +5,9 @@ type TicketLog = {
     id: number
     message: string
     created_at: string
-    user_id: number
-    user_name: string
+    sender_id: number | null
+    employee_id: number | null
+    sender_name: string
 }
 
 export const useTicketChat = (ticketId: number) => {
@@ -24,11 +25,11 @@ export const useTicketChat = (ticketId: number) => {
             return
         }
 
-        const newLog = await attachTicketLog(ticketId, {
+        const response = await attachTicketLog(ticketId, {
             message: newMessage.value
         })
 
-        logs.value.push(newLog)
+        logs.value.push(response.data)
         newMessage.value = ''
         await scrollToBottom()
     }
