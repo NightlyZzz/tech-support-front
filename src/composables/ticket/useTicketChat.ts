@@ -15,8 +15,7 @@ export const useTicketChat = (ticketId: number) => {
     const chatBox = ref<HTMLElement | null>(null)
 
     const loadLogs = async () => {
-        const data = await getTicketLogs(ticketId)
-        logs.value = data
+        logs.value = await getTicketLogs(ticketId)
         await scrollToBottom()
     }
 
