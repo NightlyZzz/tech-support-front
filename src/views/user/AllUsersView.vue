@@ -7,7 +7,6 @@
         filteredUsers,
         currentPage,
         lastPage,
-        loadPage,
         openUser,
         getInitials,
         isCurrentUser,

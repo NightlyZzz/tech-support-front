@@ -2,7 +2,7 @@
     import TicketCard from '@/components/ticket/TicketCard.vue'
     import type { Ticket } from '@/modules/ticket/model/ticket'
 
-    const props = defineProps<{
+    defineProps<{
         tickets: Ticket[]
         showUser?: boolean
         canTake?: boolean

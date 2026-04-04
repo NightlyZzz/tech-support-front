@@ -8,7 +8,6 @@
         selectedStatus,
         currentPage,
         lastPage,
-        loadPage,
         statusesWithAll,
         filteredTickets,
         openTicket,
