@@ -10,11 +10,16 @@ export const usePaginationLoader = (
         if (page === currentPage.value) {
             return
         }
+
         currentPage.value = page
     }
 
-    watch(currentPage, async (page) => {
-        await load(page, setMeta)
+    watch(currentPage, async (nextPage, previousPage) => {
+        if (nextPage === previousPage) {
+            return
+        }
+
+        await load(nextPage, setMeta)
         window.scrollTo({ top: 0, behavior: 'smooth' })
     })
 

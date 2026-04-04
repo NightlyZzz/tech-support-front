@@ -10,8 +10,8 @@ export const useTicketFilter = (
             return tickets.value
         }
 
-        return tickets.value.filter(ticket =>
-                ticket.getStatusId() === selectedStatus.value
+        return tickets.value.filter(ticketItem =>
+                ticketItem.getStatusId() === selectedStatus.value
         )
     })
 }

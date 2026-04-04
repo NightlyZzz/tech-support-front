@@ -2,7 +2,10 @@
     import { useRoute } from 'vue-router'
     import { computed } from 'vue'
     import { Role } from '@/enums/role'
-    import BaseSelect from '@/components/BaseSelect.vue'
+    import TicketInfoCard from '@/components/ticket/TicketInfoCard.vue'
+    import TicketStatusCard from '@/components/ticket/TicketStatusCard.vue'
+    import TicketMessagesList from '@/components/ticket/TicketMessagesList.vue'
+    import TicketMessageInput from '@/components/ticket/TicketMessageInput.vue'
 
     import { useTicketAccess } from '@/modules/ticket/composables/useTicketAccess'
     import { useTicketChat } from '@/modules/ticket/composables/useTicketChat'
@@ -33,12 +36,12 @@
 
     const ticketStatus = computed({
         get: () => ticket.value?.getStatusId() ?? null,
-        set: (value: number | null) => {
-            if (!ticket.value || value === null) {
+        set: (nextStatusId: number | null) => {
+            if (!ticket.value || nextStatusId === null) {
                 return
             }
 
-            ticket.value.setStatus(value)
+            ticket.value.setStatus(nextStatusId)
         }
     })
 
@@ -62,78 +65,45 @@
         canWrite
     } = useTicketAccess(ticketStatus, assignedEmployeeId)
 
+    const displayedUserName = computed(() => {
+        if (!currentUser.value || !ticket.value) {
+            return ''
+        }
+
+        return ticket.value.getSenderId() === currentUser.value.getId()
+                ? 'Вы'
+                : ticket.value.getSenderName()
+    })
+
+    const handleStatusSelectChange = (selectedValue: string | number | null) => {
+        if (selectedValue === null) {
+            return
+        }
+
+        handleStatusChange(Number(selectedValue))
+    }
+
     useTicketPage(loadTicket, loadLogs, loadStatuses, canOpen)
 </script>
 
 <template>
-    <div class="ticket-layout" v-if="canOpen">
+    <div v-if="canOpen" class="ticket-layout">
         <aside class="ticket-panel">
-            <div class="ticket-panel-card">
-                <p class="ticket-panel-title">Заявка</p>
-                <div class="ticket-id-label">#{{ ticketId }}</div>
+            <TicketInfoCard
+                    :ticketId="ticketId"
+                    :ticket="ticket"
+                    :displayedUserName="displayedUserName"
+                    :formatPhoneNumber="formatPhoneNumber"
+            />
 
-                <div class="ticket-field">
-                    <span class="ticket-field-label">Тип</span>
-                    <span class="ticket-field-value">{{ ticket?.getTypeName() }}</span>
-                </div>
-
-                <div class="ticket-field">
-                    <span class="ticket-field-label">Пользователь</span>
-                    <span class="ticket-field-value">
-                        {{
-                            currentUser?.getId() && ticket?.getSenderId() === currentUser.getId()
-                                    ? 'Вы'
-                                    : ticket?.getSenderName()
-                        }}
-                    </span>
-                </div>
-
-                <div class="ticket-field">
-                    <span class="ticket-field-label">Телефон</span>
-                    <span class="ticket-field-value mono">
-                        {{ formatPhoneNumber(ticket?.getContactPhone() || '') }}
-                    </span>
-                </div>
-
-                <div class="ticket-field">
-                    <span class="ticket-field-label">Создана</span>
-                    <span class="ticket-field-value">{{ ticket?.getCreatedAt() }}</span>
-                </div>
-
-                <div class="ticket-divider"></div>
-
-                <div class="ticket-field">
-                    <span class="ticket-field-label">Описание</span>
-                    <span class="ticket-field-value" style="white-space:pre-wrap;line-height:1.6;">
-                        {{ ticket?.getDescription() }}
-                    </span>
-                </div>
-            </div>
-
-            <div
-                    class="ticket-panel-card status-select-wrapper"
+            <TicketStatusCard
                     v-if="currentUser?.getRole() !== Role.User && ticketStatus !== null"
-            >
-                <p class="ticket-panel-title">Статус заявки</p>
-
-                <span
-                        :class="['badge', getStatusBadge(ticketStatus)]"
-                        style="margin-bottom:12px;display:inline-flex;"
-                >
-                    {{ currentStatusName }}
-                </span>
-
-                <BaseSelect
-                        id="status"
-                        label="Изменить статус"
-                        placeholder="Выберите статус"
-                        :items="allStatuses"
-                        :modelValue="ticketStatus"
-                        valueKey="id"
-                        labelKey="name"
-                        @update:modelValue="(val) => handleStatusChange(Number(val))"
-                />
-            </div>
+                    :ticketStatus="ticketStatus"
+                    :currentStatusName="currentStatusName"
+                    :allStatuses="allStatuses"
+                    :getStatusBadge="getStatusBadge"
+                    @changeStatus="handleStatusSelectChange"
+            />
         </aside>
 
         <section class="ticket-chat">
@@ -151,46 +121,19 @@
                 </span>
             </div>
 
-            <div class="ticket-messages" ref="chatBox">
-                <div
-                        v-for="message in logs"
-                        :key="message.id"
-                        :class="['msg-row', isOwnMessage(message) ? 'own' : '']"
-                >
-                    <div class="msg-bubble-wrap">
-                        <div class="msg-meta">{{ getDisplayName(message) }}</div>
-                        <div class="msg-bubble">{{ message.message }}</div>
-                        <div class="msg-time">
-                            {{ new Date(message.created_at).toLocaleString('ru-RU') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <form
-                    class="ticket-input-area"
-                    @submit.prevent="sendLog"
-                    v-if="canWrite"
-            >
-                <input
-                        v-model="newMessage"
-                        type="text"
-                        placeholder="Введите сообщение…"
-                        class="ticket-input"
+            <div ref="chatBox" class="ticket-messages">
+                <TicketMessagesList
+                        :logs="logs"
+                        :isOwnMessage="isOwnMessage"
+                        :getDisplayName="getDisplayName"
                 />
-
-                <button
-                        type="submit"
-                        class="btn btn--primary"
-                        :disabled="!newMessage.trim() || !canWrite"
-                >
-                    Отправить
-                </button>
-            </form>
-
-            <div v-else class="ticket-closed">
-                Переписка по этой заявке закрыта
             </div>
+
+            <TicketMessageInput
+                    v-model="newMessage"
+                    :canWrite="canWrite"
+                    @submit="sendLog"
+            />
         </section>
     </div>
 </template>

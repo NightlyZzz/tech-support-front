@@ -15,32 +15,36 @@ export const useTicketChat = (ticketId: number) => {
     const newMessage = ref('')
     const chatBox = ref<HTMLElement | null>(null)
 
+    const scrollToBottom = async () => {
+        await nextTick()
+
+        if (chatBox.value) {
+            chatBox.value.scrollTop = chatBox.value.scrollHeight
+        }
+    }
+
     const loadLogs = async () => {
-        logs.value = await getTicketLogs(ticketId)
+        const ticketLogs = await getTicketLogs(ticketId)
+        logs.value = ticketLogs
         await scrollToBottom()
     }
 
     const sendLog = async () => {
-        if (!newMessage.value.trim()) {
+        const trimmedMessage = newMessage.value.trim()
+
+        if (!trimmedMessage) {
             return
         }
 
         const response = await attachTicketLog(ticketId, {
-            message: newMessage.value
+            message: trimmedMessage
         })
 
-        const newLog = response.data ?? response
+        const createdLog = response.data ?? response
 
-        logs.value.push(newLog)
+        logs.value.push(createdLog)
         newMessage.value = ''
         await scrollToBottom()
-    }
-
-    const scrollToBottom = async () => {
-        await nextTick()
-        if (chatBox.value) {
-            chatBox.value.scrollTop = chatBox.value.scrollHeight
-        }
     }
 
     return {

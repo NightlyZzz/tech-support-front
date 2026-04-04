@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import { reactive, ref } from 'vue'
     import router from '@/router'
-    import { login, getCurrentUser } from '@/modules/user/api/auth.api'
+    import { login } from '@/modules/user/api/auth.api'
     import { showToast } from '@/shared/toast/toastService'
-    import { setUserData, setUserToken } from "@/modules/user/model/userStorage"
-    import { initUser } from "@/modules/user/composables/useInitUser"
+    import { setUserToken } from '@/modules/user/model/userStorage'
+    import { initUser } from '@/modules/user/composables/useInitUser'
 
     interface LoginForm {
         email: string
@@ -22,15 +22,12 @@
 
     const handleLogin = async (): Promise<void> => {
         try {
-            const response = await login({
+            const loginResponse = await login({
                 email: form.email,
                 password: form.password
             })
 
-            setUserToken(response.token)
-
-            const userResponse = await getCurrentUser()
-            setUserData(userResponse.data)
+            setUserToken(loginResponse.token)
 
             await initUser()
 
@@ -47,8 +44,8 @@
             <label for="login-email">Электронная почта</label>
             <input
                     id="login-email"
-                    type="email"
                     v-model="form.email"
+                    type="email"
                     placeholder="you@example.com"
                     required
             />
@@ -59,21 +56,21 @@
             <div class="password-wrapper">
                 <input
                         id="login-password"
-                        :type="showPassword ? 'text' : 'password'"
                         v-model="form.password"
+                        :type="showPassword ? 'text' : 'password'"
                         placeholder="Минимум 8 символов"
                         minlength="8"
                         required
                 />
                 <label class="check-label" style="margin-top:4px;">
-                    <input type="checkbox" v-model="showPassword"/>
+                    <input v-model="showPassword" type="checkbox"/>
                     Показать пароль
                 </label>
             </div>
         </div>
 
         <label class="check-label">
-            <input type="checkbox" v-model="form.remember"/>
+            <input v-model="form.remember" type="checkbox"/>
             Запомнить меня
         </label>
 

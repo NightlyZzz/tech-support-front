@@ -9,7 +9,7 @@
     }>()
 
     const emit = defineEmits<{
-        (e: 'click', id: number): void
+        (e: 'click', ticketId: number): void
         (e: 'take', ticket: Ticket): void
     }>()
 
@@ -36,7 +36,7 @@
         </div>
 
         <div class="ticket-card-meta">
-            <div class="ticket-card-row" v-if="showUser">
+            <div v-if="showUser" class="ticket-card-row">
                 <b>Пользователь:</b> {{ ticket.getSenderName() }}
             </div>
 

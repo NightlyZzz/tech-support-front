@@ -1,6 +1,7 @@
 import router from '@/router'
 import { logoutRequest } from '@/modules/user/api/auth.api'
-import { user } from '@/modules/user/model/userState'
+import { clearUserStorage } from '@/modules/user/model/userStorage'
+import { clearUserState } from '@/modules/user/model/userState'
 
 export const logout = async (): Promise<void> => {
     try {
@@ -9,9 +10,8 @@ export const logout = async (): Promise<void> => {
         console.log('LOGOUT ERROR:', e)
     }
 
-    localStorage.removeItem('token')
-    localStorage.removeItem('user_data')
-    user.value = null
+    clearUserStorage()
+    clearUserState()
 
     await router.push({ name: 'home' })
 }

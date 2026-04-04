@@ -14,22 +14,22 @@ type TicketApi = {
     sender_name: string
 }
 
-export const mapTicket = (data: TicketApi): Ticket => {
+export const mapTicket = (ticketData: TicketApi): Ticket => {
     return new Ticket(
-            data.id,
-            data.description,
-            data.contact_phone,
-            data.sender_id,
-            data.employee_id,
-            data.type_id,
-            data.type_name,
-            data.status_id,
-            data.status_name,
-            data.created_at,
-            data.sender_name
+            ticketData.id,
+            ticketData.description,
+            ticketData.contact_phone,
+            ticketData.sender_id,
+            ticketData.employee_id,
+            ticketData.type_id,
+            ticketData.type_name,
+            ticketData.status_id,
+            ticketData.status_name,
+            ticketData.created_at,
+            ticketData.sender_name
     )
 }
 
-export const mapTickets = (data: TicketApi[]): Ticket[] => {
-    return data.map(mapTicket)
+export const mapTickets = (ticketsData: TicketApi[]): Ticket[] => {
+    return ticketsData.map(mapTicket)
 }

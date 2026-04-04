@@ -5,14 +5,13 @@
     import { usePhoneInput } from '@/composables/common/usePhoneInput'
 
     const { form, ticketTypes, isSubmitting, submitTicket } = useCreateTicket()
-
     const { displayPhone, handlePhoneInput, allowOnlyDigits } = usePhoneInput(form)
 
-    const phoneKey = ref(0)
+    const phoneInputKey = ref(0)
 
     const handleSubmit = async () => {
         await submitTicket()
-        phoneKey.value++
+        phoneInputKey.value++
     }
 </script>
 
@@ -40,7 +39,7 @@
                     <div class="field">
                         <label for="contact_phone">Контактный телефон</label>
                         <input
-                                :key="phoneKey"
+                                :key="phoneInputKey"
                                 :value="displayPhone"
                                 id="contact_phone"
                                 type="tel"

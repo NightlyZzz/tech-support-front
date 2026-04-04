@@ -18,48 +18,48 @@ export const useUsersPage = () => {
 
     const { currentPage, lastPage, setMeta } = usePagination()
     const { users, load } = useUsers(getAllUsers)
-    const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
+
+    usePaginationLoader(currentPage, load, setMeta)
 
     onMounted(async () => {
         await load(currentPage.value, setMeta)
     })
 
     const filteredUsers = computed(() => {
-        const query = searchQuery.value.toLowerCase()
+        const normalizedQuery = searchQuery.value.toLowerCase().trim()
         const currentUserId = user.value?.getId() ?? null
 
-        const filtered = users.value.filter(u =>
-                `${u.getLastName()} ${u.getFirstName()} ${u.getMiddleName()}`.toLowerCase().includes(query)
+        const matchedUsers = users.value.filter(userItem =>
+                `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`.toLowerCase().includes(normalizedQuery)
         )
 
-        return sortUsers(filtered, currentUserId, {
+        return sortUsers(matchedUsers, currentUserId, {
             pinCurrentUser: true,
             roleOrder: [Role.Admin, Role.Employee, Role.User]
         })
     })
 
-    const openUser = (id: number) => {
-        router.push({ name: 'edit-user', params: { id } })
+    const openUser = (userId: number) => {
+        router.push({ name: 'edit-user', params: { id: userId } })
     }
 
-    const getInitials = (u: any) => {
-        return (u.getLastName()[0] || '') + (u.getFirstName()[0] || '')
+    const getInitials = (userItem: any) => {
+        return `${userItem.getLastName()[0] || ''}${userItem.getFirstName()[0] || ''}`
     }
 
-    const isCurrentUser = (u: any) => {
-        if (!user.value) {
-            return false
-        }
-        return user.value.getId() === u.getId()
+    const isCurrentUser = (userItem: any) => {
+        return user.value?.getId() === userItem.getId()
     }
 
-    const getRoleClass = (u: any) => {
-        if (u.getRoleName() === 'Администратор') {
+    const getRoleClass = (userItem: any) => {
+        if (userItem.getRoleName() === 'Администратор') {
             return 'admin'
         }
-        if (u.getRoleName() === 'Сотрудник') {
+
+        if (userItem.getRoleName() === 'Сотрудник') {
             return 'employee'
         }
+
         return ''
     }
 
@@ -68,7 +68,6 @@ export const useUsersPage = () => {
         filteredUsers,
         currentPage,
         lastPage,
-        loadPage,
         openUser,
         getInitials,
         isCurrentUser,

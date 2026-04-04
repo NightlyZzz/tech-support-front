@@ -1,6 +1,7 @@
 import axios from 'axios'
 import router from '@/router'
-import { getUserToken } from '@/modules/user/model/userStorage'
+import { getUserToken, clearUserStorage } from '@/modules/user/model/userStorage'
+import { clearUserState } from '@/modules/user/model/userState'
 import { BACKEND_URL } from '@/shared/utils/constants'
 
 export const apiClient = axios.create({
@@ -28,9 +29,8 @@ apiClient.interceptors.response.use(
 
             if (status === 401) {
                 if (token) {
-                    localStorage.removeItem('token')
-                    localStorage.removeItem('user_data')
-
+                    clearUserStorage()
+                    clearUserState()
                     await router.push({ name: 'auth' })
                 }
 

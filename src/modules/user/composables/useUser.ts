@@ -1,34 +1,24 @@
 import { computed } from 'vue'
-import { user } from '@/modules/user/model/userState'
+import { getUser, setUserState } from '@/modules/user/model/userState'
 import { Role } from '@/enums/role'
 import { User } from '@/modules/user/model/user'
 
 export const useUser = () => {
-    const setUser = (data: any) => {
-        if (!data) {
-            user.value = null
+    const user = getUser()
+
+    const setUser = (userData: any) => {
+        if (!userData) {
+            setUserState(null)
             return
         }
 
-        user.value = new User(
-                data.token ?? user.value?.getToken() ?? '',
-                data.id,
-                data.email,
-                data.first_name,
-                data.last_name,
-                data.middle_name,
-                data.role,
-                data.role_name,
-                data.department_id ?? data.department ?? 0,
-                data.department_name ?? '',
-                data.secondary_email ?? null
-        )
+        const fallbackToken = user.value?.getToken() ?? ''
+        setUserState(User.fromApi(userData, fallbackToken))
     }
 
     const isUser = computed(() => user.value?.getRole() === Role.User)
     const isEmployee = computed(() => (user.value?.getRole() ?? 0) >= Role.Employee)
     const isAdmin = computed(() => user.value?.getRole() === Role.Admin)
-
     const userId = computed(() => user.value?.getId() ?? null)
 
     return {

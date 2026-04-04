@@ -10,45 +10,46 @@
         (e: 'update:modelValue', page: number): void
     }>()
 
-    const changePage = (page: number) => {
-        if (page < 1 || page > props.lastPage || page === props.modelValue) {
+    const changePage = (nextPage: number) => {
+        if (nextPage < 1 || nextPage > props.lastPage || nextPage === props.modelValue) {
             return
         }
-        emit('update:modelValue', page)
+
+        emit('update:modelValue', nextPage)
     }
 
     const pages = computed<(number | string)[]>(() => {
-        const total = props.lastPage
-        const current = props.modelValue
+        const totalPages = props.lastPage
+        const currentPage = props.modelValue
+        const visiblePages: (number | string)[] = []
 
-        const result: (number | string)[] = []
-
-        if (total <= 7) {
-            for (let i = 1; i <= total; i++) {
-                result.push(i)
+        if (totalPages <= 7) {
+            for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+                visiblePages.push(pageNumber)
             }
-            return result
+
+            return visiblePages
         }
 
-        result.push(1)
+        visiblePages.push(1)
 
-        if (current > 3) {
-            result.push('...')
+        if (currentPage > 3) {
+            visiblePages.push('...')
         }
 
-        for (let i = current - 1; i <= current + 1; i++) {
-            if (i > 1 && i < total) {
-                result.push(i)
+        for (let pageNumber = currentPage - 1; pageNumber <= currentPage + 1; pageNumber++) {
+            if (pageNumber > 1 && pageNumber < totalPages) {
+                visiblePages.push(pageNumber)
             }
         }
 
-        if (current < total - 2) {
-            result.push('...')
+        if (currentPage < totalPages - 2) {
+            visiblePages.push('...')
         }
 
-        result.push(total)
+        visiblePages.push(totalPages)
 
-        return result
+        return visiblePages
     })
 </script>
 
@@ -62,14 +63,14 @@
             ←
         </button>
 
-        <template v-for="page in pages" :key="page + '-' + modelValue">
+        <template v-for="pageItem in pages" :key="pageItem + '-' + modelValue">
             <button
-                    v-if="typeof page === 'number'"
+                    v-if="typeof pageItem === 'number'"
                     class="btn"
-                    :class="{ active: page === modelValue }"
-                    @click="changePage(page)"
+                    :class="{ active: pageItem === modelValue }"
+                    @click="changePage(pageItem)"
             >
-                {{ page }}
+                {{ pageItem }}
             </button>
 
             <span v-else class="dots">...</span>

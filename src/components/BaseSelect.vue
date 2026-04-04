@@ -22,14 +22,18 @@
     }>()
 
     const emit = defineEmits<{
-        (e: 'update:modelValue', value: number): void
+        (e: 'update:modelValue', value: number | null): void
     }>()
 
     const onChange = (event: Event) => {
         const target = event.target as HTMLSelectElement
-        const value = Number(target.value)
 
-        emit('update:modelValue', value)
+        if (target.value === '') {
+            emit('update:modelValue', null)
+            return
+        }
+
+        emit('update:modelValue', Number(target.value))
     }
 </script>
 
@@ -43,7 +47,7 @@
                 @change="onChange"
         >
             <option
-                    v-if="modelValue === null"
+                    v-if="placeholder"
                     disabled
                     value=""
             >

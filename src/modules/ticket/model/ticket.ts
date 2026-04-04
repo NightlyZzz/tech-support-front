@@ -70,6 +70,7 @@ export class Ticket {
 
     setStatus(statusId: number, statusName?: string): void {
         this.statusId = statusId
+
         if (statusName) {
             this.statusName = statusName
         }

@@ -10,10 +10,13 @@ export const useTickets = (api: ApiFunction) => {
     const tickets = ref<Ticket[]>([])
 
     const load = async (page: number, setMeta: SetMetaFunction): Promise<void> => {
-        const json = await api(page)
-        tickets.value = mapTickets(json.data)
-        setMeta(json.meta)
+        const responseJson = await api(page)
+        tickets.value = mapTickets(responseJson.data)
+        setMeta(responseJson.meta)
     }
 
-    return { tickets, load }
+    return {
+        tickets,
+        load
+    }
 }

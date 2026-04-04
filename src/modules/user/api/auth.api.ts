@@ -1,4 +1,4 @@
-import { apiClient } from "@/shared/api/client.ts";
+import { apiClient } from '@/shared/api/client'
 
 export const login = async (data: any): Promise<any> => {
     const response = await apiClient.post('/auth/login', data)

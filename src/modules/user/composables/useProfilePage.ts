@@ -3,6 +3,7 @@ import { useUser } from '@/modules/user/composables/useUser'
 import { logout } from '@/modules/user/services/auth.service'
 import { deleteCurrentUser, updateUser } from '@/modules/user/api/user.api'
 import { getAllDepartments } from '@/modules/user/api/user.lookup'
+import { setUserData } from '@/modules/user/model/userStorage'
 import { showToast } from '@/shared/toast/toastService'
 
 interface Department {
@@ -34,71 +35,87 @@ export const useProfilePage = () => {
     })
 
     const originalForm = ref<ProfileForm>({ ...form })
-
-    watch(user, (u) => {
-        if (!u) {
-            return
-        }
-
-        form.first_name = u.getFirstName()
-        form.last_name = u.getLastName()
-        form.middle_name = u.getMiddleName()
-        form.email = u.getEmail()
-        form.secondary_email = u.getSecondaryEmail() || u.getEmail()
-        form.department_id = u.getDepartment()
-
-        originalForm.value = { ...form }
-    }, { immediate: true })
-
     const departments = ref<Department[]>([])
     const showPassword = ref(false)
     const loading = ref(false)
+
+    const syncFormFromUser = () => {
+        if (!user.value) {
+            return
+        }
+
+        form.first_name = user.value.getFirstName()
+        form.last_name = user.value.getLastName()
+        form.middle_name = user.value.getMiddleName()
+        form.email = user.value.getEmail()
+        form.secondary_email = user.value.getSecondaryEmail() || user.value.getEmail()
+        form.department_id = user.value.getDepartment()
+        form.new_password = ''
+
+        originalForm.value = { ...form }
+    }
+
+    watch(user, () => {
+        syncFormFromUser()
+    }, { immediate: true })
 
     const handleLogout = async () => {
         await logout()
     }
 
     const saveChanges = async () => {
-        const payload: Partial<ProfileForm> = {}
-        const keys = Object.keys(form) as (keyof ProfileForm)[]
+        const changedFields: Partial<ProfileForm> = {}
+        const formKeys = Object.keys(form) as (keyof ProfileForm)[]
 
-        for (const key of keys) {
-            if (key === 'new_password') {
-                if (form.new_password.trim().length >= 8) {
-                    payload.new_password = form.new_password.trim()
+        for (const fieldName of formKeys) {
+            if (fieldName === 'new_password') {
+                const trimmedPassword = form.new_password.trim()
+
+                if (trimmedPassword.length >= 8) {
+                    changedFields.new_password = trimmedPassword
                 }
+
                 continue
             }
 
-            if (form[key] !== originalForm.value[key]) {
-                payload[key] = form[key] as any
+            if (form[fieldName] !== originalForm.value[fieldName]) {
+                changedFields[fieldName] = form[fieldName] as never
             }
         }
 
-        if (!Object.keys(payload).length) {
+        if (!Object.keys(changedFields).length) {
             return
         }
 
         loading.value = true
 
         try {
-            await updateUser(payload)
+            await updateUser(changedFields)
 
-            const updatedUser = {
-                ...user.value,
-                first_name: form.first_name,
-                last_name: form.last_name,
-                middle_name: form.middle_name,
-                email: form.email,
-                secondary_email: form.secondary_email,
-                department_id: form.department_id
+            if (user.value) {
+                const selectedDepartmentName =
+                        departments.value.find(departmentItem => departmentItem.id === form.department_id)?.name ??
+                        user.value.getDepartmentName()
+
+                const updatedCurrentUser = {
+                    token: user.value.getToken(),
+                    id: user.value.getId(),
+                    email: form.email,
+                    first_name: form.first_name,
+                    last_name: form.last_name,
+                    middle_name: form.middle_name,
+                    role_id: user.value.getRole(),
+                    role_name: user.value.getRoleName(),
+                    department_id: form.department_id,
+                    department_name: selectedDepartmentName,
+                    secondary_email: form.secondary_email
+                }
+
+                setUserData(updatedCurrentUser)
+                setUser(updatedCurrentUser)
             }
 
-            setUser(updatedUser)
-
-            originalForm.value = { ...form }
-            form.new_password = ''
-
+            syncFormFromUser()
             showToast('Сохранено', 'success')
         } catch {
             showToast('Ошибка', 'error')
@@ -118,8 +135,8 @@ export const useProfilePage = () => {
 
     const loadDepartments = async () => {
         try {
-            const response = await getAllDepartments()
-            departments.value = response.data ?? []
+            const departmentsResponse = await getAllDepartments()
+            departments.value = departmentsResponse.data ?? []
         } catch {
         }
     }

@@ -21,7 +21,7 @@ export type TicketLog = {
     sender_name: string
 }
 
-export type PaginationMeta = {
+export type TicketPaginationMeta = {
     current_page: number
     last_page: number
     per_page: number
@@ -30,5 +30,5 @@ export type PaginationMeta = {
 
 export type PaginatedResponse<T> = {
     data: T[]
-    meta: PaginationMeta
+    meta: TicketPaginationMeta
 }

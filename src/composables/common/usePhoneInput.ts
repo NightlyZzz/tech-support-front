@@ -16,54 +16,54 @@ export const usePhoneInput = (form: any) => {
     const handlePhoneInput = (event: Event): void => {
         const inputElement = event.target as HTMLInputElement
 
-        let digits = inputElement.value.replace(/\D/g, '')
+        let normalizedDigits = inputElement.value.replace(/\D/g, '')
 
-        if (!digits) {
+        if (!normalizedDigits) {
             form.contactPhone = ''
             return
         }
 
-        if (digits.startsWith('8')) {
-            digits = '7' + digits.slice(1)
+        if (normalizedDigits.startsWith('8')) {
+            normalizedDigits = '7' + normalizedDigits.slice(1)
         }
 
-        if (!digits.startsWith('7')) {
-            digits = '7' + digits
+        if (!normalizedDigits.startsWith('7')) {
+            normalizedDigits = '7' + normalizedDigits
         }
 
-        digits = digits.slice(0, 11)
+        normalizedDigits = normalizedDigits.slice(0, 11)
 
-        form.contactPhone = '+' + digits
+        form.contactPhone = '+' + normalizedDigits
     }
 
     const displayPhone = computed(() => {
-        const phone = form.contactPhone
+        const rawPhone = form.contactPhone
 
-        if (!phone) {
+        if (!rawPhone) {
             return ''
         }
 
-        const digits = phone.replace(/\D/g, '')
+        const normalizedDigits = rawPhone.replace(/\D/g, '')
 
-        let formatted = '+7'
+        let formattedPhone = '+7'
 
-        if (digits.length > 1) {
-            formatted += ' (' + digits.slice(1, 4)
+        if (normalizedDigits.length > 1) {
+            formattedPhone += ' (' + normalizedDigits.slice(1, 4)
         }
 
-        if (digits.length >= 4) {
-            formatted += ') ' + digits.slice(4, 7)
+        if (normalizedDigits.length >= 4) {
+            formattedPhone += ') ' + normalizedDigits.slice(4, 7)
         }
 
-        if (digits.length >= 7) {
-            formatted += '-' + digits.slice(7, 9)
+        if (normalizedDigits.length >= 7) {
+            formattedPhone += '-' + normalizedDigits.slice(7, 9)
         }
 
-        if (digits.length >= 9) {
-            formatted += '-' + digits.slice(9, 11)
+        if (normalizedDigits.length >= 9) {
+            formattedPhone += '-' + normalizedDigits.slice(9, 11)
         }
 
-        return formatted
+        return formattedPhone
     })
 
     return {

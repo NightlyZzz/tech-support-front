@@ -39,18 +39,18 @@ export const useEditUserPage = () => {
     })
 
     const loadDepartments = async () => {
-        const res = await getAllDepartments()
-        departments.value = res.data ?? []
+        const departmentsResponse = await getAllDepartments()
+        departments.value = departmentsResponse.data ?? []
     }
 
     const loadRoles = async () => {
-        const res = await getAllRoles()
-        roles.value = res.data ?? []
+        const rolesResponse = await getAllRoles()
+        roles.value = rolesResponse.data ?? []
     }
 
     const loadUser = async () => {
-        const res = await getAnotherUser(userId)
-        Object.assign(form, res.data)
+        const userResponse = await getAnotherUser(userId)
+        Object.assign(form, userResponse.data)
     }
 
     const saveChanges = async () => {

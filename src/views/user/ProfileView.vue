@@ -101,7 +101,7 @@
 
                     <div class="action-row">
                         <button
-                                :class="['btn','btn--primary', loading ? 'btn-loading' : '']"
+                                :class="['btn', 'btn--primary', loading ? 'btn-loading' : '']"
                                 @click="saveChanges"
                         >
                             Сохранить изменения

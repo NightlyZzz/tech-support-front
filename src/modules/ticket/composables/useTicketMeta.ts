@@ -21,29 +21,29 @@ export const useTicketMeta = (
             return ''
         }
 
-        const status = allStatuses.value.find(
+        const currentStatus = allStatuses.value.find(
                 statusItem => statusItem.id === ticketStatus.value
         )
 
-        return status ? status.name : ''
+        return currentStatus ? currentStatus.name : ''
     })
 
-    const formatPhoneNumber = (phone?: string | null): string => {
-        if (!phone) {
+    const formatPhoneNumber = (phoneNumber?: string | null): string => {
+        if (!phoneNumber) {
             return '—'
         }
 
-        const digits = phone.replace(/\D/g, '').replace(/^8/, '7')
+        const normalizedDigits = phoneNumber.replace(/\D/g, '').replace(/^8/, '7')
 
-        if (digits.length < 10) {
-            return phone
+        if (normalizedDigits.length < 10) {
+            return phoneNumber
         }
 
-        return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`
+        return `+7 (${normalizedDigits.slice(1, 4)}) ${normalizedDigits.slice(4, 7)}-${normalizedDigits.slice(7, 9)}-${normalizedDigits.slice(9, 11)}`
     }
 
-    const handleStatusChange = (value: number): void => {
-        ticketStatus.value = value
+    const handleStatusChange = (nextStatusId: number): void => {
+        ticketStatus.value = nextStatusId
         updateStatus()
     }
 

@@ -17,7 +17,7 @@ export const useMyTicketsPage = () => {
 
     const { currentPage, lastPage, setMeta } = usePagination()
     const { tickets, load } = useTickets(getMyTickets)
-    const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
+    usePaginationLoader(currentPage, load, setMeta)
     const { statuses, loadStatuses } = useTicketStatuses()
 
     const availableStatuses = computed(() => {
@@ -29,7 +29,7 @@ export const useMyTicketsPage = () => {
             return statuses.value
         }
 
-        return statuses.value.filter(s => s.id !== TicketStatus.Pending)
+        return statuses.value.filter(statusItem => statusItem.id !== TicketStatus.Pending)
     })
 
     const availableStatusesWithAll = computed(() => [
@@ -52,7 +52,6 @@ export const useMyTicketsPage = () => {
         selectedStatus,
         currentPage,
         lastPage,
-        loadPage,
         availableStatusesWithAll,
         filteredTickets,
         openTicket,

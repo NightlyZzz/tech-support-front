@@ -1,4 +1,4 @@
-import { reactive, ref, onMounted } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { createTicket } from '@/modules/ticket/api/ticket.api'
 import { getAllTicketTypes } from '@/modules/ticket/api/ticket.lookup'
 import { showToast } from '@/shared/toast/toastService'
@@ -40,24 +40,24 @@ export const useCreateTicket = () => {
     }
 
     const submitTicket = async (): Promise<void> => {
-        let digits = form.contactPhone.replace(/\D/g, '')
+        let normalizedPhoneDigits = form.contactPhone.replace(/\D/g, '')
 
-        if (digits.startsWith('8')) {
-            digits = '7' + digits.slice(1)
+        if (normalizedPhoneDigits.startsWith('8')) {
+            normalizedPhoneDigits = '7' + normalizedPhoneDigits.slice(1)
         }
 
-        if (!digits.startsWith('7')) {
-            digits = '7' + digits
+        if (!normalizedPhoneDigits.startsWith('7')) {
+            normalizedPhoneDigits = '7' + normalizedPhoneDigits
         }
 
-        digits = digits.slice(0, 11)
+        normalizedPhoneDigits = normalizedPhoneDigits.slice(0, 11)
 
-        if (!form.ticketTypeId || !form.description.trim() || digits.length < 11) {
+        if (!form.ticketTypeId || !form.description.trim() || normalizedPhoneDigits.length < 11) {
             showToast('Пожалуйста, заполните все поля корректно', 'error')
             return
         }
 
-        const phone = '+' + digits
+        const formattedPhone = '+' + normalizedPhoneDigits
 
         isSubmitting.value = true
 
@@ -65,7 +65,7 @@ export const useCreateTicket = () => {
             const response: CreateTicketResponse = await createTicket({
                 ticket_type_id: form.ticketTypeId,
                 description: form.description,
-                contact_phone: phone
+                contact_phone: formattedPhone
             })
 
             showToast(response.message || 'Заявка успешно отправлена!', 'success')
@@ -74,8 +74,8 @@ export const useCreateTicket = () => {
             form.description = ''
             form.contactPhone = ''
         } catch (error: unknown) {
-            const err = error as ApiError
-            showToast(err?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
+            const apiError = error as ApiError
+            showToast(apiError?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
         } finally {
             isSubmitting.value = false
         }

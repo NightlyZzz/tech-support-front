@@ -2,11 +2,11 @@
     import { onMounted, reactive, ref } from 'vue'
     import router from '@/router'
     import BaseSelect from '@/components/BaseSelect.vue'
-    import { register, login, getCurrentUser } from '@/modules/user/api/auth.api'
+    import { register, login } from '@/modules/user/api/auth.api'
     import { showToast } from '@/shared/toast/toastService'
-    import { setUserData, setUserToken } from "@/modules/user/model/userStorage"
-    import { getAllDepartments } from "@/modules/user/api/user.lookup"
-    import { initUser } from "@/modules/user/composables/useInitUser"
+    import { setUserToken } from '@/modules/user/model/userStorage'
+    import { getAllDepartments } from '@/modules/user/api/user.lookup'
+    import { initUser } from '@/modules/user/composables/useInitUser'
 
     interface DepartmentType {
         id: number
@@ -70,24 +70,21 @@
 
             setUserToken(loginResponse.token)
 
-            const userResponse = await getCurrentUser()
-            setUserData(userResponse.data)
-
             await initUser()
 
             await router.push({ name: 'home' })
         } catch (error: any) {
             if (error.response) {
-                const data = error.response.data as LaravelError
+                const laravelError = error.response.data as LaravelError
 
-                if (data.errors) {
-                    const firstError = Object.values(data.errors)[0][0]
-                    showToast(firstError, 'error')
+                if (laravelError.errors) {
+                    const firstErrorMessage = Object.values(laravelError.errors)[0][0]
+                    showToast(firstErrorMessage, 'error')
                     return
                 }
 
-                if (data.message) {
-                    showToast(data.message, 'error')
+                if (laravelError.message) {
+                    showToast(laravelError.message, 'error')
                     return
                 }
             }
@@ -96,15 +93,15 @@
         }
     }
 
-    const fetchDepartmentTypes = async (): Promise<void> => {
+    const loadDepartmentTypes = async (): Promise<void> => {
         try {
-            const response = await getAllDepartments()
-            departmentTypes.value = response.data
+            const departmentsResponse = await getAllDepartments()
+            departmentTypes.value = departmentsResponse.data
         } catch {
         }
     }
 
-    onMounted(fetchDepartmentTypes)
+    onMounted(loadDepartmentTypes)
 </script>
 
 <template>
@@ -113,8 +110,8 @@
             <label for="reg-email">Электронная почта</label>
             <input
                     id="reg-email"
-                    type="email"
                     v-model="form.email"
+                    type="email"
                     placeholder="you@example.com"
                     required
             />
@@ -125,8 +122,8 @@
                 <label for="reg-last">Фамилия</label>
                 <input
                         id="reg-last"
-                        type="text"
                         v-model="form.last_name"
+                        type="text"
                         placeholder="Иванов"
                         required
                 />
@@ -136,8 +133,8 @@
                 <label for="reg-first">Имя</label>
                 <input
                         id="reg-first"
-                        type="text"
                         v-model="form.first_name"
+                        type="text"
                         placeholder="Иван"
                         required
                 />
@@ -148,8 +145,8 @@
             <label for="reg-middle">Отчество</label>
             <input
                     id="reg-middle"
-                    type="text"
                     v-model="form.middle_name"
+                    type="text"
                     placeholder="Иванович"
                     required
             />
@@ -160,14 +157,14 @@
             <div class="password-wrapper">
                 <input
                         id="reg-password"
-                        :type="showPassword ? 'text' : 'password'"
                         v-model="form.password"
+                        :type="showPassword ? 'text' : 'password'"
                         placeholder="Минимум 8 символов"
                         minlength="8"
                         required
                 />
                 <label class="check-label" style="margin-top:4px;">
-                    <input type="checkbox" v-model="showPassword"/>
+                    <input v-model="showPassword" type="checkbox"/>
                     Показать пароль
                 </label>
             </div>
@@ -184,7 +181,7 @@
         />
 
         <label class="check-label">
-            <input type="checkbox" v-model="form.remember"/>
+            <input v-model="form.remember" type="checkbox"/>
             Запомнить меня
         </label>
 

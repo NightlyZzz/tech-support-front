@@ -5,12 +5,14 @@ export const usePagination = () => {
     const currentPage = ref<number>(1)
     const lastPage = ref<number>(1)
 
-    const setMeta = (meta: PaginationMeta) => {
-        const raw = meta.last_page
-        lastPage.value = Array.isArray(raw) ? raw[0] : raw
+    const setMeta = (paginationMeta: PaginationMeta) => {
+        const rawLastPage = paginationMeta.last_page
+        const normalizedLastPage = Array.isArray(rawLastPage) ? rawLastPage[0] : rawLastPage
+
+        lastPage.value = normalizedLastPage || 1
 
         if (currentPage.value > lastPage.value) {
-            currentPage.value = lastPage.value || 1
+            currentPage.value = lastPage.value
         }
     }
 

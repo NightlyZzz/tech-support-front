@@ -11,30 +11,31 @@ export const useUserSort = () => {
             currentUserId: number | null,
             options: SortOptions = {}
     ): User[] => {
-        const rolePriority: Record<number, number> = {}
+        const rolePriorityMap: Record<number, number> = {}
 
         if (options.roleOrder) {
-            options.roleOrder.forEach((role, index) => {
-                rolePriority[role] = index + 1
+            options.roleOrder.forEach((roleId, index) => {
+                rolePriorityMap[roleId] = index + 1
             })
         }
 
-        return [...users].sort((userA, userB) => {
+        return [...users].sort((firstUser, secondUser) => {
             if (options.pinCurrentUser && currentUserId) {
-                if (userA.getId() === currentUserId) {
+                if (firstUser.getId() === currentUserId) {
                     return -1
                 }
-                if (userB.getId() === currentUserId) {
+
+                if (secondUser.getId() === currentUserId) {
                     return 1
                 }
             }
 
             if (options.roleOrder) {
-                const roleA = rolePriority[userA.getRole()] ?? 999
-                const roleB = rolePriority[userB.getRole()] ?? 999
+                const firstUserRolePriority = rolePriorityMap[firstUser.getRole()] ?? 999
+                const secondUserRolePriority = rolePriorityMap[secondUser.getRole()] ?? 999
 
-                if (roleA !== roleB) {
-                    return roleA - roleB
+                if (firstUserRolePriority !== secondUserRolePriority) {
+                    return firstUserRolePriority - secondUserRolePriority
                 }
             }
 

@@ -11,7 +11,9 @@ export const useTicketStatuses = () => {
 
     const loadStatuses = async (): Promise<void> => {
         const response = await getAllTicketStatuses()
-        statuses.value = response.data ?? []
+        const statusOptions = response.data ?? []
+
+        statuses.value = statusOptions
     }
 
     return {

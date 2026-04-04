@@ -15,64 +15,66 @@ import { getUser } from '@/modules/user/model/userState'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: '/', name: 'home', component: HomeView },
-        { path: '/home', redirect: '/' },
-        { path: '/auth', name: 'auth', component: AuthView },
-
+        {
+            path: '/',
+            name: 'home',
+            component: HomeView
+        },
+        {
+            path: '/home',
+            redirect: '/'
+        },
+        {
+            path: '/auth',
+            name: 'auth',
+            component: AuthView
+        },
         {
             path: '/profile',
             name: 'profile',
             component: ProfileView,
             meta: { requiresAuth: true }
         },
-
         {
             path: '/ticket/create',
             name: 'create-ticket',
             component: CreateTicketView,
             meta: { requiresAuth: true, role: 'user' }
         },
-
         {
             path: '/ticket/my',
             name: 'my-tickets',
             component: MyTicketsView,
             meta: { requiresAuth: true }
         },
-
         {
             path: '/ticket/all',
             name: 'all-tickets',
             component: AllTicketsView,
             meta: { requiresAuth: true, role: 'employee' }
         },
-
         {
             path: '/user/all',
             name: 'all-users',
             component: AllUsersView,
             meta: { requiresAuth: true, role: 'admin' }
         },
-
         {
             path: '/user/:id/edit',
             name: 'edit-user',
             component: EditUserView,
             meta: { requiresAuth: true, role: 'admin' }
         },
-
         {
             path: '/ticket/:id',
             name: 'ticket',
             component: TicketLog,
             meta: { requiresAuth: true }
         },
-
         {
             path: '/:pathMatch(.*)*',
             redirect: () => {
-                const token = localStorage.getItem('token')
-                return token ? '/profile' : '/auth'
+                return getUserToken() ? '/profile' : '/auth'
             }
         }
     ]
@@ -80,41 +82,42 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const token = getUserToken()
-    const isAuth = !!token
-    const user = getUser().value
+    const isAuthenticated = !!token
+    const currentUser = getUser().value
+    const requiredRole = to.meta.role
 
-    if (to.meta.requiresAuth && !isAuth) {
+    if (to.meta.requiresAuth && !isAuthenticated) {
         return next({ name: 'auth' })
     }
 
     if (to.name === 'home') {
-        return next(isAuth ? { name: 'profile' } : { name: 'auth' })
+        return next(isAuthenticated ? { name: 'profile' } : { name: 'auth' })
     }
 
-    if (to.name === 'auth' && isAuth) {
+    if (to.name === 'auth' && isAuthenticated) {
         return next({ name: 'profile' })
     }
 
-    const role = to.meta.role
+    if (!requiredRole) {
+        return next()
+    }
 
-    if (role) {
-        if (!user) {
-            return next(false)
-        }
+    if (!currentUser) {
+        return next({ name: 'profile' })
+    }
 
-        const userRole = user.getRole()
+    const currentUserRole = currentUser.getRole()
 
-        if (role === 'admin' && userRole !== Role.Admin) {
-            return next(false)
-        }
+    if (requiredRole === 'admin' && currentUserRole !== Role.Admin) {
+        return next({ name: 'profile' })
+    }
 
-        if (role === 'employee' && userRole < Role.Employee) {
-            return next(false)
-        }
+    if (requiredRole === 'employee' && currentUserRole < Role.Employee) {
+        return next({ name: 'profile' })
+    }
 
-        if (role === 'user' && userRole !== Role.User) {
-            return next(false)
-        }
+    if (requiredRole === 'user' && currentUserRole !== Role.User) {
+        return next({ name: 'profile' })
     }
 
     next()

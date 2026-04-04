@@ -7,18 +7,20 @@
 
     const { user, isAdmin, isEmployee, isUser } = useUser()
 
-    const isAuthenticated = computed(() => !!user.value)
+    const isAuthenticated = computed(() => user.value !== null)
 
     const links = computed(() => {
-        const items = [
+        return [
             { name: 'Мои заявки', route: 'my-tickets', show: true },
             { name: 'Создать заявку', route: 'create-ticket', show: isUser.value },
             { name: 'Все заявки', route: 'all-tickets', show: isEmployee.value },
             { name: 'Пользователи', route: 'all-users', show: isAdmin.value }
-        ]
-
-        return items.filter(i => i.show)
+        ].filter(link => link.show)
     })
+
+    const toggleMobile = () => {
+        mobileOpen.value = !mobileOpen.value
+    }
 
     const closeMobile = () => {
         mobileOpen.value = false
@@ -46,14 +48,17 @@
         <div class="navbar-right">
             <router-link class="navbar-account" :to="{ name: 'profile' }">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                 </svg>
                 Аккаунт
             </router-link>
         </div>
 
-        <button class="navbar-toggle" @click="mobileOpen = !mobileOpen">
+        <button class="navbar-toggle" @click="toggleMobile">
             <span :style="mobileOpen ? 'transform:rotate(45deg) translate(5px,5px)' : ''"></span>
             <span :style="mobileOpen ? 'opacity:0' : ''"></span>
             <span :style="mobileOpen ? 'transform:rotate(-45deg) translate(5px,-5px)' : ''"></span>

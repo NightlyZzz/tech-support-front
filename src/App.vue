@@ -1,17 +1,12 @@
 <script setup lang="ts">
-    import { computed, onMounted } from 'vue'
+    import { computed } from 'vue'
     import NavBar from '@/components/NavBar.vue'
     import BaseToast from '@/components/BaseToast.vue'
-    import { initUser } from '@/modules/user/composables/useInitUser'
     import { getUser } from '@/modules/user/model/userState'
 
     const userRef = getUser()
 
     const isAuthenticated = computed(() => !!userRef.value)
-
-    onMounted(() => {
-        initUser()
-    })
 </script>
 
 <template>

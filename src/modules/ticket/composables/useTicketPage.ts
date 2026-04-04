@@ -20,7 +20,9 @@ export const useTicketPage = (
         ])
     }
 
-    onMounted(loadAllData)
+    onMounted(async () => {
+        await loadAllData()
+    })
 
     useTicketPolling(loadAllData, 3000)
 

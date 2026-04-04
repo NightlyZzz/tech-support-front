@@ -10,13 +10,13 @@ import { Ticket } from '@/modules/ticket/model/ticket'
 import router from '@/router'
 
 export const useAllTicketsPage = () => {
-    const { user, isEmployee } = useUser()
+    const { user, isAdmin, isEmployee } = useUser()
 
     const selectedStatus = ref<number>(0)
 
     const { currentPage, lastPage, setMeta } = usePagination()
     const { tickets, load } = useTickets(getAllTickets)
-    const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
+    usePaginationLoader(currentPage, load, setMeta)
     const { statuses, loadStatuses } = useTicketStatuses()
 
     const statusesWithAll = computed(() => [
@@ -27,17 +27,26 @@ export const useAllTicketsPage = () => {
     const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
     const openTicket = (ticketId: number) => {
+        if (!user.value) {
+            return
+        }
+
+        const selectedTicket = tickets.value.find(ticketItem => ticketItem.getId() === ticketId)
+
+        if (!selectedTicket) {
+            return
+        }
+
+        if (isAdmin.value) {
+            router.push({ name: 'ticket', params: { id: ticketId } })
+            return
+        }
+
         if (!isEmployee.value) {
             return
         }
 
-        const ticket = tickets.value.find(t => t.getId() === ticketId)
-
-        if (!ticket) {
-            return
-        }
-
-        if (!ticket.getEmployeeId()) {
+        if (!selectedTicket.getEmployeeId()) {
             return
         }
 
@@ -49,10 +58,9 @@ export const useAllTicketsPage = () => {
             return
         }
 
-        await updateTicket(
-                ticket.getId(),
-                { employee_id: user.value.getId() }
-        )
+        await updateTicket(ticket.getId(), {
+            employee_id: user.value.getId()
+        })
 
         ticket.setReview(user.value.getId())
     }
@@ -66,7 +74,6 @@ export const useAllTicketsPage = () => {
         selectedStatus,
         currentPage,
         lastPage,
-        loadPage,
         statusesWithAll,
         filteredTickets,
         openTicket,

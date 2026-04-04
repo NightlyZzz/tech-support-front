@@ -1,13 +1,20 @@
 import { onMounted, onUnmounted } from 'vue'
 
-export const useTicketPolling = (callback: () => Promise<void>, intervalMs = 3000) => {
-    let interval: ReturnType<typeof setInterval>
+export const useTicketPolling = (
+        callback: () => Promise<void>,
+        intervalMs = 3000
+) => {
+    let pollingInterval: ReturnType<typeof setInterval> | null = null
 
     onMounted(() => {
-        interval = setInterval(callback, intervalMs)
+        pollingInterval = setInterval(() => {
+            callback()
+        }, intervalMs)
     })
 
     onUnmounted(() => {
-        clearInterval(interval)
+        if (pollingInterval) {
+            clearInterval(pollingInterval)
+        }
     })
 }

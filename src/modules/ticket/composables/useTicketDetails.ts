@@ -7,8 +7,8 @@ export const useTicketDetails = (ticketId: number) => {
     const ticket = ref<Ticket | null>(null)
 
     const loadTicket = async () => {
-        const data = await getTicket(ticketId)
-        ticket.value = mapTicket(data)
+        const ticketData = await getTicket(ticketId)
+        ticket.value = mapTicket(ticketData)
     }
 
     const updateStatus = async () => {

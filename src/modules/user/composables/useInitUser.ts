@@ -1,13 +1,13 @@
-import { user } from '@/modules/user/model/userState'
-import { getUserToken } from '@/modules/user/model/userStorage'
-import { apiClient } from "@/shared/api/client.ts";
-import { User } from "@/modules/user/model/user.ts";
+import { getUserToken, setUserData } from '@/modules/user/model/userStorage'
+import { clearUserState } from '@/modules/user/model/userState'
+import { apiClient } from '@/shared/api/client'
+import { useUser } from '@/modules/user/composables/useUser'
 
 export const initUser = async (): Promise<void> => {
     const token = getUserToken()
 
     if (!token) {
-        user.value = null
+        clearUserState()
         return
     }
 
@@ -15,22 +15,14 @@ export const initUser = async (): Promise<void> => {
         const response = await apiClient.get('/user')
         const data = response.data.data
 
-        localStorage.setItem('user_data', JSON.stringify(data))
+        setUserData(data)
 
-        user.value = new User(
-                token,
-                data.id,
-                data.email,
-                data.first_name,
-                data.last_name,
-                data.middle_name,
-                data.role_id,
-                data.role_name,
-                data.department_id,
-                data.department_name,
-                data.secondary_email
-        )
+        const { setUser } = useUser()
+        setUser({
+            ...data,
+            token
+        })
     } catch {
-        user.value = null
+        clearUserState()
     }
 }

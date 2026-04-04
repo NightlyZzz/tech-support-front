@@ -7,10 +7,10 @@ export const showToast = (
         type: ToastType = 'info',
         duration = 3000
 ): void => {
-    const id = Date.now()
+    const toastId = Date.now()
 
     toasts.value.push({
-        id,
+        id: toastId,
         message,
         type
     })
@@ -20,14 +20,14 @@ export const showToast = (
     }
 
     setTimeout(() => {
-        removeToast(id)
+        removeToast(toastId)
     }, duration)
 }
 
-export const removeToast = (id: number): void => {
-    const index = toasts.value.findIndex(t => t.id === id)
+export const removeToast = (toastId: number): void => {
+    const toastIndex = toasts.value.findIndex(toastItem => toastItem.id === toastId)
 
-    if (index !== -1) {
-        toasts.value.splice(index, 1)
+    if (toastIndex !== -1) {
+        toasts.value.splice(toastIndex, 1)
     }
 }

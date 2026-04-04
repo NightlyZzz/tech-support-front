@@ -10,8 +10,24 @@ export class User {
             public roleName: string,
             public department: number,
             public departmentName: string,
-            public secondaryEmail?: string
+            public secondaryEmail?: string | null
     ) {
+    }
+
+    static fromApi(data: any, fallbackToken = ''): User {
+        return new User(
+                data.token ?? fallbackToken,
+                data.id,
+                data.email,
+                data.first_name ?? data.firstName ?? '',
+                data.last_name ?? data.lastName ?? '',
+                data.middle_name ?? data.middleName ?? '',
+                data.role_id ?? data.role ?? 0,
+                data.role_name ?? data.roleName ?? '',
+                data.department_id ?? data.department ?? 0,
+                data.department_name ?? data.departmentName ?? '',
+                data.secondary_email ?? data.secondaryEmail ?? null
+        )
     }
 
     getToken(): string {
@@ -54,7 +70,7 @@ export class User {
         return this.departmentName
     }
 
-    getSecondaryEmail(): string | undefined {
+    getSecondaryEmail(): string | null | undefined {
         return this.secondaryEmail
     }
 }
