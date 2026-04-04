@@ -238,10 +238,12 @@
     display: flex;
     gap: var(--sp-3);
     flex-wrap: wrap;
+    align-items: stretch;
 }
 
 .action-row .btn {
     flex: 1 1 140px;
+    height: 42px;
 }
 
 @media (max-width: 480px) {

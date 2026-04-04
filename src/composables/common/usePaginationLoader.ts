@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import { watch, type Ref } from 'vue'
 import type { PaginationMeta } from '@/types/common'
 
 export const usePaginationLoader = (
@@ -7,10 +7,18 @@ export const usePaginationLoader = (
         setMeta: (meta: PaginationMeta) => void
 ) => {
     const loadPage = async (page: number) => {
+        if (page === currentPage.value) {
+            return
+        }
         currentPage.value = page
-        await load(currentPage.value, setMeta)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    return { loadPage }
+    watch(currentPage, async (page) => {
+        await load(page, setMeta)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+
+    return {
+        loadPage
+    }
 }

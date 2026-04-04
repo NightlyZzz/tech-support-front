@@ -1,3 +1,70 @@
+<script setup lang="ts">
+    import { useRoute } from 'vue-router'
+    import { computed } from 'vue'
+    import { Role } from '@/enums/role'
+    import BaseSelect from '@/components/BaseSelect.vue'
+
+    import { useTicketAccess } from '@/modules/ticket/composables/useTicketAccess'
+    import { useTicketChat } from '@/modules/ticket/composables/useTicketChat'
+    import { useTicketDetails } from '@/modules/ticket/composables/useTicketDetails'
+    import { useTicketStatuses } from '@/modules/ticket/composables/useTicketStatuses'
+    import { useTicketMeta } from '@/modules/ticket/composables/useTicketMeta'
+    import { useTicketMessages } from '@/modules/ticket/composables/useTicketMessages'
+    import { useTicketPage } from '@/modules/ticket/composables/useTicketPage'
+
+    const route = useRoute()
+    const ticketId = Number(route.params.id)
+
+    const {
+        logs,
+        newMessage,
+        chatBox,
+        loadLogs,
+        sendLog
+    } = useTicketChat(ticketId)
+
+    const {
+        ticket,
+        loadTicket,
+        updateStatus
+    } = useTicketDetails(ticketId)
+
+    const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
+
+    const ticketStatus = computed({
+        get: () => ticket.value?.getStatusId() ?? null,
+        set: (value: number | null) => {
+            if (!ticket.value || value === null) {
+                return
+            }
+
+            ticket.value.setStatus(value)
+        }
+    })
+
+    const assignedEmployeeId = computed(() => ticket.value?.getEmployeeId() ?? null)
+
+    const {
+        currentUser,
+        currentStatusName,
+        formatPhoneNumber,
+        handleStatusChange,
+        getStatusBadge
+    } = useTicketMeta(ticketStatus, allStatuses, updateStatus)
+
+    const {
+        isOwnMessage,
+        getDisplayName
+    } = useTicketMessages(currentUser)
+
+    const {
+        canOpen,
+        canWrite
+    } = useTicketAccess(ticketStatus, assignedEmployeeId)
+
+    useTicketPage(loadTicket, loadLogs, loadStatuses, canOpen)
+</script>
+
 <template>
     <div class="ticket-layout" v-if="canOpen">
         <aside class="ticket-panel">
@@ -7,28 +74,30 @@
 
                 <div class="ticket-field">
                     <span class="ticket-field-label">Тип</span>
-                    <span class="ticket-field-value">{{ ticketType }}</span>
+                    <span class="ticket-field-value">{{ ticket?.getTypeName() }}</span>
                 </div>
 
                 <div class="ticket-field">
                     <span class="ticket-field-label">Пользователь</span>
                     <span class="ticket-field-value">
-            {{
-                            currentUser?.getId() && ticketSenderId === currentUser.getId() ? 'Вы' : ticketSenderName
+                        {{
+                            currentUser?.getId() && ticket?.getSenderId() === currentUser.getId()
+                                    ? 'Вы'
+                                    : ticket?.getSenderName()
                         }}
-          </span>
+                    </span>
                 </div>
 
                 <div class="ticket-field">
                     <span class="ticket-field-label">Телефон</span>
                     <span class="ticket-field-value mono">
-            {{ formatPhoneNumber(contactPhone) }}
-          </span>
+                        {{ formatPhoneNumber(ticket?.getContactPhone() || '') }}
+                    </span>
                 </div>
 
                 <div class="ticket-field">
                     <span class="ticket-field-label">Создана</span>
-                    <span class="ticket-field-value">{{ createdAt }}</span>
+                    <span class="ticket-field-value">{{ ticket?.getCreatedAt() }}</span>
                 </div>
 
                 <div class="ticket-divider"></div>
@@ -36,8 +105,8 @@
                 <div class="ticket-field">
                     <span class="ticket-field-label">Описание</span>
                     <span class="ticket-field-value" style="white-space:pre-wrap;line-height:1.6;">
-            {{ ticketDescription }}
-          </span>
+                        {{ ticket?.getDescription() }}
+                    </span>
                 </div>
             </div>
 
@@ -51,8 +120,8 @@
                         :class="['badge', getStatusBadge(ticketStatus)]"
                         style="margin-bottom:12px;display:inline-flex;"
                 >
-          {{ currentStatusName }}
-        </span>
+                    {{ currentStatusName }}
+                </span>
 
                 <BaseSelect
                         id="status"
@@ -62,7 +131,7 @@
                         :modelValue="ticketStatus"
                         valueKey="id"
                         labelKey="name"
-                        @update:modelValue="handleStatusChange"
+                        @update:modelValue="(val) => handleStatusChange(Number(val))"
                 />
             </div>
         </aside>
@@ -78,8 +147,8 @@
                         v-if="ticketStatus !== null"
                         :class="['badge', getStatusBadge(ticketStatus)]"
                 >
-          {{ currentStatusName }}
-        </span>
+                    {{ currentStatusName }}
+                </span>
             </div>
 
             <div class="ticket-messages" ref="chatBox">
@@ -125,79 +194,6 @@
         </section>
     </div>
 </template>
-
-<script setup lang="ts">
-    import { useRoute } from 'vue-router'
-    import { computed } from 'vue'
-    import { Role } from '@/enums/role'
-    import BaseSelect from '@/components/BaseSelect.vue'
-
-    import { useTicketAccess } from '@/composables/ticket/useTicketAccess'
-    import { useTicketChat } from '@/composables/ticket/useTicketChat'
-    import { useTicketDetails } from '@/composables/ticket/useTicketDetails'
-    import { useTicketStatuses } from '@/composables/ticket/useTicketStatuses'
-    import { useTicketMeta } from '@/composables/ticket/useTicketMeta'
-    import { useTicketMessages } from '@/composables/ticket/useTicketMessages'
-    import { useTicketPage } from '@/composables/ticket/useTicketPage'
-
-    const route = useRoute()
-    const ticketId = Number(route.params.id)
-
-    const {
-        logs,
-        newMessage,
-        chatBox,
-        loadLogs,
-        sendLog
-    } = useTicketChat(ticketId)
-
-    const {
-        ticket,
-        loadTicket,
-        updateStatus
-    } = useTicketDetails(ticketId)
-
-    const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
-
-    const ticketStatus = computed({
-        get: () => ticket.value?.getStatusId() ?? null,
-        set: (value: number | null) => {
-            if (!ticket.value || value === null) {
-                return
-            }
-
-            ticket.value.setStatus(value)
-        }
-    })
-
-    const ticketSenderId = computed(() => ticket.value?.getSenderId() ?? null)
-    const ticketSenderName = computed(() => ticket.value?.getSenderName() ?? '')
-    const ticketType = computed(() => ticket.value?.getTypeName() ?? '')
-    const ticketDescription = computed(() => ticket.value?.getDescription() ?? '')
-    const contactPhone = computed(() => ticket.value?.getContactPhone() ?? '')
-    const createdAt = computed(() => ticket.value?.getCreatedAt() ?? '')
-    const assignedEmployeeId = computed(() => ticket.value?.getEmployeeId() ?? null)
-
-    const {
-        currentUser,
-        currentStatusName,
-        formatPhoneNumber,
-        handleStatusChange,
-        getStatusBadge
-    } = useTicketMeta(ticketStatus, allStatuses, updateStatus)
-
-    const {
-        isOwnMessage,
-        getDisplayName
-    } = useTicketMessages(currentUser)
-
-    const {
-        canOpen,
-        canWrite
-    } = useTicketAccess(ticketStatus, assignedEmployeeId)
-
-    useTicketPage(loadTicket, loadLogs, loadStatuses, canOpen)
-</script>
 
 <style scoped>
     @import '@/assets/base.css';

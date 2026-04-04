@@ -1,14 +1,72 @@
+<script setup lang="ts">
+    import { computed } from 'vue'
+
+    const props = defineProps<{
+        modelValue: number
+        lastPage: number
+    }>()
+
+    const emit = defineEmits<{
+        (e: 'update:modelValue', page: number): void
+    }>()
+
+    const changePage = (page: number) => {
+        if (page < 1 || page > props.lastPage || page === props.modelValue) {
+            return
+        }
+        emit('update:modelValue', page)
+    }
+
+    const pages = computed<(number | string)[]>(() => {
+        const total = props.lastPage
+        const current = props.modelValue
+
+        const result: (number | string)[] = []
+
+        if (total <= 7) {
+            for (let i = 1; i <= total; i++) {
+                result.push(i)
+            }
+            return result
+        }
+
+        result.push(1)
+
+        if (current > 3) {
+            result.push('...')
+        }
+
+        for (let i = current - 1; i <= current + 1; i++) {
+            if (i > 1 && i < total) {
+                result.push(i)
+            }
+        }
+
+        if (current < total - 2) {
+            result.push('...')
+        }
+
+        result.push(total)
+
+        return result
+    })
+</script>
+
 <template>
     <div class="pagination">
-        <button class="btn" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+        <button
+                class="btn"
+                @click="changePage(modelValue - 1)"
+                :disabled="modelValue === 1"
+        >
             ←
         </button>
 
-        <template v-for="page in pages" :key="page">
+        <template v-for="page in pages" :key="page + '-' + modelValue">
             <button
                     v-if="typeof page === 'number'"
                     class="btn"
-                    :class="{ active: page === currentPage }"
+                    :class="{ active: page === modelValue }"
                     @click="changePage(page)"
             >
                 {{ page }}
@@ -17,64 +75,15 @@
             <span v-else class="dots">...</span>
         </template>
 
-        <button class="btn" @click="changePage(currentPage + 1)" :disabled="currentPage === lastPage">
+        <button
+                class="btn"
+                @click="changePage(modelValue + 1)"
+                :disabled="modelValue === lastPage"
+        >
             →
         </button>
     </div>
 </template>
-
-<script setup lang="ts">
-    import { computed } from 'vue'
-
-    const props = defineProps<{
-        currentPage: number
-        lastPage: number
-    }>()
-
-    const emit = defineEmits<{
-        (e: 'change', page: number): void
-    }>()
-
-    const changePage = (page: number) => {
-        if (page < 1 || page > props.lastPage) {
-            return
-        }
-        emit('change', page)
-    }
-
-    const pages = computed<(number | string)[]>(() => {
-        const total = props.lastPage
-        const current = props.currentPage
-
-        const result: (number | string)[] = []
-
-        if (total <= 7) {
-            for (let i = 1; i <= total; i++) {
-                result.push(i)
-            }
-        } else {
-            result.push(1)
-
-            if (current > 3) {
-                result.push('...')
-            }
-
-            for (let i = current - 1; i <= current + 1; i++) {
-                if (i > 1 && i < total) {
-                    result.push(i)
-                }
-            }
-
-            if (current < total - 2) {
-                result.push('...')
-            }
-
-            result.push(total)
-        }
-
-        return result
-    })
-</script>
 
 <style scoped>
     .pagination {

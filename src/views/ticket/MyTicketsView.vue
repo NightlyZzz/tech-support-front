@@ -1,3 +1,21 @@
+<script setup lang="ts">
+    import { useMyTicketsPage } from '@/modules/ticket/composables/useMyTicketsPage'
+    import BaseSelect from '@/components/BaseSelect.vue'
+    import BasePagination from '@/components/BasePagination.vue'
+    import TicketList from '@/components/ticket/TicketList.vue'
+
+    const {
+        selectedStatus,
+        currentPage,
+        lastPage,
+        loadPage,
+        availableStatusesWithAll,
+        filteredTickets,
+        openTicket,
+        isEmployee
+    } = useMyTicketsPage()
+</script>
+
 <template>
     <div class="page">
         <div class="page-header">
@@ -17,71 +35,16 @@
 
         <TicketList
                 :tickets="filteredTickets"
-                :onClick="openTicket"
                 :showUser="isEmployee"
+                @click="openTicket"
         />
 
         <BasePagination
-                :current-page="currentPage"
+                v-model="currentPage"
                 :last-page="lastPage"
-                @change="loadPage"
         />
     </div>
 </template>
-
-<script setup lang="ts">
-    import { ref, computed, onMounted } from 'vue'
-    import { getMyTickets } from '@/api/ticket.api.ts'
-    import { Role } from '@/enums/role'
-    import { TicketStatus } from '@/enums/ticketStatus'
-    import { usePagination } from '@/composables/common/usePagination'
-    import { useTickets } from '@/composables/ticket/useTickets'
-    import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
-    import { useTicketStatuses } from '@/composables/ticket/useTicketStatuses'
-    import { useTicketFilter } from '@/composables/ticket/useTicketFilter'
-    import router from '@/router'
-    import BaseSelect from '@/components/BaseSelect.vue'
-    import BasePagination from '@/components/BasePagination.vue'
-    import TicketList from '@/components/ticket/TicketList.vue'
-    import { useUser } from '@/composables/user/useUser'
-
-    const { user, isEmployee } = useUser()
-
-    const selectedStatus = ref<number>(0)
-
-    const { currentPage, lastPage, setMeta } = usePagination()
-    const { tickets, load } = useTickets(getMyTickets)
-    const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
-    const { statuses, loadStatuses } = useTicketStatuses()
-
-    const availableStatuses = computed(() => {
-        if (!user.value) {
-            return []
-        }
-
-        if (user.value.getRole() === Role.User) {
-            return statuses.value
-        }
-
-        return statuses.value.filter(statusItem => statusItem.id !== TicketStatus.Pending)
-    })
-
-    const availableStatusesWithAll = computed(() => [
-        { id: 0, name: 'Все статусы' },
-        ...availableStatuses.value
-    ])
-
-    const filteredTickets = useTicketFilter(tickets, selectedStatus)
-
-    const openTicket = (ticketId: number): void => {
-        router.push({ name: 'ticket', params: { id: ticketId } })
-    }
-
-    onMounted(async (): Promise<void> => {
-        await load(currentPage.value, setMeta)
-        await loadStatuses()
-    })
-</script>
 
 <style scoped>
     @import '@/assets/base.css';

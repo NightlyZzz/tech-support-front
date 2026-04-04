@@ -1,3 +1,20 @@
+<script setup lang="ts">
+    import { useUsersPage } from '@/modules/user/composables/useUsersPage'
+    import BasePagination from '@/components/BasePagination.vue'
+
+    const {
+        searchQuery,
+        filteredUsers,
+        currentPage,
+        lastPage,
+        loadPage,
+        openUser,
+        getInitials,
+        isCurrentUser,
+        getRoleClass
+    } = useUsersPage()
+</script>
+
 <template>
     <div class="page">
         <div class="page-header">
@@ -54,81 +71,11 @@
         </div>
 
         <BasePagination
-                :current-page="currentPage"
+                v-model="currentPage"
                 :last-page="lastPage"
-                @change="loadPage"
         />
     </div>
 </template>
-
-<script setup lang="ts">
-    import { computed, onMounted, ref } from 'vue'
-    import { useRouter } from 'vue-router'
-    import { useUser } from '@/composables/user/useUser'
-    import { getAllUsers } from '@/api/user.api'
-    import { Role } from '@/enums/role'
-    import { useUserSort } from '@/composables/user/useUserSort'
-    import { useUsers } from '@/composables/user/useUsers'
-    import { usePagination } from '@/composables/common/usePagination'
-    import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
-    import BasePagination from '@/components/BasePagination.vue'
-
-    const router = useRouter()
-
-    const { user } = useUser()
-    const { sortUsers } = useUserSort()
-
-    const searchQuery = ref('')
-
-    const { currentPage, lastPage, setMeta } = usePagination()
-    const { users, load } = useUsers(getAllUsers)
-    const { loadPage } = usePaginationLoader(currentPage, load, setMeta)
-
-    onMounted(async () => {
-        await load(currentPage.value, setMeta)
-    })
-
-    const getInitials = (userItem: any): string => {
-        return (userItem.getLastName()[0] || '') + (userItem.getFirstName()[0] || '')
-    }
-
-    const openUser = (userId: number): void => {
-        router.push({ name: 'edit-user', params: { id: userId } })
-    }
-
-    const filteredUsers = computed(() => {
-        const query = searchQuery.value.toLowerCase()
-        const currentUserId = user.value?.getId() ?? null
-
-        const filteredList = users.value.filter((userItem: any) => {
-            return `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`.toLowerCase().includes(query)
-        })
-
-        return sortUsers(filteredList, currentUserId, {
-            pinCurrentUser: true,
-            roleOrder: [Role.Admin, Role.Employee, Role.User]
-        })
-    })
-
-    const getRoleClass = (userItem: any): string => {
-        if (userItem.getRoleName() === 'Администратор') {
-            return 'admin'
-        }
-
-        if (userItem.getRoleName() === 'Сотрудник') {
-            return 'employee'
-        }
-
-        return ''
-    }
-
-    const isCurrentUser = (userItem: any): boolean => {
-        if (!user.value) {
-            return false
-        }
-        return user.value.getId() === userItem.getId()
-    }
-</script>
 
 <style scoped>
     @import '@/assets/base.css';

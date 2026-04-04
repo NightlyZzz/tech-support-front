@@ -1,3 +1,30 @@
+<script setup lang="ts">
+    import { ref, computed } from 'vue'
+    import { COMPANY_NAME } from '@/shared/utils/constants'
+    import { useUser } from '@/modules/user/composables/useUser'
+
+    const mobileOpen = ref(false)
+
+    const { user, isAdmin, isEmployee, isUser } = useUser()
+
+    const isAuthenticated = computed(() => !!user.value)
+
+    const links = computed(() => {
+        const items = [
+            { name: 'Мои заявки', route: 'my-tickets', show: true },
+            { name: 'Создать заявку', route: 'create-ticket', show: isUser.value },
+            { name: 'Все заявки', route: 'all-tickets', show: isEmployee.value },
+            { name: 'Пользователи', route: 'all-users', show: isAdmin.value }
+        ]
+
+        return items.filter(i => i.show)
+    })
+
+    const closeMobile = () => {
+        mobileOpen.value = false
+    }
+</script>
+
 <template>
     <nav v-if="isAuthenticated" class="navbar">
         <router-link class="navbar-brand" :to="{ name: 'home' }">
@@ -6,17 +33,13 @@
         </router-link>
 
         <div class="navbar-links">
-            <router-link class="navbar-link" :to="{ name: 'my-tickets' }">
-                Мои заявки
-            </router-link>
-            <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser">
-                Создать заявку
-            </router-link>
-            <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee">
-                Все заявки
-            </router-link>
-            <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin">
-                Пользователи
+            <router-link
+                    v-for="link in links"
+                    :key="link.route"
+                    class="navbar-link"
+                    :to="{ name: link.route }"
+            >
+                {{ link.name }}
             </router-link>
         </div>
 
@@ -38,36 +61,27 @@
     </nav>
 
     <div v-if="isAuthenticated" :class="['navbar-drawer', mobileOpen ? 'open' : '']">
-        <router-link class="navbar-link" :to="{ name: 'my-tickets' }" @click="mobileOpen = false">
-            Мои заявки
+        <router-link
+                v-for="link in links"
+                :key="link.route"
+                class="navbar-link"
+                :to="{ name: link.route }"
+                @click="closeMobile"
+        >
+            {{ link.name }}
         </router-link>
-        <router-link class="navbar-link" :to="{ name: 'create-ticket' }" v-if="isUser" @click="mobileOpen = false">
-            Создать заявку
-        </router-link>
-        <router-link class="navbar-link" :to="{ name: 'all-tickets' }" v-if="isEmployee" @click="mobileOpen = false">
-            Все заявки
-        </router-link>
-        <router-link class="navbar-link" :to="{ name: 'all-users' }" v-if="isAdmin" @click="mobileOpen = false">
-            Пользователи
-        </router-link>
+
         <div style="height:1px;background:var(--c-border);margin:4px 0;"></div>
-        <router-link class="navbar-link" :to="{ name: 'profile' }" @click="mobileOpen = false">
+
+        <router-link
+                class="navbar-link"
+                :to="{ name: 'profile' }"
+                @click="closeMobile"
+        >
             Аккаунт
         </router-link>
     </div>
 </template>
-
-<script setup lang="ts">
-    import { ref, computed } from 'vue'
-    import { useUser } from '@/composables/user/useUser'
-    import { COMPANY_NAME } from '@/utils/constants'
-
-    const mobileOpen = ref(false)
-
-    const { user, isAdmin, isEmployee, isUser } = useUser()
-
-    const isAuthenticated = computed(() => !!user.value)
-</script>
 
 <style scoped>
     @import '@/assets/navbar.css';

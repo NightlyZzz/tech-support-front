@@ -1,3 +1,21 @@
+<script setup lang="ts">
+    import { ref } from 'vue'
+    import BaseSelect from '@/components/BaseSelect.vue'
+    import { useCreateTicket } from '@/modules/ticket/composables/useCreateTicket'
+    import { usePhoneInput } from '@/composables/common/usePhoneInput'
+
+    const { form, ticketTypes, isSubmitting, submitTicket } = useCreateTicket()
+
+    const { displayPhone, handlePhoneInput, allowOnlyDigits } = usePhoneInput(form)
+
+    const phoneKey = ref(0)
+
+    const handleSubmit = async () => {
+        await submitTicket()
+        phoneKey.value++
+    }
+</script>
+
 <template>
     <div class="page">
         <div class="page-header">
@@ -45,8 +63,8 @@
                         ></textarea>
 
                         <span style="font-size:.75rem;color:var(--c-text-3);text-align:right;">
-              {{ form.description.length }}/255
-            </span>
+                            {{ form.description.length }}/255
+                        </span>
                     </div>
 
                     <button
@@ -61,24 +79,6 @@
         </div>
     </div>
 </template>
-
-<script setup lang="ts">
-    import { ref } from 'vue'
-    import BaseSelect from '@/components/BaseSelect.vue'
-    import { useCreateTicket } from '@/composables/ticket/useCreateTicket'
-    import { usePhoneInput } from '@/composables/common/usePhoneInput'
-
-    const { form, ticketTypes, isSubmitting, submitTicket } = useCreateTicket()
-
-    const { displayPhone, handlePhoneInput, allowOnlyDigits } = usePhoneInput(form)
-
-    const phoneKey = ref(0)
-
-    const handleSubmit = async () => {
-        await submitTicket()
-        phoneKey.value++
-    }
-</script>
 
 <style scoped>
     @import '@/assets/base.css';

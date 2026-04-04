@@ -9,7 +9,8 @@ import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import TicketLog from '@/views/ticket/TicketLog.vue'
 import { Role } from '@/enums/role'
-import { getUserToken, getUser } from '@/user/data'
+import { getUserToken } from '@/modules/user/model/userStorage'
+import { getUser } from '@/modules/user/model/userState'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -96,19 +97,23 @@ router.beforeEach((to, from, next) => {
 
     const role = to.meta.role
 
-    if (role && user) {
+    if (role) {
+        if (!user) {
+            return next(false)
+        }
+
         const userRole = user.getRole()
 
         if (role === 'admin' && userRole !== Role.Admin) {
-            return next({ name: 'profile' })
+            return next(false)
         }
 
         if (role === 'employee' && userRole < Role.Employee) {
-            return next({ name: 'profile' })
+            return next(false)
         }
 
         if (role === 'user' && userRole !== Role.User) {
-            return next({ name: 'profile' })
+            return next(false)
         }
     }
 

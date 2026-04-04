@@ -1,3 +1,46 @@
+<script setup lang="ts">
+    import { reactive, ref } from 'vue'
+    import router from '@/router'
+    import { login, getCurrentUser } from '@/modules/user/api/auth.api'
+    import { showToast } from '@/shared/toast/toastService'
+    import { setUserData, setUserToken } from "@/modules/user/model/userStorage"
+    import { initUser } from "@/modules/user/composables/useInitUser"
+
+    interface LoginForm {
+        email: string
+        password: string
+        remember: boolean
+    }
+
+    const form = reactive<LoginForm>({
+        email: '',
+        password: '',
+        remember: false
+    })
+
+    const showPassword = ref(false)
+
+    const handleLogin = async (): Promise<void> => {
+        try {
+            const response = await login({
+                email: form.email,
+                password: form.password
+            })
+
+            setUserToken(response.token)
+
+            const userResponse = await getCurrentUser()
+            setUserData(userResponse.data)
+
+            await initUser()
+
+            await router.push({ name: 'home' })
+        } catch {
+            showToast('Неверный email или пароль', 'error')
+        }
+    }
+</script>
+
 <template>
     <form @submit.prevent="handleLogin" class="auth-form">
         <div class="field">
@@ -39,43 +82,3 @@
         </button>
     </form>
 </template>
-
-<script setup lang="ts">
-    import { reactive, ref } from 'vue'
-    import router from '@/router'
-    import { login, getCurrentUser } from '@/api/auth.api'
-    import { showToast } from '@/utils/toast'
-    import { setUserToken, setUserData } from '@/user/data'
-
-    interface LoginForm {
-        email: string
-        password: string
-        remember: boolean
-    }
-
-    const form = reactive<LoginForm>({
-        email: '',
-        password: '',
-        remember: false
-    })
-
-    const showPassword = ref(false)
-
-    const handleLogin = async (): Promise<void> => {
-        try {
-            const response = await login({
-                email: form.email,
-                password: form.password
-            })
-
-            setUserToken(response.token)
-
-            const userResponse = await getCurrentUser()
-            setUserData(userResponse.data)
-
-            await router.push({ name: 'home' })
-        } catch {
-            showToast('Неверный email или пароль', 'error')
-        }
-    }
-</script>
