@@ -1,5 +1,6 @@
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { attachTicketLog, getTicketLogs } from '@/modules/ticket/api/ticket.chat.api'
+import { getEcho } from '@/shared/realtime/echo'
 
 type TicketLog = {
     id: number
@@ -23,6 +24,17 @@ export const useTicketChat = (ticketId: number) => {
         }
     }
 
+    const appendLog = async (ticketLog: TicketLog) => {
+        const alreadyExists = logs.value.some(logItem => logItem.id === ticketLog.id)
+
+        if (alreadyExists) {
+            return
+        }
+
+        logs.value.push(ticketLog)
+        await scrollToBottom()
+    }
+
     const loadLogs = async () => {
         const ticketLogs = await getTicketLogs(ticketId)
         logs.value = ticketLogs
@@ -42,10 +54,43 @@ export const useTicketChat = (ticketId: number) => {
 
         const createdLog = response.data ?? response
 
-        logs.value.push(createdLog)
+        await appendLog(createdLog)
         newMessage.value = ''
-        await scrollToBottom()
     }
+
+    const subscribeToTicketLogs = () => {
+        const echo = getEcho()
+
+        if (!echo) {
+            return
+        }
+
+        const channel = echo.private(`ticket.${ticketId}`)
+
+        channel.listen('.ticket.log.created', async (ticketLog: TicketLog) => {
+            await appendLog(ticketLog)
+        })
+    }
+
+    const unsubscribeFromTicketLogs = () => {
+        const echo = getEcho()
+
+        if (!echo) {
+            return
+        }
+
+        const channel = echo.private(`ticket.${ticketId}`)
+
+        channel.stopListening('.ticket.log.created')
+    }
+
+    onMounted(() => {
+        subscribeToTicketLogs()
+    })
+
+    onUnmounted(() => {
+        unsubscribeFromTicketLogs()
+    })
 
     return {
         logs,

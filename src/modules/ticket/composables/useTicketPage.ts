@@ -1,5 +1,4 @@
 import { onMounted, type Ref } from 'vue'
-import { useTicketPolling } from '@/modules/ticket/composables/useTicketPolling'
 
 export const useTicketPage = (
         loadTicket: () => Promise<void>,
@@ -23,8 +22,6 @@ export const useTicketPage = (
     onMounted(async () => {
         await loadAllData()
     })
-
-    useTicketPolling(loadAllData, 3000)
 
     return {
         loadAllData

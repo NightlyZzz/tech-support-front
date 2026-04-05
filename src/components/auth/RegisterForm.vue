@@ -7,6 +7,7 @@
     import { setUserToken } from '@/modules/user/model/userStorage'
     import { getAllDepartments } from '@/modules/user/api/user.lookup'
     import { initUser } from '@/modules/user/composables/useInitUser'
+    import { createEcho, disconnectEcho } from '@/shared/realtime/echo'
 
     interface DepartmentType {
         id: number
@@ -69,6 +70,9 @@
             })
 
             setUserToken(loginResponse.token)
+
+            disconnectEcho()
+            createEcho()
 
             await initUser()
 

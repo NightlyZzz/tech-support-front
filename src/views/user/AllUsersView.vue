@@ -4,7 +4,8 @@
 
     const {
         searchQuery,
-        filteredUsers,
+        visibleUsers,
+        totalUsers,
         currentPage,
         lastPage,
         openUser,
@@ -19,7 +20,7 @@
         <div class="page-header">
             <h1 class="page-title">Пользователи</h1>
             <span style="font-size:.875rem;color:var(--c-text-3);">
-                {{ filteredUsers.length }} чел.
+                {{ totalUsers }} чел.
             </span>
         </div>
 
@@ -33,13 +34,13 @@
             <input v-model="searchQuery" type="text" placeholder="Поиск по ФИО…"/>
         </div>
 
-        <div v-if="filteredUsers.length === 0" class="empty-state">
+        <div v-if="visibleUsers.length === 0" class="empty-state">
             Пользователи не найдены
         </div>
 
         <div v-else style="display:flex;flex-direction:column;gap:10px;">
             <div
-                    v-for="(userItem, index) in filteredUsers"
+                    v-for="(userItem, index) in visibleUsers"
                     :key="userItem.getId()"
                     :class="[
                     'user-card',
@@ -70,6 +71,7 @@
         </div>
 
         <BasePagination
+                v-if="lastPage > 1"
                 v-model="currentPage"
                 :last-page="lastPage"
         />

@@ -1,45 +1,57 @@
 import type { User } from '@/modules/user/model/user'
 
 type SortOptions = {
-    pinCurrentUser?: boolean
     roleOrder?: number[]
 }
 
 export const useUserSort = () => {
     const sortUsers = (
             users: User[],
-            currentUserId: number | null,
             options: SortOptions = {}
     ): User[] => {
         const rolePriorityMap: Record<number, number> = {}
 
         if (options.roleOrder) {
             options.roleOrder.forEach((roleId, index) => {
-                rolePriorityMap[roleId] = index + 1
+                rolePriorityMap[roleId] = index
             })
         }
 
         return [...users].sort((firstUser, secondUser) => {
-            if (options.pinCurrentUser && currentUserId) {
-                if (firstUser.getId() === currentUserId) {
-                    return -1
-                }
-
-                if (secondUser.getId() === currentUserId) {
-                    return 1
-                }
-            }
-
             if (options.roleOrder) {
-                const firstUserRolePriority = rolePriorityMap[firstUser.getRole()] ?? 999
-                const secondUserRolePriority = rolePriorityMap[secondUser.getRole()] ?? 999
+                const firstUserRolePriority = rolePriorityMap[firstUser.getRole()] ?? Number.MAX_SAFE_INTEGER
+                const secondUserRolePriority = rolePriorityMap[secondUser.getRole()] ?? Number.MAX_SAFE_INTEGER
 
                 if (firstUserRolePriority !== secondUserRolePriority) {
                     return firstUserRolePriority - secondUserRolePriority
                 }
             }
 
-            return 0
+            const lastNameComparison = firstUser.getLastName().localeCompare(secondUser.getLastName(), 'ru', {
+                sensitivity: 'base'
+            })
+
+            if (lastNameComparison !== 0) {
+                return lastNameComparison
+            }
+
+            const firstNameComparison = firstUser.getFirstName().localeCompare(secondUser.getFirstName(), 'ru', {
+                sensitivity: 'base'
+            })
+
+            if (firstNameComparison !== 0) {
+                return firstNameComparison
+            }
+
+            const middleNameComparison = firstUser.getMiddleName().localeCompare(secondUser.getMiddleName(), 'ru', {
+                sensitivity: 'base'
+            })
+
+            if (middleNameComparison !== 0) {
+                return middleNameComparison
+            }
+
+            return firstUser.getId() - secondUser.getId()
         })
     }
 

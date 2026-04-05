@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUser } from '@/modules/user/composables/useUser'
 import { usePagination } from '@/composables/common/usePagination'
 import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
@@ -7,6 +7,9 @@ import { useTicketStatuses } from '@/modules/ticket/composables/useTicketStatuse
 import { useTicketFilter } from '@/modules/ticket/composables/useTicketFilter'
 import { getAllTickets, updateTicket } from '@/modules/ticket/api/ticket.api'
 import { Ticket } from '@/modules/ticket/model/ticket'
+import { mapTicket } from '@/modules/ticket/model/mapTicket'
+import { getEcho } from '@/shared/realtime/echo'
+import type { TicketApi } from '@/types/ticket'
 import router from '@/router'
 
 export const useAllTicketsPage = () => {
@@ -24,7 +27,51 @@ export const useAllTicketsPage = () => {
         ...statuses.value
     ])
 
-    const filteredTickets = useTicketFilter(tickets, selectedStatus)
+    const visibleTickets = computed(() => {
+        if (isAdmin.value) {
+            return tickets.value
+        }
+
+        return tickets.value.filter(ticketItem => ticketItem.getEmployeeId() === null)
+    })
+
+    const filteredTickets = useTicketFilter(visibleTickets, selectedStatus)
+
+    const upsertTicket = (ticketData: TicketApi) => {
+        const mappedTicket = mapTicket(ticketData)
+        const existingTicketIndex = tickets.value.findIndex(ticketItem => ticketItem.getId() === mappedTicket.getId())
+
+        if (existingTicketIndex === -1) {
+            tickets.value.unshift(mappedTicket)
+            return
+        }
+
+        tickets.value[existingTicketIndex] = mappedTicket
+    }
+
+    const subscribeToAllTickets = () => {
+        const echo = getEcho()
+
+        if (!echo || !isEmployee.value) {
+            return
+        }
+
+        echo.private('tickets.all').listen('.ticket.created', (createdTicket: TicketApi) => {
+            upsertTicket(createdTicket)
+        }).listen('.ticket.updated', (updatedTicket: TicketApi) => {
+            upsertTicket(updatedTicket)
+        })
+    }
+
+    const unsubscribeFromAllTickets = () => {
+        const echo = getEcho()
+
+        if (!echo) {
+            return
+        }
+
+        echo.leave('tickets.all')
+    }
 
     const openTicket = (ticketId: number) => {
         if (!user.value) {
@@ -68,6 +115,23 @@ export const useAllTicketsPage = () => {
     onMounted(async () => {
         await load(currentPage.value, setMeta)
         await loadStatuses()
+        subscribeToAllTickets()
+    })
+
+    watch(
+            () => isEmployee.value,
+            async nextIsEmployee => {
+                if (nextIsEmployee) {
+                    return
+                }
+
+                unsubscribeFromAllTickets()
+                await router.replace({ name: 'profile' })
+            }
+    )
+
+    onUnmounted(() => {
+        unsubscribeFromAllTickets()
     })
 
     return {

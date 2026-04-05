@@ -5,8 +5,18 @@ export const getAnotherUser = async (id: number): Promise<any> => {
     return response.data
 }
 
-export const getAllUsers = async (page = 1): Promise<any> => {
-    const response = await apiClient.get(`/user/all?page=${page}`)
+export const getAllUsers = async (page = 1, searchQuery = ''): Promise<any> => {
+    const params = new URLSearchParams()
+
+    params.set('page', String(page))
+
+    const normalizedSearchQuery = searchQuery.trim()
+
+    if (normalizedSearchQuery) {
+        params.set('search', normalizedSearchQuery)
+    }
+
+    const response = await apiClient.get(`/user/all?${params.toString()}`)
     return response.data
 }
 

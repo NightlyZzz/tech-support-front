@@ -3,6 +3,7 @@ import router from '@/router'
 import { getUserToken, clearUserStorage } from '@/modules/user/model/userStorage'
 import { clearUserState } from '@/modules/user/model/userState'
 import { BACKEND_URL } from '@/shared/utils/constants'
+import { getEcho } from '@/shared/realtime/echo'
 
 export const apiClient = axios.create({
     baseURL: BACKEND_URL,
@@ -16,6 +17,12 @@ apiClient.interceptors.request.use(config => {
 
     if (token) {
         config.headers.Authorization = 'Bearer ' + token
+    }
+
+    const socketId = getEcho()?.socketId()
+
+    if (socketId) {
+        config.headers['X-Socket-Id'] = socketId
     }
 
     return config

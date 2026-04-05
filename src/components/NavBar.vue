@@ -2,8 +2,11 @@
     import { ref, computed } from 'vue'
     import { COMPANY_NAME } from '@/shared/utils/constants'
     import { useUser } from '@/modules/user/composables/useUser'
+    import { logout } from '@/modules/user/services/auth.service'
 
     const mobileOpen = ref(false)
+    const logoutModalOpen = ref(false)
+    const logoutLoading = ref(false)
 
     const { user, isAdmin, isEmployee, isUser } = useUser()
 
@@ -25,6 +28,34 @@
     const closeMobile = () => {
         mobileOpen.value = false
     }
+
+    const openLogoutModal = () => {
+        logoutModalOpen.value = true
+        closeMobile()
+    }
+
+    const closeLogoutModal = () => {
+        if (logoutLoading.value) {
+            return
+        }
+
+        logoutModalOpen.value = false
+    }
+
+    const handleLogout = async (allDevices: boolean) => {
+        if (logoutLoading.value) {
+            return
+        }
+
+        logoutLoading.value = true
+
+        try {
+            await logout(allDevices)
+        } finally {
+            logoutLoading.value = false
+            logoutModalOpen.value = false
+        }
+    }
 </script>
 
 <template>
@@ -45,7 +76,7 @@
             </router-link>
         </div>
 
-        <div class="navbar-right">
+        <div class="navbar-right" style="display:flex;align-items:center;gap:12px;">
             <router-link class="navbar-account" :to="{ name: 'profile' }">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path
@@ -56,6 +87,11 @@
                 </svg>
                 Аккаунт
             </router-link>
+
+            <button type="button" class="navbar-link" style="background:none;border:none;cursor:pointer;"
+                    @click="openLogoutModal">
+                Выйти
+            </button>
         </div>
 
         <button class="navbar-toggle" @click="toggleMobile">
@@ -85,6 +121,59 @@
         >
             Аккаунт
         </router-link>
+
+        <button
+                type="button"
+                class="navbar-link"
+                style="background:none;border:none;text-align:left;cursor:pointer;"
+                @click="openLogoutModal"
+        >
+            Выйти
+        </button>
+    </div>
+
+    <div
+            v-if="logoutModalOpen"
+            style="position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;"
+            @click.self="closeLogoutModal"
+    >
+        <div
+                style="width:100%;max-width:420px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:16px;padding:20px;box-shadow:0 16px 40px rgba(0,0,0,.2);"
+        >
+            <h3 style="margin:0 0 10px 0;">Выход из аккаунта</h3>
+            <p style="margin:0 0 16px 0;line-height:1.5;">
+                Хотите выйти только на текущем устройстве или на всех устройствах?
+            </p>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <button
+                        type="button"
+                        class="btn btn--primary btn--full"
+                        :disabled="logoutLoading"
+                        @click="handleLogout(false)"
+                >
+                    Выйти только на этом устройстве
+                </button>
+
+                <button
+                        type="button"
+                        class="btn btn--primary btn--full"
+                        :disabled="logoutLoading"
+                        @click="handleLogout(true)"
+                >
+                    Выйти на всех устройствах
+                </button>
+
+                <button
+                        type="button"
+                        class="btn btn--full"
+                        :disabled="logoutLoading"
+                        @click="closeLogoutModal"
+                >
+                    Отмена
+                </button>
+            </div>
+        </div>
     </div>
 </template>
 

@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUser } from '@/modules/user/composables/useUser'
 import { useUserSort } from '@/shared/composables/useUserSort'
@@ -7,34 +7,103 @@ import { usePagination } from '@/composables/common/usePagination'
 import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
 import { getAllUsers } from '@/modules/user/api/user.api'
 import { Role } from '@/enums/role'
+import { getEcho } from '@/shared/realtime/echo'
 
 export const useUsersPage = () => {
     const router = useRouter()
 
-    const { user } = useUser()
+    const { user, isAdmin } = useUser()
     const { sortUsers } = useUserSort()
 
     const searchQuery = ref('')
+    const appliedSearchQuery = ref('')
+    let searchTimeoutId: ReturnType<typeof setTimeout> | null = null
 
-    const { currentPage, lastPage, setMeta } = usePagination()
+    const { currentPage, lastPage, totalItems, setMeta } = usePagination()
     const { users, load } = useUsers(getAllUsers)
 
-    usePaginationLoader(currentPage, load, setMeta)
+    const loadUsersPage = async (page: number) => {
+        await load(page, setMeta, appliedSearchQuery.value)
+    }
+
+    usePaginationLoader(
+            currentPage,
+            async (page, nextSetMeta) => {
+                await load(page, nextSetMeta, appliedSearchQuery.value)
+            },
+            setMeta
+    )
+
+    const reloadUsers = async () => {
+        await loadUsersPage(currentPage.value)
+    }
+
+    const applySearch = async (nextSearchQuery: string) => {
+        const normalizedSearchQuery = nextSearchQuery.trim()
+
+        if (appliedSearchQuery.value === normalizedSearchQuery) {
+            return
+        }
+
+        appliedSearchQuery.value = normalizedSearchQuery
+
+        if (currentPage.value !== 1) {
+            currentPage.value = 1
+            return
+        }
+
+        await reloadUsers()
+    }
+
+    const subscribeToUsers = () => {
+        const echo = getEcho()
+
+        if (!echo || !isAdmin.value) {
+            return
+        }
+
+        echo.private('users.all').listen('.user.updated', async () => {
+            await reloadUsers()
+        }).listen('.user.deleted', async () => {
+            await reloadUsers()
+        })
+    }
+
+    const unsubscribeFromUsers = () => {
+        const echo = getEcho()
+
+        if (!echo || !isAdmin.value) {
+            return
+        }
+
+        echo.leave('users.all')
+    }
 
     onMounted(async () => {
-        await load(currentPage.value, setMeta)
+        await reloadUsers()
+        subscribeToUsers()
     })
 
-    const filteredUsers = computed(() => {
-        const normalizedQuery = searchQuery.value.toLowerCase().trim()
-        const currentUserId = user.value?.getId() ?? null
+    onUnmounted(() => {
+        unsubscribeFromUsers()
 
-        const matchedUsers = users.value.filter(userItem =>
-                `${userItem.getLastName()} ${userItem.getFirstName()} ${userItem.getMiddleName()}`.toLowerCase().includes(normalizedQuery)
-        )
+        if (searchTimeoutId !== null) {
+            clearTimeout(searchTimeoutId)
+        }
+    })
 
-        return sortUsers(matchedUsers, currentUserId, {
-            pinCurrentUser: true,
+    watch(searchQuery, (nextSearchQuery) => {
+        if (searchTimeoutId !== null) {
+            clearTimeout(searchTimeoutId)
+        }
+
+        searchTimeoutId = setTimeout(async () => {
+            await applySearch(nextSearchQuery)
+        }, 300)
+    })
+
+    const visibleUsers = computed(() => {
+        return sortUsers(users.value, {
             roleOrder: [Role.Admin, Role.Employee, Role.User]
         })
     })
@@ -65,7 +134,8 @@ export const useUsersPage = () => {
 
     return {
         searchQuery,
-        filteredUsers,
+        visibleUsers,
+        totalUsers: totalItems,
         currentPage,
         lastPage,
         openUser,

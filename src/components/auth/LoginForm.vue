@@ -5,6 +5,7 @@
     import { showToast } from '@/shared/toast/toastService'
     import { setUserToken } from '@/modules/user/model/userStorage'
     import { initUser } from '@/modules/user/composables/useInitUser'
+    import { createEcho, disconnectEcho } from '@/shared/realtime/echo'
 
     interface LoginForm {
         email: string
@@ -28,6 +29,9 @@
             })
 
             setUserToken(loginResponse.token)
+
+            disconnectEcho()
+            createEcho()
 
             await initUser()
 

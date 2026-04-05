@@ -15,6 +15,8 @@ export const getCurrentUser = async (): Promise<any> => {
     return response.data
 }
 
-export const logoutRequest = async (): Promise<void> => {
-    await apiClient.post('/auth/logout')
+export const logoutRequest = async (allDevices = false): Promise<void> => {
+    await apiClient.post('/auth/logout', {
+        all_devices: allDevices
+    })
 }

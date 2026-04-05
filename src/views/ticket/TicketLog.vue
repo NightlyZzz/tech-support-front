@@ -1,12 +1,11 @@
 <script setup lang="ts">
-    import { useRoute } from 'vue-router'
-    import { computed } from 'vue'
+    import { computed, watch } from 'vue'
+    import { useRoute, useRouter } from 'vue-router'
     import { Role } from '@/enums/role'
     import TicketInfoCard from '@/components/ticket/TicketInfoCard.vue'
     import TicketStatusCard from '@/components/ticket/TicketStatusCard.vue'
     import TicketMessagesList from '@/components/ticket/TicketMessagesList.vue'
     import TicketMessageInput from '@/components/ticket/TicketMessageInput.vue'
-
     import { useTicketAccess } from '@/modules/ticket/composables/useTicketAccess'
     import { useTicketChat } from '@/modules/ticket/composables/useTicketChat'
     import { useTicketDetails } from '@/modules/ticket/composables/useTicketDetails'
@@ -14,9 +13,13 @@
     import { useTicketMeta } from '@/modules/ticket/composables/useTicketMeta'
     import { useTicketMessages } from '@/modules/ticket/composables/useTicketMessages'
     import { useTicketPage } from '@/modules/ticket/composables/useTicketPage'
+    import { useUser } from '@/modules/user/composables/useUser'
 
     const route = useRoute()
+    const router = useRouter()
     const ticketId = Number(route.params.id)
+
+    const { user } = useUser()
 
     const {
         logs,
@@ -46,6 +49,7 @@
     })
 
     const assignedEmployeeId = computed(() => ticket.value?.getEmployeeId() ?? null)
+    const ticketSenderId = computed(() => ticket.value?.getSenderId() ?? null)
 
     const {
         currentUser,
@@ -63,7 +67,7 @@
     const {
         canOpen,
         canWrite
-    } = useTicketAccess(ticketStatus, assignedEmployeeId)
+    } = useTicketAccess(ticketStatus, assignedEmployeeId, ticketSenderId)
 
     const displayedUserName = computed(() => {
         if (!currentUser.value || !ticket.value) {
@@ -82,6 +86,34 @@
 
         handleStatusChange(Number(selectedValue))
     }
+
+    const redirectIfTicketBecameUnavailable = async () => {
+        if (ticket.value === null) {
+            return
+        }
+
+        if (canOpen.value) {
+            return
+        }
+
+        if (router.currentRoute.value.name !== 'profile') {
+            await router.replace({ name: 'profile' })
+        }
+    }
+
+    watch(
+            [
+                () => user.value?.getRole(),
+                () => user.value?.getId(),
+                () => ticket.value?.getEmployeeId(),
+                () => ticket.value?.getSenderId(),
+                () => ticket.value?.getStatusId()
+            ],
+            async () => {
+                await redirectIfTicketBecameUnavailable()
+            },
+            { immediate: true }
+    )
 
     useTicketPage(loadTicket, loadLogs, loadStatuses, canOpen)
 </script>

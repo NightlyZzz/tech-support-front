@@ -1,6 +1,7 @@
 services:
   vue-app:
     build: .
+    container_name: tech-support-front
     ports:
       - "80:80"
     volumes:

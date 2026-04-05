@@ -17,14 +17,14 @@ export class User {
     static fromApi(data: any, fallbackToken = ''): User {
         return new User(
                 data.token ?? fallbackToken,
-                data.id,
+                Number(data.id ?? 0),
                 data.email,
                 data.first_name ?? data.firstName ?? '',
                 data.last_name ?? data.lastName ?? '',
                 data.middle_name ?? data.middleName ?? '',
-                data.role_id ?? data.role ?? 0,
+                Number(data.role_id ?? data.role ?? 0),
                 data.role_name ?? data.roleName ?? '',
-                data.department_id ?? data.department ?? 0,
+                Number(data.department_id ?? data.department ?? 0),
                 data.department_name ?? data.departmentName ?? '',
                 data.secondary_email ?? data.secondaryEmail ?? null
         )
