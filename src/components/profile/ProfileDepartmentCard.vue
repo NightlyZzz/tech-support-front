@@ -12,7 +12,7 @@
     }>()
 
     const emit = defineEmits<{
-        (event: 'update:departmentId', value: number | null): void
+        (event: 'update:departmentId', value: number): void
     }>()
 </script>
 
