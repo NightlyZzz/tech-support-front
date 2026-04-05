@@ -16,17 +16,23 @@
         label?: string
         placeholder?: string
         items: SelectItem[]
-        modelValue: number
+        modelValue: number | null
         valueKey: string
         labelKey: string
     }>()
 
     const emit = defineEmits<{
-        (event: 'update:modelValue', value: number): void
+        (event: 'update:modelValue', value: number | null): void
     }>()
 
     const onChange = (event: Event) => {
         const target = event.target as HTMLSelectElement
+
+        if (target.value === '') {
+            emit('update:modelValue', null)
+            return
+        }
+
         emit('update:modelValue', Number(target.value))
     }
 </script>
@@ -37,7 +43,7 @@
 
         <select
                 :id="id"
-                :value="modelValue"
+                :value="modelValue ?? ''"
                 @change="onChange"
         >
             <option

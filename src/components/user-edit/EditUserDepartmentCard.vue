@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import BaseSelect from '@/components/BaseSelect.vue'
-    import type { Department } from '@/modules/user/types/department'
+    import type { EditUserDepartment } from '@/modules/user/types/edit-user'
 
     defineProps<{
-        departmentId: number
-        departments: Department[]
+        departmentId: number | null
+        departments: EditUserDepartment[]
     }>()
 
     const emit = defineEmits<{

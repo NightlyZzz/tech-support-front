@@ -1,14 +1,8 @@
 import type { Ref } from 'vue'
 import type { User } from '@/modules/user/model/user'
+import type { TicketLog } from '@/modules/ticket/types/ticket-log'
 
-export interface TicketMessage {
-    id: number
-    message: string
-    sender_id: number | null
-    employee_id: number | null
-    sender_name: string
-    created_at: string
-}
+export type TicketMessage = TicketLog
 
 export const useTicketMessages = (currentUser: Ref<User | null>) => {
     const isOwnMessage = (message: TicketMessage): boolean => {

@@ -61,25 +61,13 @@ export const useTicketDetails = (ticketId: number) => {
         unsubscribeFromTicketUpdates()
     })
 
-    const ticketStatus = computed(() => ticket.value?.getStatusId() ?? null)
-    const ticketSenderId = computed(() => ticket.value?.getSenderId() ?? null)
-    const ticketSenderName = computed(() => ticket.value?.getSenderName() ?? '')
-    const ticketType = computed(() => ticket.value?.getTypeName() ?? '')
-    const ticketDescription = computed(() => ticket.value?.getDescription() ?? '')
-    const contactPhone = computed(() => ticket.value?.getContactPhone() ?? '')
-    const createdAt = computed(() => ticket.value?.getCreatedAt() ?? '')
     const assignedEmployeeId = computed(() => ticket.value?.getEmployeeId() ?? null)
+    const ticketSenderId = computed(() => ticket.value?.getSenderId() ?? null)
 
     return {
         ticket,
-        ticketStatus,
-        ticketSenderId,
-        ticketSenderName,
-        ticketType,
-        ticketDescription,
-        contactPhone,
-        createdAt,
         assignedEmployeeId,
+        ticketSenderId,
         loadTicket,
         updateStatus
     }

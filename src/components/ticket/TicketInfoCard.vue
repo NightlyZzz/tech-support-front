@@ -1,10 +1,5 @@
 <script setup lang="ts">
-    type TicketInfoCardTicket = {
-        getTypeName: () => string
-        getContactPhone: () => string
-        getCreatedAt: () => string
-        getDescription: () => string
-    }
+    import type { TicketInfoCardTicket } from '@/modules/ticket/types/ticket-info'
 
     const props = defineProps<{
         ticketId: number
@@ -38,7 +33,7 @@
 
         <div class="ticket-field">
             <span class="ticket-field-label">Создана</span>
-            <span class="ticket-field-value">{{ props.ticket?.getCreatedAt() }}</span>
+            <span class="ticket-field-value">{{ props.ticket?.getCreatedAtFormatted() }}</span>
         </div>
 
         <div class="ticket-divider"></div>

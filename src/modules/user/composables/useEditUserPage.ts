@@ -8,26 +8,16 @@ import {
 import { getAllDepartments, getAllRoles } from '@/modules/user/api/user.lookup'
 import { showToast } from '@/shared/toast/toastService'
 import { getEcho, createEcho } from '@/shared/realtime/echo'
-
-interface Department {
-    id: number
-    name: string
-}
-
-interface Role {
-    id: number
-    name: string
-}
-
-interface EditableUserPayload {
-    first_name?: string
-    last_name?: string
-    middle_name?: string
-    email?: string
-    secondary_email?: string | null
-    department_id?: number | null
-    role_id?: number | null
-}
+import {
+    buildEditUserSnapshot,
+    mapEditableUserPayloadToForm
+} from '@/modules/user/helpers/editUserSnapshot'
+import type {
+    EditableUserPayload,
+    EditUserDepartment,
+    EditUserForm,
+    EditUserRole
+} from '@/modules/user/types/edit-user'
 
 export const useEditUserPage = () => {
     const route = useRoute()
@@ -35,49 +25,43 @@ export const useEditUserPage = () => {
 
     const userId = Number(route.params.id)
 
-    const departments = ref<Department[]>([])
-    const roles = ref<Role[]>([])
+    const departments = ref<EditUserDepartment[]>([])
+    const roles = ref<EditUserRole[]>([])
 
-    const form = reactive({
+    const form = reactive<EditUserForm>({
         first_name: '',
         last_name: '',
         middle_name: '',
         email: '',
         secondary_email: '',
         new_password: '',
-        department_id: null as number | null,
-        role_id: null as number | null
+        department_id: null,
+        role_id: null
     })
 
     const initialSnapshot = ref('')
 
-    const buildSnapshot = () => {
-        return JSON.stringify({
-            first_name: form.first_name,
-            last_name: form.last_name,
-            middle_name: form.middle_name,
-            email: form.email,
-            secondary_email: form.secondary_email,
-            department_id: form.department_id,
-            role_id: form.role_id
-        })
+    const syncSnapshot = () => {
+        initialSnapshot.value = buildEditUserSnapshot(form)
     }
 
     const isFormDirty = () => {
-        return buildSnapshot() !== initialSnapshot.value
+        return buildEditUserSnapshot(form) !== initialSnapshot.value
     }
 
     const applyUserToForm = (userData: EditableUserPayload) => {
-        form.first_name = userData.first_name ?? ''
-        form.last_name = userData.last_name ?? ''
-        form.middle_name = userData.middle_name ?? ''
-        form.email = userData.email ?? ''
-        form.secondary_email = userData.secondary_email ?? ''
-        form.department_id = userData.department_id ?? null
-        form.role_id = userData.role_id ?? null
-        form.new_password = ''
+        const nextForm = mapEditableUserPayloadToForm(userData)
 
-        initialSnapshot.value = buildSnapshot()
+        form.first_name = nextForm.first_name
+        form.last_name = nextForm.last_name
+        form.middle_name = nextForm.middle_name
+        form.email = nextForm.email
+        form.secondary_email = nextForm.secondary_email
+        form.new_password = nextForm.new_password
+        form.department_id = nextForm.department_id
+        form.role_id = nextForm.role_id
+
+        syncSnapshot()
     }
 
     const loadDepartments = async () => {

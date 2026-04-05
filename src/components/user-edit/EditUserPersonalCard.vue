@@ -1,8 +1,8 @@
 <script setup lang="ts">
-    import type { ProfileForm } from '@/modules/user/types/profile'
+    import type { EditUserForm } from '@/modules/user/types/edit-user'
 
     defineProps<{
-        form: ProfileForm
+        form: EditUserForm
     }>()
 </script>
 

@@ -54,6 +54,31 @@ export class Ticket {
         return this.createdAt
     }
 
+    getCreatedAtFormatted(): string {
+        if (!this.createdAt) {
+            return '—'
+        }
+
+        const normalizedCreatedAt = this.createdAt.replace(
+                /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.\d+Z$/,
+                '$1Z'
+        )
+
+        const parsedDate = new Date(normalizedCreatedAt)
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return this.createdAt
+        }
+
+        return parsedDate.toLocaleString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    }
+
     getSenderName(): string {
         return this.senderName
     }

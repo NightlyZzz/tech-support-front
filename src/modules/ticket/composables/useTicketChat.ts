@@ -1,15 +1,7 @@
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { attachTicketLog, getTicketLogs } from '@/modules/ticket/api/ticket.chat.api'
 import { getEcho } from '@/shared/realtime/echo'
-
-type TicketLog = {
-    id: number
-    message: string
-    created_at: string
-    sender_id: number | null
-    employee_id: number | null
-    sender_name: string
-}
+import type { TicketLog } from '@/modules/ticket/types/ticket-log'
 
 export const useTicketChat = (ticketId: number) => {
     const logs = ref<TicketLog[]>([])

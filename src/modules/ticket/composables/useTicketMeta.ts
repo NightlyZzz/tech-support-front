@@ -1,15 +1,11 @@
 import { computed, type Ref } from 'vue'
 import { useUser } from '@/modules/user/composables/useUser'
 import { getStatusBadge } from '@/shared/utils/utils'
-
-type Status = {
-    id: number
-    name: string
-}
+import type { StatusOption } from '@/modules/ticket/types/ticket-status'
 
 export const useTicketMeta = (
         ticketStatus: Ref<number | null>,
-        allStatuses: Ref<Status[]>,
+        allStatuses: Ref<StatusOption[]>,
         updateStatus: () => void
 ) => {
     const { user } = useUser()

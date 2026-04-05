@@ -5,21 +5,8 @@ import { deleteCurrentUser, updateUser } from '@/modules/user/api/user.api'
 import { getAllDepartments } from '@/modules/user/api/user.lookup'
 import { setUserData } from '@/modules/user/model/userStorage'
 import { showToast } from '@/shared/toast/toastService'
-
-interface Department {
-    id: number
-    name: string
-}
-
-interface ProfileForm {
-    first_name: string
-    last_name: string
-    middle_name: string
-    email: string
-    secondary_email: string
-    new_password: string
-    department_id: number
-}
+import type { Department } from '@/modules/user/types/department'
+import type { ProfileForm } from '@/modules/user/types/profile'
 
 export const useProfilePage = () => {
     const { user, setUser } = useUser()
@@ -103,8 +90,13 @@ export const useProfilePage = () => {
                 continue
             }
 
-            if (form[fieldName] !== originalForm.value[fieldName]) {
-                changedFields[fieldName] = form[fieldName] as never
+            const nextValue = form[fieldName]
+            const previousValue = originalForm.value[fieldName]
+
+            if (nextValue !== previousValue) {
+                Object.assign(changedFields, {
+                    [fieldName]: nextValue
+                })
             }
         }
 

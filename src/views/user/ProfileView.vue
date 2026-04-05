@@ -21,6 +21,14 @@
         saveChanges,
         confirmDelete
     } = useProfilePage()
+
+    const updateDepartmentId = (value: number | null) => {
+        if (value === null) {
+            return
+        }
+
+        form.department_id = value
+    }
 </script>
 
 <template>
@@ -49,7 +57,7 @@
                 <ProfileDepartmentCard
                         :department-id="form.department_id"
                         :departments="departments"
-                        @update:department-id="form.department_id = $event"
+                        @update:department-id="updateDepartmentId"
                 />
 
                 <ProfileActionsCard

@@ -1,13 +1,5 @@
 <script setup lang="ts">
-    type ProfileForm = {
-        first_name: string
-        last_name: string
-        middle_name: string
-        email: string
-        secondary_email: string
-        new_password: string
-        department_id: number
-    }
+    import type { ProfileForm } from '@/modules/user/types/profile'
 
     defineProps<{
         form: ProfileForm

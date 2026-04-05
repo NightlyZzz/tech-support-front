@@ -1,10 +1,6 @@
 <script setup lang="ts">
     import BaseSelect from '@/components/BaseSelect.vue'
-
-    type StatusOption = {
-        id: number
-        name: string
-    }
+    import type { StatusOption } from '@/modules/ticket/types/ticket-status'
 
     defineProps<{
         ticketStatus: number
