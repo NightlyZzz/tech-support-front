@@ -1,5 +1,10 @@
 <script setup lang="ts">
-    import BaseSelect from '@/components/BaseSelect.vue'
+    import ProfileActionsCard from '@/components/profile/ProfileActionsCard.vue'
+    import ProfileDepartmentCard from '@/components/profile/ProfileDepartmentCard.vue'
+    import ProfileEmailCard from '@/components/profile/ProfileEmailCard.vue'
+    import ProfileLogoutModal from '@/components/profile/ProfileLogoutModal.vue'
+    import ProfilePasswordCard from '@/components/profile/ProfilePasswordCard.vue'
+    import ProfilePersonalCard from '@/components/profile/ProfilePersonalCard.vue'
     import { useProfilePage } from '@/modules/user/composables/useProfilePage'
 
     const {
@@ -8,6 +13,10 @@
         departments,
         showPassword,
         loading,
+        logoutModalOpen,
+        logoutLoading,
+        openLogoutModal,
+        closeLogoutModal,
         handleLogout,
         saveChanges,
         confirmDelete
@@ -24,100 +33,41 @@
             <h1 class="page-title">Профиль</h1>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-            <div style="display:flex;flex-direction:column;gap:20px;">
-                <div class="card">
-                    <p class="card-title">Личные данные</p>
-
-                    <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                            <div class="field">
-                                <label>Фамилия</label>
-                                <input v-model="form.last_name" type="text"/>
-                            </div>
-
-                            <div class="field">
-                                <label>Имя</label>
-                                <input v-model="form.first_name" type="text"/>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label>Отчество</label>
-                            <input v-model="form.middle_name" type="text"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <p class="card-title">Почта</p>
-
-                    <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div class="field">
-                            <label>Основная почта</label>
-                            <input v-model="form.email" type="email"/>
-                        </div>
-
-                        <div class="field">
-                            <label>Почта для уведомлений</label>
-                            <input v-model="form.secondary_email" type="email"/>
-                        </div>
-                    </div>
-                </div>
+        <div class="profile-grid">
+            <div class="profile-column">
+                <ProfilePersonalCard :form="form"/>
+                <ProfileEmailCard :form="form"/>
             </div>
 
-            <div style="display:flex;flex-direction:column;gap:20px;">
-                <div class="card">
-                    <p class="card-title">Смена пароля</p>
+            <div class="profile-column">
+                <ProfilePasswordCard
+                        :form="form"
+                        :show-password="showPassword"
+                        @update:show-password="showPassword = $event"
+                />
 
-                    <div class="field">
-                        <label>Новый пароль</label>
-                        <input
-                                :type="showPassword ? 'text' : 'password'"
-                                v-model="form.new_password"
-                                placeholder="Оставьте пустым"
-                        />
-                    </div>
+                <ProfileDepartmentCard
+                        :department-id="form.department_id"
+                        :departments="departments"
+                        @update:department-id="form.department_id = $event"
+                />
 
-                    <label class="check-label" style="margin-top:8px;">
-                        <input type="checkbox" v-model="showPassword"/>
-                        Показать пароль
-                    </label>
-                </div>
-
-                <div class="card">
-                    <p class="card-title">Подразделение</p>
-
-                    <BaseSelect
-                            v-model="form.department_id"
-                            :items="departments"
-                            label-key="name"
-                            value-key="id"
-                    />
-                </div>
-
-                <div class="card">
-                    <p class="card-title">Действия</p>
-
-                    <div class="action-row">
-                        <button
-                                :class="['btn', 'btn--primary', loading ? 'btn-loading' : '']"
-                                @click="saveChanges"
-                        >
-                            Сохранить изменения
-                        </button>
-
-                        <button class="btn btn--secondary" @click="handleLogout">
-                            Выйти
-                        </button>
-
-                        <button class="btn btn--danger" @click="confirmDelete">
-                            Удалить аккаунт
-                        </button>
-                    </div>
-                </div>
+                <ProfileActionsCard
+                        :loading="loading"
+                        @save="saveChanges"
+                        @logout="openLogoutModal"
+                        @delete="confirmDelete"
+                />
             </div>
         </div>
+
+        <ProfileLogoutModal
+                :open="logoutModalOpen"
+                :loading="logoutLoading"
+                @close="closeLogoutModal"
+                @logout-current="handleLogout(false)"
+                @logout-all="handleLogout(true)"
+        />
     </div>
 </template>
 

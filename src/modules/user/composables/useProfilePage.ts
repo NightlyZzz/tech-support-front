@@ -38,6 +38,8 @@ export const useProfilePage = () => {
     const departments = ref<Department[]>([])
     const showPassword = ref(false)
     const loading = ref(false)
+    const logoutModalOpen = ref(false)
+    const logoutLoading = ref(false)
 
     const syncFormFromUser = () => {
         if (!user.value) {
@@ -59,8 +61,31 @@ export const useProfilePage = () => {
         syncFormFromUser()
     }, { immediate: true })
 
-    const handleLogout = async () => {
-        await logout()
+    const openLogoutModal = () => {
+        logoutModalOpen.value = true
+    }
+
+    const closeLogoutModal = () => {
+        if (logoutLoading.value) {
+            return
+        }
+
+        logoutModalOpen.value = false
+    }
+
+    const handleLogout = async (allDevices: boolean) => {
+        if (logoutLoading.value) {
+            return
+        }
+
+        logoutLoading.value = true
+
+        try {
+            await logout(allDevices)
+        } finally {
+            logoutLoading.value = false
+            logoutModalOpen.value = false
+        }
     }
 
     const saveChanges = async () => {
@@ -149,6 +174,10 @@ export const useProfilePage = () => {
         departments,
         showPassword,
         loading,
+        logoutModalOpen,
+        logoutLoading,
+        openLogoutModal,
+        closeLogoutModal,
         handleLogout,
         saveChanges,
         confirmDelete
