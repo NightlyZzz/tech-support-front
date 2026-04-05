@@ -1,8 +1,12 @@
 <script setup lang="ts">
-    import type { ProfileForm } from '@/modules/user/types/profile'
-
     defineProps<{
-        form: ProfileForm
+        email: string
+        secondaryEmail: string
+    }>()
+
+    const emit = defineEmits<{
+        (event: 'update:email', value: string): void
+        (event: 'update:secondaryEmail', value: string): void
     }>()
 </script>
 
@@ -13,12 +17,20 @@
         <div class="profile-card-stack">
             <div class="field">
                 <label>Основная почта</label>
-                <input v-model="form.email" type="email">
+                <input
+                        :value="email"
+                        type="email"
+                        @input="emit('update:email', ($event.target as HTMLInputElement).value)"
+                >
             </div>
 
             <div class="field">
                 <label>Почта для уведомлений</label>
-                <input v-model="form.secondary_email" type="email">
+                <input
+                        :value="secondaryEmail"
+                        type="email"
+                        @input="emit('update:secondaryEmail', ($event.target as HTMLInputElement).value)"
+                >
             </div>
         </div>
     </div>

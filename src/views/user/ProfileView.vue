@@ -22,6 +22,30 @@
         confirmDelete
     } = useProfilePage()
 
+    const updateLastName = (value: string) => {
+        form.last_name = value
+    }
+
+    const updateFirstName = (value: string) => {
+        form.first_name = value
+    }
+
+    const updateMiddleName = (value: string) => {
+        form.middle_name = value
+    }
+
+    const updateEmail = (value: string) => {
+        form.email = value
+    }
+
+    const updateSecondaryEmail = (value: string) => {
+        form.secondary_email = value
+    }
+
+    const updateNewPassword = (value: string) => {
+        form.new_password = value
+    }
+
     const updateDepartmentId = (value: number | null) => {
         if (value === null) {
             return
@@ -43,14 +67,28 @@
 
         <div class="profile-grid">
             <div class="profile-column">
-                <ProfilePersonalCard :form="form"/>
-                <ProfileEmailCard :form="form"/>
+                <ProfilePersonalCard
+                        :last-name="form.last_name"
+                        :first-name="form.first_name"
+                        :middle-name="form.middle_name"
+                        @update:last-name="updateLastName"
+                        @update:first-name="updateFirstName"
+                        @update:middle-name="updateMiddleName"
+                />
+
+                <ProfileEmailCard
+                        :email="form.email"
+                        :secondary-email="form.secondary_email"
+                        @update:email="updateEmail"
+                        @update:secondary-email="updateSecondaryEmail"
+                />
             </div>
 
             <div class="profile-column">
                 <ProfilePasswordCard
-                        :form="form"
+                        :new-password="form.new_password"
                         :show-password="showPassword"
+                        @update:new-password="updateNewPassword"
                         @update:show-password="showPassword = $event"
                 />
 

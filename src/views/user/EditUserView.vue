@@ -14,6 +14,26 @@
         confirmDelete
     } = useEditUserPage()
 
+    const updateLastName = (value: string) => {
+        form.last_name = value
+    }
+
+    const updateFirstName = (value: string) => {
+        form.first_name = value
+    }
+
+    const updateMiddleName = (value: string) => {
+        form.middle_name = value
+    }
+
+    const updateEmail = (value: string) => {
+        form.email = value
+    }
+
+    const updateSecondaryEmail = (value: string) => {
+        form.secondary_email = value
+    }
+
     const updateDepartmentId = (value: number | null) => {
         form.department_id = value
     }
@@ -31,8 +51,21 @@
 
         <div class="profile-grid">
             <div class="profile-column">
-                <EditUserPersonalCard :form="form"/>
-                <EditUserEmailCard :form="form"/>
+                <EditUserPersonalCard
+                        :last-name="form.last_name"
+                        :first-name="form.first_name"
+                        :middle-name="form.middle_name"
+                        @update:last-name="updateLastName"
+                        @update:first-name="updateFirstName"
+                        @update:middle-name="updateMiddleName"
+                />
+
+                <EditUserEmailCard
+                        :email="form.email"
+                        :secondary-email="form.secondary_email"
+                        @update:email="updateEmail"
+                        @update:secondary-email="updateSecondaryEmail"
+                />
             </div>
 
             <div class="profile-column">

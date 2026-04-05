@@ -1,12 +1,11 @@
 <script setup lang="ts">
-    import type { ProfileForm } from '@/modules/user/types/profile'
-
     defineProps<{
-        form: ProfileForm
+        newPassword: string
         showPassword: boolean
     }>()
 
     const emit = defineEmits<{
+        (event: 'update:newPassword', value: string): void
         (event: 'update:showPassword', value: boolean): void
     }>()
 
@@ -23,9 +22,10 @@
         <div class="field">
             <label>Новый пароль</label>
             <input
-                    v-model="form.new_password"
+                    :value="newPassword"
                     :type="showPassword ? 'text' : 'password'"
                     placeholder="Оставьте пустым"
+                    @input="emit('update:newPassword', ($event.target as HTMLInputElement).value)"
             >
         </div>
 

@@ -1,8 +1,14 @@
 <script setup lang="ts">
-    import type { EditUserForm } from '@/modules/user/types/edit-user'
-
     defineProps<{
-        form: EditUserForm
+        lastName: string
+        firstName: string
+        middleName: string
+    }>()
+
+    const emit = defineEmits<{
+        (event: 'update:lastName', value: string): void
+        (event: 'update:firstName', value: string): void
+        (event: 'update:middleName', value: string): void
     }>()
 </script>
 
@@ -14,18 +20,30 @@
             <div class="profile-two-columns">
                 <div class="field">
                     <label>Фамилия</label>
-                    <input v-model="form.last_name" type="text">
+                    <input
+                            :value="lastName"
+                            type="text"
+                            @input="emit('update:lastName', ($event.target as HTMLInputElement).value)"
+                    >
                 </div>
 
                 <div class="field">
                     <label>Имя</label>
-                    <input v-model="form.first_name" type="text">
+                    <input
+                            :value="firstName"
+                            type="text"
+                            @input="emit('update:firstName', ($event.target as HTMLInputElement).value)"
+                    >
                 </div>
             </div>
 
             <div class="field">
                 <label>Отчество</label>
-                <input v-model="form.middle_name" type="text">
+                <input
+                        :value="middleName"
+                        type="text"
+                        @input="emit('update:middleName', ($event.target as HTMLInputElement).value)"
+                >
             </div>
         </div>
     </div>
