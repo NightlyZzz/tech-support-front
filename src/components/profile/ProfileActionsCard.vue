@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import BaseButton from '@/components/base/BaseButton.vue'
+
     defineProps<{
         loading: boolean
     }>()
@@ -15,25 +17,32 @@
         <p class="card-title">Действия</p>
 
         <div class="action-row">
-            <button
-                    :class="['btn', 'btn--primary', loading ? 'btn-loading' : '']"
+            <BaseButton
+                    variant="primary"
+                    :loading="loading"
                     @click="$emit('save')"
             >
                 Сохранить изменения
-            </button>
+            </BaseButton>
 
-            <button class="btn btn--secondary" @click="$emit('logout')">
+            <BaseButton
+                    variant="secondary"
+                    @click="$emit('logout')"
+            >
                 Выйти
-            </button>
+            </BaseButton>
 
-            <button class="btn btn--danger" @click="$emit('delete')">
+            <BaseButton
+                    variant="danger"
+                    @click="$emit('delete')"
+            >
                 Удалить аккаунт
-            </button>
+            </BaseButton>
         </div>
     </div>
 </template>
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

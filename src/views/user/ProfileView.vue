@@ -6,6 +6,7 @@
     import ProfilePasswordCard from '@/components/profile/ProfilePasswordCard.vue'
     import ProfilePersonalCard from '@/components/profile/ProfilePersonalCard.vue'
     import { useProfilePage } from '@/modules/user/composables/useProfilePage'
+    import type { ProfileForm } from '@/modules/user/types/profile'
 
     const {
         user,
@@ -22,28 +23,14 @@
         confirmDelete
     } = useProfilePage()
 
-    const updateLastName = (value: string) => {
-        form.last_name = value
-    }
-
-    const updateFirstName = (value: string) => {
-        form.first_name = value
-    }
-
-    const updateMiddleName = (value: string) => {
-        form.middle_name = value
-    }
-
-    const updateEmail = (value: string) => {
-        form.email = value
-    }
-
-    const updateSecondaryEmail = (value: string) => {
-        form.secondary_email = value
-    }
-
-    const updateNewPassword = (value: string) => {
-        form.new_password = value
+    const updateTextField = (
+            fieldName: keyof Pick<
+                    ProfileForm,
+                    'last_name' | 'first_name' | 'middle_name' | 'email' | 'secondary_email' | 'new_password'
+            >,
+            value: string
+    ) => {
+        form[fieldName] = value
     }
 
     const updateDepartmentId = (value: number | null) => {
@@ -71,16 +58,16 @@
                         :last-name="form.last_name"
                         :first-name="form.first_name"
                         :middle-name="form.middle_name"
-                        @update:last-name="updateLastName"
-                        @update:first-name="updateFirstName"
-                        @update:middle-name="updateMiddleName"
+                        @update:last-name="updateTextField('last_name', $event)"
+                        @update:first-name="updateTextField('first_name', $event)"
+                        @update:middle-name="updateTextField('middle_name', $event)"
                 />
 
                 <ProfileEmailCard
                         :email="form.email"
                         :secondary-email="form.secondary_email"
-                        @update:email="updateEmail"
-                        @update:secondary-email="updateSecondaryEmail"
+                        @update:email="updateTextField('email', $event)"
+                        @update:secondary-email="updateTextField('secondary_email', $event)"
                 />
             </div>
 
@@ -88,7 +75,7 @@
                 <ProfilePasswordCard
                         :new-password="form.new_password"
                         :show-password="showPassword"
-                        @update:new-password="updateNewPassword"
+                        @update:new-password="updateTextField('new_password', $event)"
                         @update:show-password="showPassword = $event"
                 />
 
@@ -119,5 +106,5 @@
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

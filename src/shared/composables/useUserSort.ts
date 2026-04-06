@@ -1,14 +1,20 @@
-import type { User } from '@/modules/user/model/user'
+type SortableUser = {
+    getId: () => number
+    getRole: () => number
+    getLastName: () => string
+    getFirstName: () => string
+    getMiddleName: () => string
+}
 
 type SortOptions = {
     roleOrder?: number[]
 }
 
 export const useUserSort = () => {
-    const sortUsers = (
-            users: User[],
+    const sortUsers = <TUser extends SortableUser>(
+            users: TUser[],
             options: SortOptions = {}
-    ): User[] => {
+    ): TUser[] => {
         const rolePriorityMap: Record<number, number> = {}
 
         if (options.roleOrder) {

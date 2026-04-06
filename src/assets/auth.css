@@ -91,25 +91,28 @@
     gap: var(--sp-4);
 }
 
-.auth-form .field input {
-    font-size: 0.9375rem;
+.auth-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 
 .password-wrapper {
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--sp-2);
 }
 
-.auth-form .btn--primary {
-    margin-top: var(--sp-2);
-    padding: 11px;
-    font-size: 0.9375rem;
+.auth-checkbox-inline {
+    margin-top: 4px;
 }
 
 @media (max-width: 480px) {
     .auth-box {
         padding: var(--sp-6);
+    }
+
+    .auth-two-columns {
+        grid-template-columns: 1fr;
     }
 }

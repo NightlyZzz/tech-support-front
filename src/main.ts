@@ -12,13 +12,20 @@ import '@/assets/toast.css'
 
 import { initUser } from '@/modules/user/composables/useInitUser'
 
-const bootstrap = async () => {
-    await initUser()
+const bootstrap = async (): Promise<void> => {
+    try {
+        await initUser()
 
-    const app = createApp(App)
+        const application = createApp(App)
 
-    app.use(router)
-    app.mount('#app')
+        application.use(router)
+
+        await router.isReady()
+
+        application.mount('#app')
+    } catch (error) {
+        console.error('Application bootstrap failed', error)
+    }
 }
 
-bootstrap()
+void bootstrap()

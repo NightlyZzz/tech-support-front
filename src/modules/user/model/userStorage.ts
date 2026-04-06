@@ -1,35 +1,41 @@
+import type { UserData } from '@/modules/user/types/user'
+
+const TOKEN_STORAGE_KEY = 'token'
+const USER_DATA_STORAGE_KEY = 'user_data'
+
 export const getUserToken = (): string | null => {
-    return localStorage.getItem('token')
+    return localStorage.getItem(TOKEN_STORAGE_KEY)
 }
 
 export const setUserToken = (token: string): void => {
-    localStorage.setItem('token', token)
+    localStorage.setItem(TOKEN_STORAGE_KEY, token)
 }
 
 export const removeUserToken = (): void => {
-    localStorage.removeItem('token')
+    localStorage.removeItem(TOKEN_STORAGE_KEY)
 }
 
-export const getUserData = (): any | null => {
-    const raw = localStorage.getItem('user_data')
+export const getUserData = (): UserData | null => {
+    const rawValue = localStorage.getItem(USER_DATA_STORAGE_KEY)
 
-    if (!raw) {
+    if (!rawValue) {
         return null
     }
 
     try {
-        return JSON.parse(raw)
+        return JSON.parse(rawValue) as UserData
     } catch {
+        removeUserData()
         return null
     }
 }
 
-export const setUserData = (data: any): void => {
-    localStorage.setItem('user_data', JSON.stringify(data))
+export const setUserData = (data: UserData): void => {
+    localStorage.setItem(USER_DATA_STORAGE_KEY, JSON.stringify(data))
 }
 
 export const removeUserData = (): void => {
-    localStorage.removeItem('user_data')
+    localStorage.removeItem(USER_DATA_STORAGE_KEY)
 }
 
 export const clearUserStorage = (): void => {

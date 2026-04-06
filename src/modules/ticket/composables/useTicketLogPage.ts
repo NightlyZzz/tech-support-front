@@ -19,9 +19,9 @@ export const useTicketLogPage = () => {
     const {
         logs,
         newMessage,
-        chatBox,
         loadLogs,
-        sendLog
+        sendLog,
+        setChatBoxElement
     } = useTicketChat(ticketId)
 
     const {
@@ -34,9 +34,9 @@ export const useTicketLogPage = () => {
 
     const { statuses: allStatuses, loadStatuses } = useTicketStatuses()
 
-    const ticketStatus = computed({
+    const ticketStatus = computed<number | null>({
         get: () => ticket.value?.getStatusId() ?? null,
-        set: (nextStatusId: number | null) => {
+        set: (nextStatusId) => {
             if (!ticket.value || nextStatusId === null) {
                 return
             }
@@ -63,7 +63,7 @@ export const useTicketLogPage = () => {
         canWrite
     } = useTicketAccess(ticketStatus, assignedEmployeeId, ticketSenderId)
 
-    const displayedUserName = computed(() => {
+    const displayedUserName = computed<string>(() => {
         if (!currentUser.value || !ticket.value) {
             return ''
         }
@@ -73,15 +73,15 @@ export const useTicketLogPage = () => {
                 : ticket.value.getSenderName()
     })
 
-    const handleStatusSelectChange = (selectedValue: string | number | null) => {
+    const handleStatusSelectChange = async (selectedValue: number | null): Promise<void> => {
         if (selectedValue === null) {
             return
         }
 
-        handleStatusChange(Number(selectedValue))
+        await handleStatusChange(selectedValue)
     }
 
-    const redirectIfTicketBecameUnavailable = async () => {
+    const redirectIfTicketBecameUnavailable = async (): Promise<void> => {
         if (ticket.value === null) {
             return
         }
@@ -116,7 +116,6 @@ export const useTicketLogPage = () => {
         ticket,
         logs,
         newMessage,
-        chatBox,
         currentUser,
         allStatuses,
         ticketStatus,
@@ -129,6 +128,7 @@ export const useTicketLogPage = () => {
         isOwnMessage,
         getDisplayName,
         sendLog,
+        setChatBoxElement,
         handleStatusSelectChange
     }
 }

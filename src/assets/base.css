@@ -304,6 +304,11 @@ body {
     letter-spacing: -.02em;
 }
 
+.page-counter {
+    font-size: 0.875rem;
+    color: var(--c-text-3);
+}
+
 .empty-state {
     text-align: center;
     padding: var(--sp-12) var(--sp-6);
@@ -312,6 +317,25 @@ body {
     background: var(--c-surface);
     border: 1px dashed var(--c-border-2);
     border-radius: var(--r-lg);
+}
+
+.pagination {
+    display: flex;
+    gap: var(--sp-2);
+    justify-content: center;
+    margin-top: var(--sp-5);
+    flex-wrap: wrap;
+}
+
+.pagination-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    padding: 6px 0;
+    color: var(--c-text-3);
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
 @media (max-width: 640px) {

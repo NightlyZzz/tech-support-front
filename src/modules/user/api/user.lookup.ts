@@ -1,11 +1,17 @@
 import { publicApi } from '@/shared/api/public.api'
+import type { Department } from '@/modules/user/types/department'
+import type { EditUserRole } from '@/modules/user/types/edit-user'
 
-export const getAllDepartments = async (): Promise<any> => {
-    const response = await publicApi.get('/public/departments')
+export interface LookupResponse<TItem> {
+    data: TItem[]
+}
+
+export const getAllDepartments = async (): Promise<LookupResponse<Department>> => {
+    const response = await publicApi.get<LookupResponse<Department>>('/public/departments')
     return response.data
 }
 
-export const getAllRoles = async (): Promise<any> => {
-    const response = await publicApi.get('/public/roles')
+export const getAllRoles = async (): Promise<LookupResponse<EditUserRole>> => {
+    const response = await publicApi.get<LookupResponse<EditUserRole>>('/public/roles')
     return response.data
 }

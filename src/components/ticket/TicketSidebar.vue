@@ -18,31 +18,30 @@
     }>()
 
     const emit = defineEmits<{
-        (event: 'changeStatus', value: string | number | null): void
+        (event: 'changeStatus', value: number | null): void
     }>()
 </script>
 
 <template>
     <aside class="ticket-panel">
         <TicketInfoCard
-                :ticketId="ticketId"
+                :ticket-id="ticketId"
                 :ticket="ticket"
-                :displayedUserName="displayedUserName"
-                :formatPhoneNumber="formatPhoneNumber"
+                :displayed-user-name="displayedUserName"
+                :format-phone-number="formatPhoneNumber"
         />
 
         <TicketStatusCard
                 v-if="currentUserRole !== Role.User && ticketStatus !== null"
-                :ticketStatus="ticketStatus"
-                :currentStatusName="currentStatusName"
-                :allStatuses="allStatuses"
-                :getStatusBadge="getStatusBadge"
-                @changeStatus="emit('changeStatus', $event)"
+                :ticket-status="ticketStatus"
+                :current-status-name="currentStatusName"
+                :all-statuses="allStatuses"
+                :get-status-badge="getStatusBadge"
+                @change-status="emit('changeStatus', $event)"
         />
     </aside>
 </template>
 
 <style scoped>
-    @import '@/assets/base.css';
     @import '@/assets/ticket.css';
 </style>

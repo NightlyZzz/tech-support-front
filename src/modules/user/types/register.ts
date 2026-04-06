@@ -8,6 +8,16 @@ export interface RegisterForm {
     remember: boolean
 }
 
+export interface RegisterRequest {
+    first_name: string
+    last_name: string
+    middle_name: string
+    email: string
+    password: string
+    department_id: number
+    remember: boolean
+}
+
 export interface LaravelError {
     message: string
     errors?: Record<string, string[]>

@@ -1,37 +1,52 @@
 <script setup lang="ts">
+    import { computed } from 'vue'
+    import BaseButton from '@/components/base/BaseButton.vue'
+
     const message = defineModel<string>({
         required: true
     })
 
-    defineProps<{
+    const props = defineProps<{
         canWrite: boolean
     }>()
 
     const emit = defineEmits<{
-        (e: 'submit'): void
+        (event: 'submit'): void
     }>()
+
+    const canSubmit = computed(() => {
+        return props.canWrite && message.value.trim().length > 0
+    })
+
+    const handleSubmit = (): void => {
+        if (!canSubmit.value) {
+            return
+        }
+
+        emit('submit')
+    }
 </script>
 
 <template>
     <form
             v-if="canWrite"
             class="ticket-input-area"
-            @submit.prevent="emit('submit')"
+            @submit.prevent="handleSubmit"
     >
         <input
                 v-model="message"
                 type="text"
                 placeholder="Введите сообщение…"
                 class="ticket-input"
-        />
+        >
 
-        <button
+        <BaseButton
                 type="submit"
-                class="btn btn--primary"
-                :disabled="!message.trim() || !canWrite"
+                variant="primary"
+                :disabled="!canSubmit"
         >
             Отправить
-        </button>
+        </BaseButton>
     </form>
 
     <div v-else class="ticket-closed">

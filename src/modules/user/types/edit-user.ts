@@ -32,12 +32,3 @@ export interface EditableUserPayload {
 export interface EditableUserResponse {
     data: EditableUserPayload
 }
-
-export interface EditUserLookupItem {
-    id: number
-    name: string
-}
-
-export interface EditUserLookupResponse {
-    data: EditUserLookupItem[]
-}

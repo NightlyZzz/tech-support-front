@@ -1,26 +1,23 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import { User } from '@/modules/user/model/user'
 import type { PaginationMeta } from '@/types/common'
+import type { UsersListResponse } from '@/modules/user/types/user'
 
-type LoadUsersApi = (page: number, searchQuery: string) => Promise<any>
+type LoadUsersApi = (page: number, searchQuery: string) => Promise<UsersListResponse>
+type SetPaginationMeta = (meta: PaginationMeta) => void
 
-type SetMeta = (meta: PaginationMeta) => void
-
-export const useUsers = (api: LoadUsersApi) => {
-    const users = ref<User[]>([])
+export const useUsers = (loadUsersApi: LoadUsersApi) => {
+    const users = shallowRef<User[]>([])
 
     const load = async (
             page: number,
-            setMeta: SetMeta,
+            setPaginationMeta: SetPaginationMeta,
             searchQuery = ''
     ): Promise<void> => {
-        const responseJson = await api(page, searchQuery)
+        const responseData = await loadUsersApi(page, searchQuery)
 
-        users.value = responseJson.data.map((rawUserData: any) => {
-            return User.fromApi(rawUserData)
-        })
-
-        setMeta(responseJson.meta)
+        users.value = responseData.data.map((userData) => User.fromApi(userData))
+        setPaginationMeta(responseData.meta)
     }
 
     return {

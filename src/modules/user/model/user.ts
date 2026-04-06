@@ -1,33 +1,51 @@
+import type { UserData } from '@/modules/user/types/user'
+
 export class User {
     constructor(
-            public token: string,
-            public id: number,
-            public email: string,
-            public firstName: string,
-            public lastName: string,
-            public middleName: string,
-            public role: number,
-            public roleName: string,
-            public department: number,
-            public departmentName: string,
-            public secondaryEmail?: string | null
+            private token: string,
+            private id: number,
+            private email: string,
+            private firstName: string,
+            private lastName: string,
+            private middleName: string,
+            private role: number,
+            private roleName: string,
+            private department: number,
+            private departmentName: string,
+            private secondaryEmail: string | null
     ) {
     }
 
-    static fromApi(data: any, fallbackToken = ''): User {
+    static fromApi(data: Partial<UserData>, fallbackToken = ''): User {
         return new User(
                 data.token ?? fallbackToken,
                 Number(data.id ?? 0),
-                data.email,
-                data.first_name ?? data.firstName ?? '',
-                data.last_name ?? data.lastName ?? '',
-                data.middle_name ?? data.middleName ?? '',
-                Number(data.role_id ?? data.role ?? 0),
-                data.role_name ?? data.roleName ?? '',
-                Number(data.department_id ?? data.department ?? 0),
-                data.department_name ?? data.departmentName ?? '',
-                data.secondary_email ?? data.secondaryEmail ?? null
+                data.email ?? '',
+                data.first_name ?? '',
+                data.last_name ?? '',
+                data.middle_name ?? '',
+                Number(data.role_id ?? 0),
+                data.role_name ?? '',
+                Number(data.department_id ?? 0),
+                data.department_name ?? '',
+                data.secondary_email ?? null
         )
+    }
+
+    toStorage(): UserData {
+        return {
+            token: this.token,
+            id: this.id,
+            email: this.email,
+            first_name: this.firstName,
+            last_name: this.lastName,
+            middle_name: this.middleName,
+            secondary_email: this.secondaryEmail,
+            role_id: this.role,
+            role_name: this.roleName,
+            department_id: this.department,
+            department_name: this.departmentName
+        }
     }
 
     getToken(): string {
@@ -70,7 +88,18 @@ export class User {
         return this.departmentName
     }
 
-    getSecondaryEmail(): string | null | undefined {
+    getSecondaryEmail(): string | null {
         return this.secondaryEmail
+    }
+
+    getFullName(): string {
+        return [this.lastName, this.firstName, this.middleName].filter(Boolean).join(' ').trim()
+    }
+
+    getInitials(): string {
+        const lastNameFirstLetter = this.lastName[0] ?? ''
+        const firstNameFirstLetter = this.firstName[0] ?? ''
+
+        return `${lastNameFirstLetter}${firstNameFirstLetter}`
     }
 }

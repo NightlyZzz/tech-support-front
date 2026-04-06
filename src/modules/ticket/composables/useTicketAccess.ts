@@ -10,11 +10,11 @@ export const useTicketAccess = (
 ) => {
     const { user, userId } = useUser()
 
-    const currentRole = computed(() => {
+    const currentRole = computed<number>(() => {
         return Number(user.value?.getRole() ?? 0)
     })
 
-    const canOpen = computed(() => {
+    const canOpen = computed<boolean>(() => {
         if (!user.value || userId.value === null) {
             return false
         }
@@ -24,13 +24,13 @@ export const useTicketAccess = (
         }
 
         if (currentRole.value === Role.User) {
-            return Number(ticketSenderId.value) === userId.value
+            return ticketSenderId.value === userId.value
         }
 
-        return Number(assignedEmployeeId.value) === userId.value
+        return assignedEmployeeId.value === userId.value
     })
 
-    const canWrite = computed(() => {
+    const canWrite = computed<boolean>(() => {
         if (!user.value || !canOpen.value) {
             return false
         }

@@ -1,26 +1,17 @@
-import router from '@/router'
 import { logoutRequest } from '@/modules/user/api/auth.api'
-import { clearUserStorage } from '@/modules/user/model/userStorage'
-import { clearUserState } from '@/modules/user/model/userState'
-import { disconnectEcho } from '@/shared/realtime/echo'
 import { unsubscribeFromCurrentUserUpdates } from '@/modules/user/composables/useUserRealtime'
+import { clearClientSession, redirectToAuth } from '@/modules/user/services/session.service'
 
 export const performLocalLogout = async (): Promise<void> => {
     unsubscribeFromCurrentUserUpdates()
-    disconnectEcho()
-    clearUserStorage()
-    clearUserState()
-
-    if (router.currentRoute.value.name !== 'auth') {
-        await router.replace({ name: 'auth' })
-    }
+    clearClientSession()
+    await redirectToAuth()
 }
 
 export const logout = async (allDevices = false): Promise<void> => {
     try {
         await logoutRequest(allDevices)
-    } catch (e) {
-        console.log('LOGOUT ERROR:', e)
+    } catch {
     }
 
     await performLocalLogout()

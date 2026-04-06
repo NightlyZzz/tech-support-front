@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import BaseSelect from '@/components/BaseSelect.vue'
+    import BaseSelect from '@/components/base/BaseSelect.vue'
     import type { EditUserRole } from '@/modules/user/types/edit-user'
 
     defineProps<{
@@ -28,5 +28,5 @@
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

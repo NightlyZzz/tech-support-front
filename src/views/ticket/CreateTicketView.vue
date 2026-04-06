@@ -1,6 +1,8 @@
 <script setup lang="ts">
     import { ref } from 'vue'
-    import BaseSelect from '@/components/BaseSelect.vue'
+    import BaseButton from '@/components/base/BaseButton.vue'
+    import BaseSelect from '@/components/base/BaseSelect.vue'
+    import BaseTextarea from '@/components/base/BaseTextarea.vue'
     import { useCreateTicket } from '@/modules/ticket/composables/useCreateTicket'
     import { usePhoneInput } from '@/composables/common/usePhoneInput'
 
@@ -9,9 +11,9 @@
 
     const phoneInputKey = ref(0)
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (): Promise<void> => {
         await submitTicket()
-        phoneInputKey.value++
+        phoneInputKey.value += 1
     }
 </script>
 
@@ -21,58 +23,58 @@
             <h1 class="page-title">Создать заявку</h1>
         </div>
 
-        <div style="max-width:600px;margin:0 auto;width:100%;">
+        <div class="create-ticket-container">
             <div class="card">
                 <p class="card-title">Информация о заявке</p>
 
-                <div style="display:flex;flex-direction:column;gap:20px;">
+                <div class="create-ticket-stack">
                     <BaseSelect
                             id="ticket_type"
+                            v-model="form.ticketTypeId"
                             label="Тип запроса"
                             placeholder="Выберите тип запроса"
-                            v-model="form.ticketTypeId"
                             :items="ticketTypes"
-                            labelKey="name"
-                            valueKey="id"
+                            label-key="name"
+                            value-key="id"
                     />
 
                     <div class="field">
                         <label for="contact_phone">Контактный телефон</label>
                         <input
                                 :key="phoneInputKey"
-                                :value="displayPhone"
                                 id="contact_phone"
+                                :value="displayPhone"
                                 type="tel"
                                 inputmode="numeric"
                                 maxlength="18"
                                 placeholder="+7 (___) ___-__-__"
                                 @input="handlePhoneInput"
                                 @keydown="allowOnlyDigits"
-                        />
+                        >
                     </div>
 
-                    <div class="field">
-                        <label for="description">Краткое описание проблемы</label>
-                        <textarea
-                                v-model="form.description"
-                                id="description"
-                                maxlength="255"
-                                rows="3"
-                                placeholder="Опишите вашу проблему…"
-                        ></textarea>
+                    <BaseTextarea
+                            id="description"
+                            v-model="form.description"
+                            label="Краткое описание проблемы"
+                            placeholder="Опишите вашу проблему…"
+                            :rows="3"
+                            :maxlength="255"
+                    />
 
-                        <span style="font-size:.75rem;color:var(--c-text-3);text-align:right;">
-                            {{ form.description.length }}/255
-                        </span>
-                    </div>
+                    <span class="create-ticket-counter">
+                        {{ form.description.length }}/255
+                    </span>
 
-                    <button
-                            :class="['btn', 'btn--primary', isSubmitting ? 'btn-loading' : '']"
-                            style="width:100%;"
+                    <BaseButton
+                            variant="primary"
+                            :full-width="true"
+                            :loading="isSubmitting"
+                            :disabled="isSubmitting"
                             @click="handleSubmit"
                     >
                         Отправить заявку
-                    </button>
+                    </BaseButton>
                 </div>
             </div>
         </div>
@@ -82,4 +84,22 @@
 <style scoped>
     @import '@/assets/base.css';
     @import '@/assets/list.css';
+
+    .create-ticket-container {
+        max-width: 600px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .create-ticket-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .create-ticket-counter {
+        font-size: .75rem;
+        color: var(--c-text-3);
+        text-align: right;
+    }
 </style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import BaseInput from '@/components/base/BaseInput.vue'
+
     defineProps<{
         newPassword: string
         showPassword: boolean
@@ -9,7 +11,7 @@
         (event: 'update:showPassword', value: boolean): void
     }>()
 
-    const updateShowPassword = (event: Event) => {
+    const updateShowPassword = (event: Event): void => {
         const checkboxElement = event.target as HTMLInputElement
         emit('update:showPassword', checkboxElement.checked)
     }
@@ -19,15 +21,14 @@
     <div class="card">
         <p class="card-title">Смена пароля</p>
 
-        <div class="field">
-            <label>Новый пароль</label>
-            <input
-                    :value="newPassword"
-                    :type="showPassword ? 'text' : 'password'"
-                    placeholder="Оставьте пустым"
-                    @input="emit('update:newPassword', ($event.target as HTMLInputElement).value)"
-            >
-        </div>
+        <BaseInput
+                id="profile-new-password"
+                :model-value="newPassword"
+                label="Новый пароль"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="Оставьте пустым"
+                @update:model-value="emit('update:newPassword', $event)"
+        />
 
         <label class="check-label profile-checkbox-offset">
             <input
@@ -42,5 +43,5 @@
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

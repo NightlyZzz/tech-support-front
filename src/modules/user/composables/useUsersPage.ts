@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUser } from '@/modules/user/composables/useUser'
 import { useUserSort } from '@/shared/composables/useUserSort'
@@ -8,6 +8,10 @@ import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
 import { getAllUsers } from '@/modules/user/api/user.api'
 import { Role } from '@/enums/role'
 import { getEcho } from '@/shared/realtime/echo'
+import type { User } from '@/modules/user/model/user'
+
+const SEARCH_DEBOUNCE_DELAY = 300
+const ROLE_SORT_ORDER = [Role.Admin, Role.Employee, Role.User]
 
 export const useUsersPage = () => {
     const router = useRouter()
@@ -25,14 +29,6 @@ export const useUsersPage = () => {
     const loadUsersPage = async (page: number) => {
         await load(page, setMeta, appliedSearchQuery.value)
     }
-
-    usePaginationLoader(
-            currentPage,
-            async (page, nextSetMeta) => {
-                await load(page, nextSetMeta, appliedSearchQuery.value)
-            },
-            setMeta
-    )
 
     const reloadUsers = async () => {
         await loadUsersPage(currentPage.value)
@@ -79,6 +75,38 @@ export const useUsersPage = () => {
         echo.leave('users.all')
     }
 
+    const openUser = (userId: number) => {
+        void router.push({ name: 'edit-user', params: { id: userId } })
+    }
+
+    const getInitials = (userItem: User): string => {
+        return userItem.getInitials()
+    }
+
+    const isCurrentUser = (userItem: User): boolean => {
+        return user.value?.getId() === userItem.getId()
+    }
+
+    const getRoleClass = (userItem: User): string => {
+        if (userItem.getRole() === Role.Admin) {
+            return 'admin'
+        }
+
+        if (userItem.getRole() === Role.Employee) {
+            return 'employee'
+        }
+
+        return ''
+    }
+
+    usePaginationLoader(
+            currentPage,
+            async (page, nextSetMeta) => {
+                await load(page, nextSetMeta, appliedSearchQuery.value)
+            },
+            setMeta
+    )
+
     onMounted(async () => {
         await reloadUsers()
         subscribeToUsers()
@@ -99,38 +127,14 @@ export const useUsersPage = () => {
 
         searchTimeoutId = setTimeout(async () => {
             await applySearch(nextSearchQuery)
-        }, 300)
+        }, SEARCH_DEBOUNCE_DELAY)
     })
 
     const visibleUsers = computed(() => {
         return sortUsers(users.value, {
-            roleOrder: [Role.Admin, Role.Employee, Role.User]
+            roleOrder: ROLE_SORT_ORDER
         })
     })
-
-    const openUser = (userId: number) => {
-        router.push({ name: 'edit-user', params: { id: userId } })
-    }
-
-    const getInitials = (userItem: any) => {
-        return `${userItem.getLastName()[0] || ''}${userItem.getFirstName()[0] || ''}`
-    }
-
-    const isCurrentUser = (userItem: any) => {
-        return user.value?.getId() === userItem.getId()
-    }
-
-    const getRoleClass = (userItem: any) => {
-        if (userItem.getRoleName() === 'Администратор') {
-            return 'admin'
-        }
-
-        if (userItem.getRoleName() === 'Сотрудник') {
-            return 'employee'
-        }
-
-        return ''
-    }
 
     return {
         searchQuery,

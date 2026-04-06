@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { useUsersPage } from '@/modules/user/composables/useUsersPage'
-    import BasePagination from '@/components/BasePagination.vue'
+    import BasePagination from '@/components/base/BasePagination.vue'
 
     const {
         searchQuery,
@@ -57,7 +57,7 @@
 
                 <div class="user-card-body">
                     <div class="user-card-name">
-                        {{ userItem.getLastName() }} {{ userItem.getFirstName() }} {{ userItem.getMiddleName() }}
+                        {{ userItem.getFullName() }}
                     </div>
                     <div class="user-card-meta">
                         {{ userItem.getRoleName() }} · {{ userItem.getDepartmentName() }}

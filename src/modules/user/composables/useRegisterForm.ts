@@ -1,13 +1,12 @@
 import { onMounted, reactive, ref } from 'vue'
 import router from '@/router'
-import { register, login } from '@/modules/user/api/auth.api'
-import { showToast } from '@/shared/toast/toastService'
-import { setUserToken } from '@/modules/user/model/userStorage'
+import { login, register } from '@/modules/user/api/auth.api'
 import { getAllDepartments } from '@/modules/user/api/user.lookup'
-import { initUser } from '@/modules/user/composables/useInitUser'
-import { createEcho, disconnectEcho } from '@/shared/realtime/echo'
+import { getLaravelErrorMessage } from '@/modules/user/helpers/getLaravelErrorMessage'
+import { initializeAuthorizedSession } from '@/modules/user/services/session.service'
+import { showToast } from '@/shared/toast/toastService'
 import type { Department } from '@/modules/user/types/department'
-import type { LaravelError, RegisterForm } from '@/modules/user/types/register'
+import type { RegisterForm, RegisterRequest } from '@/modules/user/types/register'
 
 export const useRegisterForm = () => {
     const form = reactive<RegisterForm>({
@@ -22,6 +21,7 @@ export const useRegisterForm = () => {
 
     const showPassword = ref(false)
     const departments = ref<Department[]>([])
+    const isSubmitting = ref(false)
 
     const updateDepartmentId = (value: number | null) => {
         form.department_id = value
@@ -30,62 +30,63 @@ export const useRegisterForm = () => {
     const loadDepartments = async (): Promise<void> => {
         try {
             const departmentsResponse = await getAllDepartments()
-            departments.value = departmentsResponse.data
+            departments.value = departmentsResponse.data ?? []
         } catch {
+            departments.value = []
+        }
+    }
+
+    const buildRegisterPayload = (): RegisterRequest | null => {
+        if (form.department_id === null) {
+            return null
+        }
+
+        return {
+            first_name: form.first_name.trim(),
+            last_name: form.last_name.trim(),
+            middle_name: form.middle_name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+            department_id: form.department_id,
+            remember: form.remember
         }
     }
 
     const handleRegister = async (): Promise<void> => {
+        if (isSubmitting.value) {
+            return
+        }
+
         if (form.password.length < 8) {
             showToast('Пароль должен содержать не менее 8 символов', 'error')
             return
         }
 
-        if (form.department_id === null) {
+        const registerPayload = buildRegisterPayload()
+
+        if (registerPayload === null) {
             showToast('Выберите подразделение', 'error')
             return
         }
 
+        isSubmitting.value = true
+
         try {
-            await register({
-                first_name: form.first_name,
-                last_name: form.last_name,
-                middle_name: form.middle_name,
-                email: form.email,
-                password: form.password,
-                department_id: form.department_id,
-                remember: form.remember
-            })
+            await register(registerPayload)
 
             const loginResponse = await login({
-                email: form.email,
-                password: form.password
+                email: registerPayload.email,
+                password: registerPayload.password,
+                remember: registerPayload.remember
             })
 
-            setUserToken(loginResponse.token)
-
-            disconnectEcho()
-            createEcho()
-
-            await initUser()
-            await router.push({ name: 'home' })
-        } catch (error: any) {
-            if (error.response) {
-                const laravelError = error.response.data as LaravelError
-
-                if (laravelError.errors) {
-                    const firstErrorMessage = Object.values(laravelError.errors)[0][0]
-                    showToast(firstErrorMessage, 'error')
-                    return
-                }
-
-                if (laravelError.message) {
-                    showToast(laravelError.message, 'error')
-                    return
-                }
-            }
-
-            showToast('Ошибка регистрации', 'error')
+            await initializeAuthorizedSession(loginResponse.token)
+            await router.replace({ name: 'home' })
+        } catch (error: unknown) {
+            const errorMessage = getLaravelErrorMessage(error)
+            showToast(errorMessage ?? 'Ошибка регистрации', 'error')
+        } finally {
+            isSubmitting.value = false
         }
     }
 
@@ -95,6 +96,7 @@ export const useRegisterForm = () => {
         form,
         showPassword,
         departments,
+        isSubmitting,
         updateDepartmentId,
         handleRegister
     }

@@ -1,11 +1,14 @@
 import router from '@/router'
 import { Role } from '@/enums/role'
-import { getEcho, createEcho, disconnectEcho } from '@/shared/realtime/echo'
+import { createEcho, getEcho } from '@/shared/realtime/echo'
 import { useUser } from '@/modules/user/composables/useUser'
-import { setUserData, clearUserStorage } from '@/modules/user/model/userStorage'
-import { clearUserState } from '@/modules/user/model/userState'
+import { setUserData } from '@/modules/user/model/userStorage'
 import { performLocalLogout } from '@/modules/user/services/auth.service'
+import { clearClientSession, redirectToAuth } from '@/modules/user/services/session.service'
 import { showToast } from '@/shared/toast/toastService'
+import type { UserData } from '@/modules/user/types/user'
+
+type RouteRole = 'admin' | 'employee' | 'user'
 
 let subscribedUserId: number | null = null
 
@@ -20,50 +23,45 @@ const leaveCurrentUserChannel = () => {
     subscribedUserId = null
 }
 
-const hasAccessToCurrentRoute = (role: number): boolean => {
-    const currentRoute = router.currentRoute.value
-    const requiredRole = currentRoute.meta.role
+const hasAccessToCurrentRoute = (roleId: number): boolean => {
+    const requiredRole = router.currentRoute.value.meta.role as RouteRole | undefined
 
     if (!requiredRole) {
         return true
     }
 
     if (requiredRole === 'admin') {
-        return role === Role.Admin
+        return roleId === Role.Admin
     }
 
     if (requiredRole === 'employee') {
-        return role >= Role.Employee
+        return roleId >= Role.Employee
     }
 
     if (requiredRole === 'user') {
-        return role === Role.User
+        return roleId === Role.User
     }
 
     return true
 }
 
-const syncRouteAccess = async (role: number) => {
-    if (hasAccessToCurrentRoute(role)) {
+const syncRouteAccess = async (roleId: number) => {
+    if (hasAccessToCurrentRoute(roleId)) {
         return
     }
 
-    await router.push({ name: 'profile' })
+    await router.replace({ name: 'profile' })
 }
 
-const forceLogout = async (showMessage?: string) => {
+const forceLogout = async (message?: string) => {
     leaveCurrentUserChannel()
-    disconnectEcho()
-    clearUserStorage()
-    clearUserState()
+    clearClientSession()
 
-    if (showMessage) {
-        showToast(showMessage, 'info')
+    if (message) {
+        showToast(message, 'info')
     }
 
-    if (router.currentRoute.value.name !== 'auth') {
-        await router.replace({ name: 'auth' })
-    }
+    await redirectToAuth()
 }
 
 export const subscribeToCurrentUserUpdates = () => {
@@ -92,25 +90,27 @@ export const subscribeToCurrentUserUpdates = () => {
 
     subscribedUserId = currentUserId
 
-    echo.private(`App.Models.User.${currentUserId}`).listen('.user.updated', async (updatedUser: any) => {
+    echo.private(`App.Models.User.${currentUserId}`).listen('.user.updated', async (updatedUser: UserData) => {
         const currentToken = user.value?.getToken() ?? ''
-        const previousRole = Number(user.value?.getRole() ?? 0)
-        const nextRole = Number(updatedUser.role_id ?? updatedUser.role ?? 0)
+        const previousRoleId = Number(user.value?.getRole() ?? 0)
+        const nextRoleId = Number(updatedUser.role_id ?? 0)
 
-        if (previousRole !== 0 && nextRole !== 0 && previousRole !== nextRole) {
+        if (previousRoleId !== 0 && nextRoleId !== 0 && previousRoleId !== nextRoleId) {
             await forceLogout('Ваша роль была изменена. Войдите в аккаунт заново.')
             return
         }
 
-        const normalizedUser = {
+        const normalizedUser: UserData = {
             ...updatedUser,
             token: currentToken
         }
 
         setUser(normalizedUser)
-        setUserData(updatedUser)
+        setUserData(normalizedUser)
 
-        await syncRouteAccess(nextRole)
+        if (nextRoleId !== 0) {
+            await syncRouteAccess(nextRoleId)
+        }
     }).listen('.user.deleted', async () => {
         await forceLogout()
     }).listen('.user.logged_out_everywhere', async () => {

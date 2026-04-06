@@ -1,8 +1,8 @@
 <script setup lang="ts">
-    import { useAllTicketsPage } from '@/modules/ticket/composables/useAllTicketsPage'
-    import BaseSelect from '@/components/BaseSelect.vue'
-    import BasePagination from '@/components/BasePagination.vue'
+    import BasePagination from '@/components/base/BasePagination.vue'
+    import BaseSelect from '@/components/base/BaseSelect.vue'
     import TicketList from '@/components/ticket/TicketList.vue'
+    import { useAllTicketsPage } from '@/modules/ticket/composables/useAllTicketsPage'
 
     const {
         selectedStatus,
@@ -20,28 +20,29 @@
     <div class="page">
         <div class="page-header">
             <h1 class="page-title">Все заявки</h1>
-            <span>{{ filteredTickets.length }} шт.</span>
+            <span class="page-counter">{{ filteredTickets.length }} шт.</span>
         </div>
 
         <BaseSelect
                 id="status-filter"
+                v-model="selectedStatus"
                 label="Статус"
                 placeholder="Выберите статус"
                 :items="statusesWithAll"
-                v-model="selectedStatus"
-                valueKey="id"
-                labelKey="name"
+                value-key="id"
+                label-key="name"
         />
 
         <TicketList
                 :tickets="filteredTickets"
-                :showUser="true"
-                :canTake="isEmployee"
+                :show-user="true"
+                :can-take="isEmployee"
                 @click="openTicket"
                 @take="takeToReview"
         />
 
         <BasePagination
+                v-if="lastPage > 1"
                 v-model="currentPage"
                 :last-page="lastPage"
         />
@@ -49,6 +50,6 @@
 </template>
 
 <style scoped>
-    @import '@/assets/base.css';
     @import '@/assets/list.css';
+    @import '@/assets/ticket.css';
 </style>

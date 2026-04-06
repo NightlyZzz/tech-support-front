@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import AuthView from '@/views/auth/AuthView.vue'
 import ProfileView from '@/views/user/ProfileView.vue'
 import HomeView from '@/views/HomeView.vue'
@@ -11,6 +11,42 @@ import TicketLog from '@/views/ticket/TicketLog.vue'
 import { Role } from '@/enums/role'
 import { getUserToken } from '@/modules/user/model/userStorage'
 import { getUser } from '@/modules/user/model/userState'
+
+type RouteRole = 'admin' | 'employee' | 'user'
+
+const getDefaultAuthorizedRouteName = () => {
+    return 'profile'
+}
+
+const hasRouteAccess = (routeLocation: RouteLocationNormalized): boolean => {
+    const requiredRole = routeLocation.meta.role as RouteRole | undefined
+
+    if (!requiredRole) {
+        return true
+    }
+
+    const currentUser = getUser().value
+
+    if (!currentUser) {
+        return false
+    }
+
+    const currentUserRole = currentUser.getRole()
+
+    if (requiredRole === 'admin') {
+        return currentUserRole === Role.Admin
+    }
+
+    if (requiredRole === 'employee') {
+        return currentUserRole >= Role.Employee
+    }
+
+    if (requiredRole === 'user') {
+        return currentUserRole === Role.User
+    }
+
+    return true
+}
 
 const router = createRouter({
     history: createWebHistory(),
@@ -74,53 +110,33 @@ const router = createRouter({
         {
             path: '/:pathMatch(.*)*',
             redirect: () => {
-                return getUserToken() ? '/profile' : '/auth'
+                return getUserToken() ? { name: getDefaultAuthorizedRouteName() } : { name: 'auth' }
             }
         }
     ]
 })
 
-router.beforeEach((to, from, next) => {
-    const token = getUserToken()
-    const isAuthenticated = !!token
-    const currentUser = getUser().value
-    const requiredRole = to.meta.role
+router.beforeEach((routeLocation) => {
+    const hasToken = !!getUserToken()
+    const requiresAuth = !!routeLocation.meta.requiresAuth
 
-    if (to.meta.requiresAuth && !isAuthenticated) {
-        return next({ name: 'auth' })
+    if (routeLocation.name === 'home') {
+        return hasToken ? { name: getDefaultAuthorizedRouteName() } : { name: 'auth' }
     }
 
-    if (to.name === 'home') {
-        return next(isAuthenticated ? { name: 'profile' } : { name: 'auth' })
+    if (requiresAuth && !hasToken) {
+        return { name: 'auth' }
     }
 
-    if (to.name === 'auth' && isAuthenticated) {
-        return next({ name: 'profile' })
+    if (routeLocation.name === 'auth' && hasToken) {
+        return { name: getDefaultAuthorizedRouteName() }
     }
 
-    if (!requiredRole) {
-        return next()
+    if (!hasRouteAccess(routeLocation)) {
+        return { name: getDefaultAuthorizedRouteName() }
     }
 
-    if (!currentUser) {
-        return next({ name: 'profile' })
-    }
-
-    const currentUserRole = currentUser.getRole()
-
-    if (requiredRole === 'admin' && currentUserRole !== Role.Admin) {
-        return next({ name: 'profile' })
-    }
-
-    if (requiredRole === 'employee' && currentUserRole < Role.Employee) {
-        return next({ name: 'profile' })
-    }
-
-    if (requiredRole === 'user' && currentUserRole !== Role.User) {
-        return next({ name: 'profile' })
-    }
-
-    next()
+    return true
 })
 
 export default router

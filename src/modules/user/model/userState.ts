@@ -1,18 +1,18 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import type { User } from '@/modules/user/model/user'
 
-const user = ref<User | null>(null)
+const currentUser = shallowRef<User | null>(null)
 
-export const getUser = () => user
+export const getUser = () => currentUser
 
 export const setUserState = (value: User | null): void => {
-    user.value = value
+    currentUser.value = value
 }
 
 export const clearUserState = (): void => {
-    user.value = null
+    currentUser.value = null
 }
 
 export const isAuthenticated = (): boolean => {
-    return user.value !== null
+    return currentUser.value !== null
 }

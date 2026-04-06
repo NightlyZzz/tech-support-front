@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import BaseInput from '@/components/base/BaseInput.vue'
+
     defineProps<{
         lastName: string
         firstName: string
@@ -18,38 +20,35 @@
 
         <div class="profile-card-stack">
             <div class="profile-two-columns">
-                <div class="field">
-                    <label>Фамилия</label>
-                    <input
-                            :value="lastName"
-                            type="text"
-                            @input="emit('update:lastName', ($event.target as HTMLInputElement).value)"
-                    >
-                </div>
-
-                <div class="field">
-                    <label>Имя</label>
-                    <input
-                            :value="firstName"
-                            type="text"
-                            @input="emit('update:firstName', ($event.target as HTMLInputElement).value)"
-                    >
-                </div>
-            </div>
-
-            <div class="field">
-                <label>Отчество</label>
-                <input
-                        :value="middleName"
+                <BaseInput
+                        id="profile-last-name"
+                        :model-value="lastName"
+                        label="Фамилия"
                         type="text"
-                        @input="emit('update:middleName', ($event.target as HTMLInputElement).value)"
-                >
+                        @update:model-value="emit('update:lastName', $event)"
+                />
+
+                <BaseInput
+                        id="profile-first-name"
+                        :model-value="firstName"
+                        label="Имя"
+                        type="text"
+                        @update:model-value="emit('update:firstName', $event)"
+                />
             </div>
+
+            <BaseInput
+                    id="profile-middle-name"
+                    :model-value="middleName"
+                    label="Отчество"
+                    type="text"
+                    @update:model-value="emit('update:middleName', $event)"
+            />
         </div>
     </div>
 </template>
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

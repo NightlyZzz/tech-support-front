@@ -1,3 +1,13 @@
-export const APP_URL: string = import.meta.env.VITE_BACKEND_URL
+const getEnvValue = (key: 'VITE_BACKEND_URL' | 'VITE_COMPANY_NAME'): string => {
+    const value = import.meta.env[key]
+
+    if (!value || typeof value !== 'string') {
+        throw new Error(`Missing environment variable: ${key}`)
+    }
+
+    return value
+}
+
+export const APP_URL: string = getEnvValue('VITE_BACKEND_URL').replace(/\/+$/, '')
 export const BACKEND_URL: string = APP_URL + '/api'
-export const COMPANY_NAME: string = import.meta.env.VITE_COMPANY_NAME
+export const COMPANY_NAME: string = getEnvValue('VITE_COMPANY_NAME')

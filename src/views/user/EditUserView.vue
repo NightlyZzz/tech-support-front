@@ -5,6 +5,7 @@
     import EditUserPersonalCard from '@/components/user-edit/EditUserPersonalCard.vue'
     import EditUserRoleCard from '@/components/user-edit/EditUserRoleCard.vue'
     import { useEditUserPage } from '@/modules/user/composables/useEditUserPage'
+    import type { EditUserForm } from '@/modules/user/types/edit-user'
 
     const {
         form,
@@ -14,24 +15,14 @@
         confirmDelete
     } = useEditUserPage()
 
-    const updateLastName = (value: string) => {
-        form.last_name = value
-    }
-
-    const updateFirstName = (value: string) => {
-        form.first_name = value
-    }
-
-    const updateMiddleName = (value: string) => {
-        form.middle_name = value
-    }
-
-    const updateEmail = (value: string) => {
-        form.email = value
-    }
-
-    const updateSecondaryEmail = (value: string) => {
-        form.secondary_email = value
+    const updateTextField = (
+            fieldName: keyof Pick<
+                    EditUserForm,
+                    'last_name' | 'first_name' | 'middle_name' | 'email' | 'secondary_email'
+            >,
+            value: string
+    ) => {
+        form[fieldName] = value
     }
 
     const updateDepartmentId = (value: number | null) => {
@@ -55,16 +46,16 @@
                         :last-name="form.last_name"
                         :first-name="form.first_name"
                         :middle-name="form.middle_name"
-                        @update:last-name="updateLastName"
-                        @update:first-name="updateFirstName"
-                        @update:middle-name="updateMiddleName"
+                        @update:last-name="updateTextField('last_name', $event)"
+                        @update:first-name="updateTextField('first_name', $event)"
+                        @update:middle-name="updateTextField('middle_name', $event)"
                 />
 
                 <EditUserEmailCard
                         :email="form.email"
                         :secondary-email="form.secondary_email"
-                        @update:email="updateEmail"
-                        @update:secondary-email="updateSecondaryEmail"
+                        @update:email="updateTextField('email', $event)"
+                        @update:secondary-email="updateTextField('secondary_email', $event)"
                 />
             </div>
 
@@ -92,5 +83,5 @@
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

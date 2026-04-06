@@ -1,13 +1,16 @@
 import { watch, type Ref } from 'vue'
 import type { PaginationMeta } from '@/types/common'
 
+type SetMeta = (meta: PaginationMeta) => void
+type LoadPage = (page: number, setMeta: SetMeta) => Promise<void>
+
 export const usePaginationLoader = (
         currentPage: Ref<number>,
-        load: (page: number, setMeta: (meta: PaginationMeta) => void) => Promise<void>,
-        setMeta: (meta: PaginationMeta) => void
+        load: LoadPage,
+        setMeta: SetMeta
 ) => {
-    const loadPage = async (page: number) => {
-        if (page === currentPage.value) {
+    const loadPage = async (page: number): Promise<void> => {
+        if (page < 1 || page === currentPage.value) {
             return
         }
 

@@ -1,10 +1,11 @@
-import { reactive, ref, watch, onMounted } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useUser } from '@/modules/user/composables/useUser'
 import { logout } from '@/modules/user/services/auth.service'
 import { deleteCurrentUser, updateUser } from '@/modules/user/api/user.api'
 import { getAllDepartments } from '@/modules/user/api/user.lookup'
 import { setUserData } from '@/modules/user/model/userStorage'
 import { showToast } from '@/shared/toast/toastService'
+import { buildUpdatedUserData, buildUserUpdatePayload } from '@/modules/user/helpers/userUpdatePayload'
 import type { Department } from '@/modules/user/types/department'
 import type { ProfileForm } from '@/modules/user/types/profile'
 
@@ -28,7 +29,7 @@ export const useProfilePage = () => {
     const logoutModalOpen = ref(false)
     const logoutLoading = ref(false)
 
-    const syncFormFromUser = () => {
+    const syncFormFromUser = (): void => {
         if (!user.value) {
             return
         }
@@ -37,22 +38,18 @@ export const useProfilePage = () => {
         form.last_name = user.value.getLastName()
         form.middle_name = user.value.getMiddleName()
         form.email = user.value.getEmail()
-        form.secondary_email = user.value.getSecondaryEmail() || user.value.getEmail()
+        form.secondary_email = user.value.getSecondaryEmail() ?? user.value.getEmail()
         form.department_id = user.value.getDepartment()
         form.new_password = ''
 
         originalForm.value = { ...form }
     }
 
-    watch(user, () => {
-        syncFormFromUser()
-    }, { immediate: true })
-
-    const openLogoutModal = () => {
+    const openLogoutModal = (): void => {
         logoutModalOpen.value = true
     }
 
-    const closeLogoutModal = () => {
+    const closeLogoutModal = (): void => {
         if (logoutLoading.value) {
             return
         }
@@ -60,7 +57,7 @@ export const useProfilePage = () => {
         logoutModalOpen.value = false
     }
 
-    const handleLogout = async (allDevices: boolean) => {
+    const handleLogout = async (allDevices: boolean): Promise<void> => {
         if (logoutLoading.value) {
             return
         }
@@ -75,58 +72,26 @@ export const useProfilePage = () => {
         }
     }
 
-    const saveChanges = async () => {
-        const changedFields: Partial<ProfileForm> = {}
-        const formKeys = Object.keys(form) as (keyof ProfileForm)[]
+    const saveChanges = async (): Promise<void> => {
+        const updatePayload = buildUserUpdatePayload(form, originalForm.value, {
+            compareWithOriginal: true
+        })
 
-        for (const fieldName of formKeys) {
-            if (fieldName === 'new_password') {
-                const trimmedPassword = form.new_password.trim()
-
-                if (trimmedPassword.length >= 8) {
-                    changedFields.new_password = trimmedPassword
-                }
-
-                continue
-            }
-
-            const nextValue = form[fieldName]
-            const previousValue = originalForm.value[fieldName]
-
-            if (nextValue !== previousValue) {
-                Object.assign(changedFields, {
-                    [fieldName]: nextValue
-                })
-            }
-        }
-
-        if (!Object.keys(changedFields).length) {
+        if (!Object.keys(updatePayload).length) {
             return
         }
 
         loading.value = true
 
         try {
-            await updateUser(changedFields)
+            await updateUser(updatePayload)
 
             if (user.value) {
-                const selectedDepartmentName =
-                        departments.value.find(departmentItem => departmentItem.id === form.department_id)?.name ??
-                        user.value.getDepartmentName()
-
-                const updatedCurrentUser = {
-                    token: user.value.getToken(),
-                    id: user.value.getId(),
-                    email: form.email,
-                    first_name: form.first_name,
-                    last_name: form.last_name,
-                    middle_name: form.middle_name,
-                    role_id: user.value.getRole(),
-                    role_name: user.value.getRoleName(),
-                    department_id: form.department_id,
-                    department_name: selectedDepartmentName,
-                    secondary_email: form.secondary_email
-                }
+                const updatedCurrentUser = buildUpdatedUserData(
+                        user.value.toStorage(),
+                        form,
+                        departments.value
+                )
 
                 setUserData(updatedCurrentUser)
                 setUser(updatedCurrentUser)
@@ -141,7 +106,7 @@ export const useProfilePage = () => {
         }
     }
 
-    const confirmDelete = async () => {
+    const confirmDelete = async (): Promise<void> => {
         if (!confirm('Удалить аккаунт?')) {
             return
         }
@@ -150,13 +115,22 @@ export const useProfilePage = () => {
         await logout()
     }
 
-    const loadDepartments = async () => {
+    const loadDepartments = async (): Promise<void> => {
         try {
             const departmentsResponse = await getAllDepartments()
             departments.value = departmentsResponse.data ?? []
         } catch {
+            departments.value = []
         }
     }
+
+    watch(
+            user,
+            () => {
+                syncFormFromUser()
+            },
+            { immediate: true }
+    )
 
     onMounted(loadDepartments)
 

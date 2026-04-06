@@ -1,8 +1,11 @@
 import { computed, type Ref } from 'vue'
-import type { Ticket } from '@/modules/ticket/model/ticket'
 
-export const useTicketFilter = (
-        tickets: Ref<Ticket[]>,
+type FilterableTicket = {
+    getStatusId: () => number
+}
+
+export const useTicketFilter = <TTicket extends FilterableTicket>(
+        tickets: Ref<TTicket[]>,
         selectedStatus: Ref<number>
 ) => {
     return computed(() => {

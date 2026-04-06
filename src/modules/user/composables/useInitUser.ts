@@ -1,37 +1,37 @@
-import { getUserToken, setUserData, clearUserStorage } from '@/modules/user/model/userStorage'
-import { clearUserState } from '@/modules/user/model/userState'
-import { apiClient } from '@/shared/api/client'
+import { getCurrentUser } from '@/modules/user/api/auth.api'
 import { useUser } from '@/modules/user/composables/useUser'
+import { getUserToken, setUserData } from '@/modules/user/model/userStorage'
 import {
     subscribeToCurrentUserUpdates,
     unsubscribeFromCurrentUserUpdates
 } from '@/modules/user/composables/useUserRealtime'
+import { clearClientSession } from '@/modules/user/services/session.service'
+import type { UserData } from '@/modules/user/types/user'
 
 export const initUser = async (): Promise<void> => {
     const token = getUserToken()
 
     if (!token) {
         unsubscribeFromCurrentUserUpdates()
-        clearUserState()
+        clearClientSession()
         return
     }
 
     try {
-        const response = await apiClient.get('/user')
-        const data = response.data.data
+        const response = await getCurrentUser()
+        const normalizedUser: UserData = {
+            ...response.data,
+            token
+        }
 
-        setUserData(data)
+        setUserData(normalizedUser)
 
         const { setUser } = useUser()
-        setUser({
-            ...data,
-            token
-        })
+        setUser(normalizedUser)
 
         subscribeToCurrentUserUpdates()
     } catch {
         unsubscribeFromCurrentUserUpdates()
-        clearUserStorage()
-        clearUserState()
+        clearClientSession()
     }
 }

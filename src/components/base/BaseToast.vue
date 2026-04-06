@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { removeToast } from '@/shared/toast/toastService'
     import { toasts } from '@/shared/toast/toastStore'
 </script>
 
@@ -26,12 +27,17 @@
                     </span>
 
                     <span>{{ toast.message }}</span>
+
+                    <button
+                            type="button"
+                            class="toast-close"
+                            aria-label="Закрыть уведомление"
+                            @click="removeToast(toast.id)"
+                    >
+                        ×
+                    </button>
                 </div>
             </TransitionGroup>
         </div>
     </Teleport>
 </template>
-
-<style>
-    @import '@/assets/toast.css';
-</style>

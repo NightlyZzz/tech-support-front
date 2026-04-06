@@ -14,16 +14,8 @@ window.Pusher = Pusher
 
 let echoInstance: Echo<'reverb'> | null = null
 
-export const createEcho = (): Echo<'reverb'> | null => {
-    const token = getUserToken()
-
-    if (!token) {
-        echoInstance = null
-        window.Echo = null
-        return null
-    }
-
-    echoInstance = new Echo({
+const buildEcho = (token: string): Echo<'reverb'> => {
+    return new Echo({
         broadcaster: 'reverb',
         key: import.meta.env.VITE_REVERB_APP_KEY,
         wsHost: import.meta.env.VITE_REVERB_HOST,
@@ -39,7 +31,21 @@ export const createEcho = (): Echo<'reverb'> | null => {
             }
         }
     })
+}
 
+export const createEcho = (): Echo<'reverb'> | null => {
+    const token = getUserToken()
+
+    if (!token) {
+        disconnectEcho()
+        return null
+    }
+
+    if (echoInstance) {
+        return echoInstance
+    }
+
+    echoInstance = buildEcho(token)
     window.Echo = echoInstance
 
     return echoInstance

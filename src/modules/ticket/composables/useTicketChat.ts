@@ -1,6 +1,6 @@
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { attachTicketLog, getTicketLogs } from '@/modules/ticket/api/ticket.chat.api'
-import { getEcho } from '@/shared/realtime/echo'
+import { createEcho, getEcho } from '@/shared/realtime/echo'
 import type { TicketLog } from '@/modules/ticket/types/ticket-log'
 
 export const useTicketChat = (ticketId: number) => {
@@ -8,7 +8,11 @@ export const useTicketChat = (ticketId: number) => {
     const newMessage = ref('')
     const chatBox = ref<HTMLElement | null>(null)
 
-    const scrollToBottom = async () => {
+    const setChatBoxElement = (element: HTMLElement | null): void => {
+        chatBox.value = element
+    }
+
+    const scrollToBottom = async (): Promise<void> => {
         await nextTick()
 
         if (chatBox.value) {
@@ -16,8 +20,8 @@ export const useTicketChat = (ticketId: number) => {
         }
     }
 
-    const appendLog = async (ticketLog: TicketLog) => {
-        const alreadyExists = logs.value.some(logItem => logItem.id === ticketLog.id)
+    const appendLog = async (ticketLog: TicketLog): Promise<void> => {
+        const alreadyExists = logs.value.some((logItem) => logItem.id === ticketLog.id)
 
         if (alreadyExists) {
             return
@@ -27,31 +31,28 @@ export const useTicketChat = (ticketId: number) => {
         await scrollToBottom()
     }
 
-    const loadLogs = async () => {
-        const ticketLogs = await getTicketLogs(ticketId)
-        logs.value = ticketLogs
+    const loadLogs = async (): Promise<void> => {
+        logs.value = await getTicketLogs(ticketId)
         await scrollToBottom()
     }
 
-    const sendLog = async () => {
+    const sendLog = async (): Promise<void> => {
         const trimmedMessage = newMessage.value.trim()
 
         if (!trimmedMessage) {
             return
         }
 
-        const response = await attachTicketLog(ticketId, {
+        const createdLog = await attachTicketLog(ticketId, {
             message: trimmedMessage
         })
-
-        const createdLog = response.data ?? response
 
         await appendLog(createdLog)
         newMessage.value = ''
     }
 
-    const subscribeToTicketLogs = () => {
-        const echo = getEcho()
+    const subscribeToTicketLogs = (): void => {
+        const echo = getEcho() ?? createEcho()
 
         if (!echo) {
             return
@@ -64,7 +65,7 @@ export const useTicketChat = (ticketId: number) => {
         })
     }
 
-    const unsubscribeFromTicketLogs = () => {
+    const unsubscribeFromTicketLogs = (): void => {
         const echo = getEcho()
 
         if (!echo) {
@@ -72,7 +73,6 @@ export const useTicketChat = (ticketId: number) => {
         }
 
         const channel = echo.private(`ticket.${ticketId}`)
-
         channel.stopListening('.ticket.log.created')
     }
 
@@ -87,8 +87,8 @@ export const useTicketChat = (ticketId: number) => {
     return {
         logs,
         newMessage,
-        chatBox,
         loadLogs,
-        sendLog
+        sendLog,
+        setChatBoxElement
     }
 }

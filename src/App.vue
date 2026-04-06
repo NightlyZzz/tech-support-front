@@ -1,12 +1,15 @@
 <script setup lang="ts">
     import { computed } from 'vue'
+    import { useRoute } from 'vue-router'
     import NavBar from '@/components/NavBar.vue'
-    import BaseToast from '@/components/BaseToast.vue'
-    import { getUser } from '@/modules/user/model/userState'
+    import BaseToast from '@/components/base/BaseToast.vue'
+    import { useUser } from '@/modules/user/composables/useUser'
 
-    const userRef = getUser()
+    const route = useRoute()
+    const { user } = useUser()
 
-    const isAuthenticated = computed(() => !!userRef.value)
+    const isAuthenticated = computed(() => user.value !== null)
+    const pageTransitionKey = computed(() => route.fullPath)
 </script>
 
 <template>
@@ -15,7 +18,7 @@
 
         <RouterView v-slot="{ Component }">
             <Transition name="page" mode="out-in">
-                <component :is="Component"/>
+                <component :is="Component" :key="pageTransitionKey"/>
             </Transition>
         </RouterView>
 

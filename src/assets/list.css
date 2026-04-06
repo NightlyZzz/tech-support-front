@@ -1,106 +1,21 @@
-.ticket-card {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--r-lg);
-    padding: var(--sp-5) var(--sp-6);
-    box-shadow: var(--sh-xs);
-    transition: box-shadow var(--t-base), border-color var(--t-base);
-    cursor: pointer;
-
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-3);
-
-    height: auto;
-}
-
-.ticket-card:hover {
-    box-shadow: var(--sh-md);
-    border-color: var(--c-border-2);
-}
-
-.ticket-card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--sp-3);
-}
-
-.ticket-card-title {
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: var(--c-text);
-    line-height: 1.4;
-}
-
-.ticket-card-id {
-    font-size: 0.75rem;
-    font-family: var(--font-mono);
-    color: var(--c-text-3);
-    margin-top: 2px;
-}
-
-.ticket-card-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-2);
-}
-
-.ticket-card-row {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    font-size: 0.8125rem;
-    color: var(--c-text-2);
-}
-
-.ticket-card-row b {
-    font-weight: 600;
-    color: var(--c-text-2);
-}
-
-.ticket-card-desc {
-    margin: 0;
-    font-size: 0.8125rem;
-    color: var(--c-text-2);
-    line-height: 1.6;
-
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.ticket-card-actions {
-    margin-top: auto;
-    padding-top: var(--sp-2);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.ticket-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 0;
-}
-
 .user-card {
     background: var(--c-surface);
     border: 1px solid var(--c-border);
     border-radius: var(--r-lg);
     padding: var(--sp-5) var(--sp-6);
     box-shadow: var(--sh-xs);
-    transition: box-shadow var(--t-base), border-color var(--t-base);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: var(--sp-4);
+    position: relative;
+    transition: box-shadow var(--t-base), border-color var(--t-base), transform var(--t-fast);
 }
 
 .user-card:hover {
     box-shadow: var(--sh-md);
     border-color: var(--c-border-2);
+    transform: translateY(-2px);
 }
 
 .user-card.self {
@@ -110,7 +25,7 @@
 }
 
 .user-card.self:hover {
-    box-shadow: var(--sh-xs);
+    box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
 }
 
 .user-avatar {
@@ -156,23 +71,21 @@
 }
 
 .user-self-badge {
-    font-size: 0.75rem;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--c-accent);
-    background: var(--c-surface);
+    background: #fff;
     border: 1px solid var(--c-accent);
     border-radius: 999px;
-    padding: 2px 10px;
-    flex-shrink: 0;
+    padding: 3px 10px;
 }
 
 .user-card.employee {
     background: #fff7ed;
     border-color: #fb923c;
-}
-
-.user-card.employee:hover {
-    box-shadow: var(--sh-md);
 }
 
 .user-card.employee .user-avatar {
@@ -186,14 +99,16 @@
     border-color: #22c55e;
 }
 
-.user-card.admin:hover {
-    box-shadow: var(--sh-md);
-}
-
 .user-card.admin .user-avatar {
     background: #22c55e;
     color: #fff;
     border-color: #22c55e;
+}
+
+.user-card.self.admin,
+.user-card.self.employee {
+    background: var(--c-accent-light);
+    border-color: var(--c-accent);
 }
 
 .search-field {
@@ -234,160 +149,9 @@
     color: var(--c-text-3);
 }
 
-.action-row {
-    display: flex;
-    gap: var(--sp-3);
-    flex-wrap: wrap;
-    align-items: stretch;
-}
-
-.action-row .btn {
-    flex: 1 1 140px;
-    height: 42px;
-}
-
-.user-card.self.admin,
-.user-card.self.employee {
-    background: var(--c-accent-light);
-    border-color: var(--c-accent);
-}
-
-.user-card.self .user-avatar {
-    background: var(--c-accent);
-    color: #fff;
-    border-color: var(--c-accent);
-}
-
-.user-card {
-    position: relative;
-    transition: box-shadow var(--t-base), border-color var(--t-base), transform var(--t-fast);
-}
-
-.user-card:hover {
-    transform: translateY(-2px);
-}
-
-.user-card.self {
-    background: var(--c-accent-light);
-    border-color: var(--c-accent);
-}
-
-.user-card.self.admin,
-.user-card.self.employee {
-    background: var(--c-accent-light);
-    border-color: var(--c-accent);
-}
-
-.user-card.self .user-avatar {
-    background: var(--c-accent);
-    color: #fff;
-    border-color: var(--c-accent);
-}
-
-.user-card.self:hover {
-    box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
-}
-
-.user-self-badge {
-    position: absolute;
-    right: 16px;
-    top: 16px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--c-accent);
-    background: #fff;
-    border: 1px solid var(--c-accent);
-    border-radius: 999px;
-    padding: 3px 10px;
-}
-
-.profile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    align-items: start;
-}
-
-.profile-column {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.profile-card-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.profile-two-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.profile-checkbox-offset {
-    margin-top: 8px;
-}
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 16px;
-}
-
-.modal-card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--c-bg);
-    border: 1px solid var(--c-border);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, .2);
-}
-
-.modal-title {
-    margin: 0 0 10px 0;
-}
-
-.modal-text {
-    margin: 0 0 16px 0;
-    line-height: 1.5;
-}
-
-.modal-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-@media (max-width: 768px) {
-    .profile-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 480px) {
-    .action-row {
-        flex-direction: column;
-    }
-
-    .action-row .btn {
-        flex: none;
-        width: 100%;
-    }
-
     .user-card {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .profile-two-columns {
-        grid-template-columns: 1fr;
     }
 }

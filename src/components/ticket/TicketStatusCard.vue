@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import BaseSelect from '@/components/BaseSelect.vue'
+    import BaseSelect from '@/components/base/BaseSelect.vue'
     import type { StatusOption } from '@/modules/ticket/types/ticket-status'
 
     defineProps<{
@@ -10,7 +10,7 @@
     }>()
 
     const emit = defineEmits<{
-        (e: 'changeStatus', value: string | number | null): void
+        (event: 'changeStatus', value: number | null): void
     }>()
 </script>
 
@@ -18,10 +18,7 @@
     <div class="ticket-panel-card status-select-wrapper">
         <p class="ticket-panel-title">Статус заявки</p>
 
-        <span
-                :class="['badge', getStatusBadge(ticketStatus)]"
-                style="margin-bottom:12px;display:inline-flex;"
-        >
+        <span :class="['badge', 'ticket-status-badge', getStatusBadge(ticketStatus)]">
             {{ currentStatusName }}
         </span>
 
@@ -30,10 +27,10 @@
                 label="Изменить статус"
                 placeholder="Выберите статус"
                 :items="allStatuses"
-                :modelValue="ticketStatus"
-                valueKey="id"
-                labelKey="name"
-                @update:modelValue="emit('changeStatus', $event)"
+                :model-value="ticketStatus"
+                value-key="id"
+                label-key="name"
+                @update:model-value="emit('changeStatus', $event)"
         />
     </div>
 </template>

@@ -12,10 +12,7 @@ export const useTicketMessages = (currentUser: Ref<User | null>) => {
             return false
         }
 
-        return (
-                message.sender_id === currentUserId ||
-                message.employee_id === currentUserId
-        )
+        return message.sender_id === currentUserId || message.employee_id === currentUserId
     }
 
     const getDisplayName = (message: TicketMessage): string => {

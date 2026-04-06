@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { computed } from 'vue'
     import type { TicketInfoCardTicket } from '@/modules/ticket/types/ticket-info'
 
     const props = defineProps<{
@@ -7,6 +8,22 @@
         displayedUserName: string
         formatPhoneNumber: (phoneNumber?: string | null) => string
     }>()
+
+    const formattedPhoneNumber = computed(() => {
+        return props.formatPhoneNumber(props.ticket?.getContactPhone() ?? '')
+    })
+
+    const createdAtText = computed(() => {
+        return props.ticket?.getCreatedAtFormatted() ?? '—'
+    })
+
+    const descriptionText = computed(() => {
+        return props.ticket?.getDescription() ?? '—'
+    })
+
+    const typeName = computed(() => {
+        return props.ticket?.getTypeName() ?? '—'
+    })
 </script>
 
 <template>
@@ -16,7 +33,7 @@
 
         <div class="ticket-field">
             <span class="ticket-field-label">Тип</span>
-            <span class="ticket-field-value">{{ props.ticket?.getTypeName() }}</span>
+            <span class="ticket-field-value">{{ typeName }}</span>
         </div>
 
         <div class="ticket-field">
@@ -27,21 +44,21 @@
         <div class="ticket-field">
             <span class="ticket-field-label">Телефон</span>
             <span class="ticket-field-value mono">
-                {{ formatPhoneNumber(props.ticket?.getContactPhone() || '') }}
+                {{ formattedPhoneNumber }}
             </span>
         </div>
 
         <div class="ticket-field">
             <span class="ticket-field-label">Создана</span>
-            <span class="ticket-field-value">{{ props.ticket?.getCreatedAtFormatted() }}</span>
+            <span class="ticket-field-value">{{ createdAtText }}</span>
         </div>
 
         <div class="ticket-divider"></div>
 
         <div class="ticket-field">
             <span class="ticket-field-label">Описание</span>
-            <span class="ticket-field-value" style="white-space:pre-wrap;line-height:1.6;">
-                {{ props.ticket?.getDescription() }}
+            <span class="ticket-field-value ticket-description-text">
+                {{ descriptionText }}
             </span>
         </div>
     </div>

@@ -1,4 +1,5 @@
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import router from '@/router'
 import { useUser } from '@/modules/user/composables/useUser'
 import { usePagination } from '@/composables/common/usePagination'
 import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
@@ -8,10 +9,9 @@ import { useTicketFilter } from '@/modules/ticket/composables/useTicketFilter'
 import { getMyTickets } from '@/modules/ticket/api/ticket.api'
 import { Role } from '@/enums/role'
 import { TicketStatus } from '@/enums/ticketStatus'
-import { mapTicket } from '@/modules/ticket/model/mapTicket'
-import { getEcho } from '@/shared/realtime/echo'
-import type { TicketApi } from '@/types/ticket'
-import router from '@/router'
+import { upsertTicketInList } from '@/modules/ticket/helpers/upsertTicketInList'
+import { bindTicketChannel, leaveTicketChannel } from '@/modules/ticket/helpers/bindTicketChannel'
+import type { TicketApi } from '@/modules/ticket/types/ticket'
 
 let subscribedUserId: number | null = null
 
@@ -22,8 +22,9 @@ export const useMyTicketsPage = () => {
 
     const { currentPage, lastPage, setMeta } = usePagination()
     const { tickets, load } = useTickets(getMyTickets)
-    usePaginationLoader(currentPage, load, setMeta)
     const { statuses, loadStatuses } = useTicketStatuses()
+
+    usePaginationLoader(currentPage, load, setMeta)
 
     const availableStatuses = computed(() => {
         if (!user.value) {
@@ -34,7 +35,7 @@ export const useMyTicketsPage = () => {
             return statuses.value
         }
 
-        return statuses.value.filter(statusItem => statusItem.id !== TicketStatus.Pending)
+        return statuses.value.filter((statusItem) => statusItem.id !== TicketStatus.Pending)
     })
 
     const availableStatusesWithAll = computed(() => [
@@ -44,46 +45,31 @@ export const useMyTicketsPage = () => {
 
     const filteredTickets = useTicketFilter(tickets, selectedStatus)
 
-    const reloadPageData = async () => {
+    const reloadPageData = async (): Promise<void> => {
         await load(currentPage.value, setMeta)
         await loadStatuses()
     }
 
-    const upsertTicket = (ticketData: TicketApi) => {
-        const mappedTicket = mapTicket(ticketData)
-        const existingTicketIndex = tickets.value.findIndex(ticketItem => ticketItem.getId() === mappedTicket.getId())
-
-        if (existingTicketIndex === -1) {
-            tickets.value.unshift(mappedTicket)
-            return
-        }
-
-        tickets.value[existingTicketIndex] = mappedTicket
+    const upsertTicket = (ticketData: TicketApi): void => {
+        upsertTicketInList(tickets, ticketData)
     }
 
-    const unsubscribeFromMyTickets = () => {
-        const echo = getEcho()
-
-        if (!echo || subscribedUserId === null) {
+    const unsubscribeFromMyTickets = (): void => {
+        if (subscribedUserId === null) {
             return
         }
 
-        const channel = echo.private(`App.Models.User.${subscribedUserId}`)
-
-        channel.stopListening('.ticket.created')
-        channel.stopListening('.ticket.updated')
-
+        leaveTicketChannel(`App.Models.User.${subscribedUserId}`)
         subscribedUserId = null
     }
 
-    const subscribeToMyTickets = () => {
-        const echo = getEcho()
-
-        if (!echo || !user.value) {
+    const subscribeToMyTickets = (): void => {
+        if (!user.value) {
             return
         }
 
         const currentUserId = user.value.getId()
+        const channelName = `App.Models.User.${currentUserId}`
 
         if (subscribedUserId !== null && subscribedUserId !== currentUserId) {
             unsubscribeFromMyTickets()
@@ -93,21 +79,17 @@ export const useMyTicketsPage = () => {
             return
         }
 
+        const isBound = bindTicketChannel(channelName, upsertTicket)
+
+        if (!isBound) {
+            return
+        }
+
         subscribedUserId = currentUserId
-
-        const channel = echo.private(`App.Models.User.${currentUserId}`)
-
-        channel.listen('.ticket.created', (createdTicket: TicketApi) => {
-            upsertTicket(createdTicket)
-        })
-
-        channel.listen('.ticket.updated', (updatedTicket: TicketApi) => {
-            upsertTicket(updatedTicket)
-        })
     }
 
-    const openTicket = (ticketId: number) => {
-        router.push({ name: 'ticket', params: { id: ticketId } })
+    const openTicket = (ticketId: number): void => {
+        void router.push({ name: 'ticket', params: { id: ticketId } })
     }
 
     onMounted(async () => {
@@ -117,8 +99,8 @@ export const useMyTicketsPage = () => {
 
     watch(
             () => user.value?.getRole(),
-            async (nextRole, prevRole) => {
-                if (nextRole === undefined || nextRole === prevRole) {
+            async (nextRole, previousRole) => {
+                if (nextRole === undefined || nextRole === previousRole) {
                     return
                 }
 
@@ -129,8 +111,8 @@ export const useMyTicketsPage = () => {
 
     watch(
             () => user.value?.getId(),
-            async (nextUserId, prevUserId) => {
-                if (!nextUserId || nextUserId === prevUserId) {
+            async (nextUserId, previousUserId) => {
+                if (!nextUserId || nextUserId === previousUserId) {
                     return
                 }
 

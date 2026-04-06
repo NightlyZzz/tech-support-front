@@ -2,17 +2,15 @@ import { onMounted, reactive, ref } from 'vue'
 import { createTicket } from '@/modules/ticket/api/ticket.api'
 import { getAllTicketTypes } from '@/modules/ticket/api/ticket.lookup'
 import { showToast } from '@/shared/toast/toastService'
+import type { TicketTypeOption } from '@/modules/ticket/types/ticket'
 
-interface TicketType {
-    id: number
-    name: string
+type CreateTicketForm = {
+    ticketTypeId: number
+    description: string
+    contactPhone: string
 }
 
-interface CreateTicketResponse {
-    message?: string
-}
-
-interface ApiError {
+type ApiErrorResponse = {
     response?: {
         data?: {
             message?: string
@@ -21,11 +19,11 @@ interface ApiError {
 }
 
 export const useCreateTicket = () => {
-    const ticketTypes = ref<TicketType[]>([])
+    const ticketTypes = ref<TicketTypeOption[]>([])
     const isSubmitting = ref(false)
 
-    const form = reactive({
-        ticketTypeId: 0 as number,
+    const form = reactive<CreateTicketForm>({
+        ticketTypeId: 0,
         description: '',
         contactPhone: ''
     })
@@ -35,11 +33,16 @@ export const useCreateTicket = () => {
             const response = await getAllTicketTypes()
             ticketTypes.value = response.data ?? []
         } catch {
+            ticketTypes.value = []
             showToast('Ошибка загрузки типов заявок', 'error')
         }
     }
 
     const submitTicket = async (): Promise<void> => {
+        if (isSubmitting.value) {
+            return
+        }
+
         let normalizedPhoneDigits = form.contactPhone.replace(/\D/g, '')
 
         if (normalizedPhoneDigits.startsWith('8')) {
@@ -62,9 +65,9 @@ export const useCreateTicket = () => {
         isSubmitting.value = true
 
         try {
-            const response: CreateTicketResponse = await createTicket({
+            const response = await createTicket({
                 ticket_type_id: form.ticketTypeId,
-                description: form.description,
+                description: form.description.trim(),
                 contact_phone: formattedPhone
             })
 
@@ -74,8 +77,8 @@ export const useCreateTicket = () => {
             form.description = ''
             form.contactPhone = ''
         } catch (error: unknown) {
-            const apiError = error as ApiError
-            showToast(apiError?.response?.data?.message || 'Ошибка при отправке заявки', 'error')
+            const apiError = error as ApiErrorResponse
+            showToast(apiError.response?.data?.message || 'Ошибка при отправке заявки', 'error')
         } finally {
             isSubmitting.value = false
         }

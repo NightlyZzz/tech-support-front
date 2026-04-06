@@ -1,21 +1,29 @@
 <script setup lang="ts">
-    import { ref, computed } from 'vue'
+    import { computed, ref, watch } from 'vue'
+    import { useRoute } from 'vue-router'
     import { COMPANY_NAME } from '@/shared/utils/constants'
     import { useUser } from '@/modules/user/composables/useUser'
 
+    type NavigationLink = {
+        name: string
+        route: string
+        show: boolean
+    }
+
     const mobileOpen = ref(false)
 
+    const route = useRoute()
     const { user, isAdmin, isEmployee, isUser } = useUser()
 
     const isAuthenticated = computed(() => user.value !== null)
 
-    const links = computed(() => {
+    const links = computed<NavigationLink[]>(() => {
         return [
             { name: 'Мои заявки', route: 'my-tickets', show: true },
             { name: 'Создать заявку', route: 'create-ticket', show: isUser.value },
             { name: 'Все заявки', route: 'all-tickets', show: isEmployee.value },
             { name: 'Пользователи', route: 'all-users', show: isAdmin.value }
-        ].filter(link => link.show)
+        ].filter(linkItem => linkItem.show)
     })
 
     const toggleMobile = () => {
@@ -25,6 +33,13 @@
     const closeMobile = () => {
         mobileOpen.value = false
     }
+
+    watch(
+            () => route.fullPath,
+            () => {
+                closeMobile()
+            }
+    )
 </script>
 
 <template>
@@ -36,12 +51,12 @@
 
         <div class="navbar-links">
             <router-link
-                    v-for="link in links"
-                    :key="link.route"
+                    v-for="linkItem in links"
+                    :key="linkItem.route"
                     class="navbar-link"
-                    :to="{ name: link.route }"
+                    :to="{ name: linkItem.route }"
             >
-                {{ link.name }}
+                {{ linkItem.name }}
             </router-link>
         </div>
 
@@ -58,7 +73,7 @@
             </router-link>
         </div>
 
-        <button class="navbar-toggle" @click="toggleMobile">
+        <button type="button" class="navbar-toggle" @click="toggleMobile">
             <span :style="mobileOpen ? 'transform:rotate(45deg) translate(5px,5px)' : ''"></span>
             <span :style="mobileOpen ? 'opacity:0' : ''"></span>
             <span :style="mobileOpen ? 'transform:rotate(-45deg) translate(5px,-5px)' : ''"></span>
@@ -67,13 +82,12 @@
 
     <div v-if="isAuthenticated" :class="['navbar-drawer', mobileOpen ? 'open' : '']">
         <router-link
-                v-for="link in links"
-                :key="link.route"
+                v-for="linkItem in links"
+                :key="linkItem.route"
                 class="navbar-link"
-                :to="{ name: link.route }"
-                @click="closeMobile"
+                :to="{ name: linkItem.route }"
         >
-            {{ link.name }}
+            {{ linkItem.name }}
         </router-link>
 
         <div style="height:1px;background:var(--c-border);margin:4px 0;"></div>
@@ -81,7 +95,6 @@
         <router-link
                 class="navbar-link"
                 :to="{ name: 'profile' }"
-                @click="closeMobile"
         >
             Аккаунт
         </router-link>

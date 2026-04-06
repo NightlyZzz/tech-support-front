@@ -1,4 +1,5 @@
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import router from '@/router'
 import { useUser } from '@/modules/user/composables/useUser'
 import { usePagination } from '@/composables/common/usePagination'
 import { usePaginationLoader } from '@/composables/common/usePaginationLoader'
@@ -6,11 +7,13 @@ import { useTickets } from '@/modules/ticket/composables/useTickets'
 import { useTicketStatuses } from '@/modules/ticket/composables/useTicketStatuses'
 import { useTicketFilter } from '@/modules/ticket/composables/useTicketFilter'
 import { getAllTickets, updateTicket } from '@/modules/ticket/api/ticket.api'
-import { Ticket } from '@/modules/ticket/model/ticket'
-import { mapTicket } from '@/modules/ticket/model/mapTicket'
-import { getEcho } from '@/shared/realtime/echo'
-import type { TicketApi } from '@/types/ticket'
-import router from '@/router'
+import { upsertTicketInList } from '@/modules/ticket/helpers/upsertTicketInList'
+import { canOpenTicketFromList } from '@/modules/ticket/helpers/canOpenTicketFromList'
+import { bindTicketChannel, leaveTicketChannel } from '@/modules/ticket/helpers/bindTicketChannel'
+import type { TicketApi } from '@/modules/ticket/types/ticket'
+import type { TicketListItem } from '@/modules/ticket/types/ticket-list-item'
+
+const ALL_TICKETS_CHANNEL = 'tickets.all'
 
 export const useAllTicketsPage = () => {
     const { user, isAdmin, isEmployee } = useUser()
@@ -19,8 +22,9 @@ export const useAllTicketsPage = () => {
 
     const { currentPage, lastPage, setMeta } = usePagination()
     const { tickets, load } = useTickets(getAllTickets)
-    usePaginationLoader(currentPage, load, setMeta)
     const { statuses, loadStatuses } = useTicketStatuses()
+
+    usePaginationLoader(currentPage, load, setMeta)
 
     const statusesWithAll = computed(() => [
         { id: 0, name: 'Все статусы' },
@@ -32,75 +36,49 @@ export const useAllTicketsPage = () => {
             return tickets.value
         }
 
-        return tickets.value.filter(ticketItem => ticketItem.getEmployeeId() === null)
+        return tickets.value.filter((ticketItem) => ticketItem.getEmployeeId() === null)
     })
 
     const filteredTickets = useTicketFilter(visibleTickets, selectedStatus)
 
-    const upsertTicket = (ticketData: TicketApi) => {
-        const mappedTicket = mapTicket(ticketData)
-        const existingTicketIndex = tickets.value.findIndex(ticketItem => ticketItem.getId() === mappedTicket.getId())
+    const upsertTicket = (ticketData: TicketApi): void => {
+        upsertTicketInList(tickets, ticketData)
+    }
 
-        if (existingTicketIndex === -1) {
-            tickets.value.unshift(mappedTicket)
+    const subscribeToAllTickets = (): void => {
+        if (!isEmployee.value) {
             return
         }
 
-        tickets.value[existingTicketIndex] = mappedTicket
+        bindTicketChannel(ALL_TICKETS_CHANNEL, upsertTicket)
     }
 
-    const subscribeToAllTickets = () => {
-        const echo = getEcho()
-
-        if (!echo || !isEmployee.value) {
-            return
-        }
-
-        echo.private('tickets.all').listen('.ticket.created', (createdTicket: TicketApi) => {
-            upsertTicket(createdTicket)
-        }).listen('.ticket.updated', (updatedTicket: TicketApi) => {
-            upsertTicket(updatedTicket)
-        })
+    const unsubscribeFromAllTickets = (): void => {
+        leaveTicketChannel(ALL_TICKETS_CHANNEL)
     }
 
-    const unsubscribeFromAllTickets = () => {
-        const echo = getEcho()
-
-        if (!echo) {
-            return
-        }
-
-        echo.leave('tickets.all')
-    }
-
-    const openTicket = (ticketId: number) => {
+    const openTicket = (ticketId: number): void => {
         if (!user.value) {
             return
         }
 
-        const selectedTicket = tickets.value.find(ticketItem => ticketItem.getId() === ticketId)
+        const selectedTicket = tickets.value.find((ticketItem) => ticketItem.getId() === ticketId)
 
         if (!selectedTicket) {
             return
         }
 
-        if (isAdmin.value) {
-            router.push({ name: 'ticket', params: { id: ticketId } })
+        if (!canOpenTicketFromList(selectedTicket, {
+            isAdmin: isAdmin.value,
+            isEmployee: isEmployee.value
+        })) {
             return
         }
 
-        if (!isEmployee.value) {
-            return
-        }
-
-        if (!selectedTicket.getEmployeeId()) {
-            return
-        }
-
-        router.push({ name: 'ticket', params: { id: ticketId } })
+        void router.push({ name: 'ticket', params: { id: ticketId } })
     }
 
-    const takeToReview = async (ticket: Ticket) => {
+    const takeToReview = async (ticket: TicketListItem): Promise<void> => {
         if (!user.value) {
             return
         }
@@ -110,6 +88,7 @@ export const useAllTicketsPage = () => {
         })
 
         ticket.setReview(user.value.getId())
+        tickets.value = [...tickets.value]
     }
 
     onMounted(async () => {
@@ -120,7 +99,7 @@ export const useAllTicketsPage = () => {
 
     watch(
             () => isEmployee.value,
-            async nextIsEmployee => {
+            async (nextIsEmployee) => {
                 if (nextIsEmployee) {
                     return
                 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import BaseButton from '@/components/base/BaseButton.vue'
+
     defineProps<{
         open: boolean
         loading: boolean
@@ -25,32 +27,35 @@
             </p>
 
             <div class="modal-actions">
-                <button
+                <BaseButton
                         type="button"
-                        class="btn btn--primary btn--full"
+                        variant="primary"
+                        :full-width="true"
                         :disabled="loading"
                         @click="$emit('logoutCurrent')"
                 >
                     Выйти только на этом устройстве
-                </button>
+                </BaseButton>
 
-                <button
+                <BaseButton
                         type="button"
-                        class="btn btn--primary btn--full"
+                        variant="primary"
+                        :full-width="true"
                         :disabled="loading"
                         @click="$emit('logoutAll')"
                 >
                     Выйти на всех устройствах
-                </button>
+                </BaseButton>
 
-                <button
+                <BaseButton
                         type="button"
-                        class="btn btn--full"
+                        variant="secondary"
+                        :full-width="true"
                         :disabled="loading"
                         @click="$emit('close')"
                 >
                     Отмена
-                </button>
+                </BaseButton>
             </div>
         </div>
     </div>
@@ -58,5 +63,5 @@
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>

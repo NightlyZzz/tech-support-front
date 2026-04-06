@@ -1,23 +1,26 @@
 <script setup lang="ts">
     import TicketCard from '@/components/ticket/TicketCard.vue'
-    import type { Ticket } from '@/modules/ticket/model/ticket'
+    import type { TicketListItem } from '@/modules/ticket/types/ticket-list-item'
 
-    defineProps<{
-        tickets: Ticket[]
+    withDefaults(defineProps<{
+        tickets: TicketListItem[]
         showUser?: boolean
         canTake?: boolean
-    }>()
+    }>(), {
+        showUser: false,
+        canTake: false
+    })
 
     const emit = defineEmits<{
-        (e: 'click', id: number): void
-        (e: 'take', ticket: Ticket): void
+        (event: 'click', ticketId: number): void
+        (event: 'take', ticket: TicketListItem): void
     }>()
 
-    const handleClick = (id: number) => {
-        emit('click', id)
+    const handleClick = (ticketId: number): void => {
+        emit('click', ticketId)
     }
 
-    const handleTake = (ticket: Ticket) => {
+    const handleTake = (ticket: TicketListItem): void => {
         emit('take', ticket)
     }
 </script>
@@ -32,8 +35,8 @@
                 v-for="ticket in tickets"
                 :key="ticket.getId()"
                 :ticket="ticket"
-                :showUser="showUser"
-                :canTake="canTake && ticket.canTake()"
+                :show-user="showUser"
+                :can-take="canTake && ticket.canTake()"
                 @click="handleClick"
                 @take="handleTake"
         />

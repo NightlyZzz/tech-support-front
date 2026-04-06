@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import BaseButton from '@/components/base/BaseButton.vue'
+
     defineEmits<{
         (event: 'save'): void
         (event: 'delete'): void
@@ -10,18 +12,24 @@
         <p class="card-title">Действия</p>
 
         <div class="action-row">
-            <button class="btn btn--primary" @click="$emit('save')">
+            <BaseButton
+                    variant="primary"
+                    @click="$emit('save')"
+            >
                 Сохранить изменения
-            </button>
+            </BaseButton>
 
-            <button class="btn btn--danger" @click="$emit('delete')">
+            <BaseButton
+                    variant="danger"
+                    @click="$emit('delete')"
+            >
                 Удалить пользователя
-            </button>
+            </BaseButton>
         </div>
     </div>
 </template>
 
 <style scoped>
     @import '@/assets/base.css';
-    @import '@/assets/list.css';
+    @import '@/assets/profile.css';
 </style>
