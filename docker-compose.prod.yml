@@ -1,11 +1,11 @@
 services:
   vue-app:
-    build: .
+    build:
+      context: .
+      target: prod
+    container_name: tech-support-front
     ports:
-      - "80:80"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "127.0.0.1:4173:80"
     networks:
       - vue
 

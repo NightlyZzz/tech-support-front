@@ -1,15 +1,22 @@
 services:
   vue-app:
-    build: .
+    build:
+      context: .
+      target: dev
     container_name: tech-support-front
+    env_file:
+      - .env
     ports:
-      - "80:80"
+      - "127.0.0.1:5173:80"
     volumes:
       - .:/app
-      - /app/node_modules
+      - frontend_node_modules:/app/node_modules
     networks:
       - vue
 
 networks:
   vue:
     driver: bridge
+
+volumes:
+  frontend_node_modules:

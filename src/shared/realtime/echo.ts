@@ -1,7 +1,7 @@
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
 import { getUserToken } from '@/modules/user/model/userStorage'
-import { APP_URL } from '@/shared/utils/constants'
+import { BACKEND_URL } from '@/shared/utils/constants'
 
 declare global {
     interface Window {
@@ -23,7 +23,7 @@ const buildEcho = (token: string): Echo<'reverb'> => {
         wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 443),
         forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
         enabledTransports: ['ws', 'wss'],
-        authEndpoint: APP_URL + '/broadcasting/auth',
+        authEndpoint: BACKEND_URL + '/broadcasting/auth',
         auth: {
             headers: {
                 Authorization: 'Bearer ' + token,
