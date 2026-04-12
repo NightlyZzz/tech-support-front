@@ -13,14 +13,11 @@ export const useTicketPage = (
             return
         }
 
-        await Promise.all([
-            loadLogs(),
-            loadStatuses()
-        ])
+        await Promise.all([loadLogs(), loadStatuses()])
     }
 
-    onMounted(async () => {
-        await loadAllData()
+    onMounted(() => {
+        void loadAllData()
     })
 
     return {

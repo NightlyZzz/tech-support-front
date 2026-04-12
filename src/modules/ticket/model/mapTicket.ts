@@ -13,7 +13,8 @@ export const mapTicket = (ticketData: TicketApi): Ticket => {
             ticketData.status_id,
             ticketData.status_name,
             ticketData.created_at,
-            ticketData.sender_name
+            ticketData.sender_name,
+            ticketData.employee_name ?? null
     )
 }
 

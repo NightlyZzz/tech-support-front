@@ -1,4 +1,5 @@
 import type { PaginationMeta } from '@/types/common'
+import type { LookupItem } from '@/shared/types/lookup'
 
 export interface TicketApi {
     id: number
@@ -12,16 +13,13 @@ export interface TicketApi {
     status_name: string
     created_at: string
     sender_name: string
+    employee_name?: string | null
 }
 
-export interface TicketTypeOption {
-    id: number
-    name: string
+export interface TicketTypeOption extends LookupItem {
 }
 
-export interface TicketStatusOption {
-    id: number
-    name: string
+export interface TicketStatusOption extends LookupItem {
 }
 
 export interface TicketResponse {
@@ -31,10 +29,6 @@ export interface TicketResponse {
 export interface TicketActionResponse {
     message?: string
     data?: TicketApi
-}
-
-export interface LookupResponse<TItem> {
-    data: TItem[]
 }
 
 export interface PaginatedResponse<TItem> {

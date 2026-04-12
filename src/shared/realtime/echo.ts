@@ -1,6 +1,5 @@
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
-import { getUserToken } from '@/modules/user/model/userStorage'
 import { BACKEND_URL } from '@/shared/utils/constants'
 
 declare global {
@@ -14,7 +13,7 @@ window.Pusher = Pusher
 
 let echoInstance: Echo<'reverb'> | null = null
 
-const buildEcho = (token: string): Echo<'reverb'> => {
+const buildEcho = (): Echo<'reverb'> => {
     return new Echo({
         broadcaster: 'reverb',
         key: import.meta.env.VITE_REVERB_APP_KEY,
@@ -26,26 +25,19 @@ const buildEcho = (token: string): Echo<'reverb'> => {
         authEndpoint: BACKEND_URL + '/broadcasting/auth',
         auth: {
             headers: {
-                Authorization: 'Bearer ' + token,
-                Accept: 'application/json'
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         }
     })
 }
 
 export const createEcho = (): Echo<'reverb'> | null => {
-    const token = getUserToken()
-
-    if (!token) {
-        disconnectEcho()
-        return null
-    }
-
     if (echoInstance) {
         return echoInstance
     }
 
-    echoInstance = buildEcho(token)
+    echoInstance = buildEcho()
     window.Echo = echoInstance
 
     return echoInstance

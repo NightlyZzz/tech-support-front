@@ -84,7 +84,6 @@ export const buildUpdatedUserData = (
     const normalizedSecondaryEmail = form.secondary_email.trim()
 
     return {
-        token: currentUser.token,
         id: currentUser.id,
         email: form.email.trim(),
         first_name: form.first_name.trim(),

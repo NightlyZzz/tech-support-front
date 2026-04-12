@@ -91,7 +91,6 @@ export const subscribeToCurrentUserUpdates = () => {
     subscribedUserId = currentUserId
 
     echo.private(`App.Models.User.${currentUserId}`).listen('.user.updated', async (updatedUser: UserData) => {
-        const currentToken = user.value?.getToken() ?? ''
         const previousRoleId = Number(user.value?.getRole() ?? 0)
         const nextRoleId = Number(updatedUser.role_id ?? 0)
 
@@ -100,13 +99,8 @@ export const subscribeToCurrentUserUpdates = () => {
             return
         }
 
-        const normalizedUser: UserData = {
-            ...updatedUser,
-            token: currentToken
-        }
-
-        setUser(normalizedUser)
-        setUserData(normalizedUser)
+        setUser(updatedUser)
+        setUserData(updatedUser)
 
         if (nextRoleId !== 0) {
             await syncRouteAccess(nextRoleId)

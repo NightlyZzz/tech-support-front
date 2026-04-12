@@ -10,7 +10,8 @@ export class Ticket {
             private statusId: number,
             private statusName: string,
             private createdAt: string,
-            private senderName: string
+            private senderName: string,
+            private employeeName: string | null
     ) {
     }
 
@@ -32,6 +33,10 @@ export class Ticket {
 
     getEmployeeId(): number | null {
         return this.employeeId
+    }
+
+    getEmployeeName(): string | null {
+        return this.employeeName
     }
 
     getTypeId(): number {
@@ -87,8 +92,9 @@ export class Ticket {
         return this.statusId === 1
     }
 
-    setReview(employeeId: number): void {
+    setReview(employeeId: number, employeeName: string | null = null): void {
         this.employeeId = employeeId
+        this.employeeName = employeeName
         this.statusId = 2
         this.statusName = 'На рассмотрении'
     }

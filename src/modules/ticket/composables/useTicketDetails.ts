@@ -2,7 +2,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { getTicket, updateTicket } from '@/modules/ticket/api/ticket.api'
 import { mapTicket } from '@/modules/ticket/model/mapTicket'
 import type { Ticket } from '@/modules/ticket/model/ticket'
-import { getEcho } from '@/shared/realtime/echo'
+import { createEcho, getEcho } from '@/shared/realtime/echo'
 import type { TicketApi } from '@/modules/ticket/types/ticket'
 
 export const useTicketDetails = (ticketId: number) => {
@@ -28,7 +28,7 @@ export const useTicketDetails = (ticketId: number) => {
     }
 
     const subscribeToTicketUpdates = (): void => {
-        const echo = getEcho()
+        const echo = getEcho() ?? createEcho()
 
         if (!echo) {
             return

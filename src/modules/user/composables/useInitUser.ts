@@ -1,27 +1,18 @@
 import { getCurrentUser } from '@/modules/user/api/auth.api'
 import { useUser } from '@/modules/user/composables/useUser'
-import { getUserToken, setUserData } from '@/modules/user/model/userStorage'
 import {
     subscribeToCurrentUserUpdates,
     unsubscribeFromCurrentUserUpdates
 } from '@/modules/user/composables/useUserRealtime'
-import { clearClientSession } from '@/modules/user/services/session.service'
+import { clearUserStorage, setUserData } from '@/modules/user/model/userStorage'
+import { clearUserState } from '@/modules/user/model/userState'
 import type { UserData } from '@/modules/user/types/user'
 
-export const initUser = async (): Promise<void> => {
-    const token = getUserToken()
-
-    if (!token) {
-        unsubscribeFromCurrentUserUpdates()
-        clearClientSession()
-        return
-    }
-
+export const initUser = async (shouldThrowOnFailure = false): Promise<void> => {
     try {
         const response = await getCurrentUser()
         const normalizedUser: UserData = {
-            ...response.data,
-            token
+            ...response.data
         }
 
         setUserData(normalizedUser)
@@ -30,8 +21,13 @@ export const initUser = async (): Promise<void> => {
         setUser(normalizedUser)
 
         subscribeToCurrentUserUpdates()
-    } catch {
+    } catch (error) {
         unsubscribeFromCurrentUserUpdates()
-        clearClientSession()
+        clearUserStorage()
+        clearUserState()
+
+        if (shouldThrowOnFailure) {
+            throw error
+        }
     }
 }

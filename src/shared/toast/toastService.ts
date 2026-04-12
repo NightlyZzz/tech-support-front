@@ -1,6 +1,4 @@
-import { toasts } from './toastStore'
-
-export type ToastType = 'success' | 'error' | 'info'
+import { toasts, type ToastType } from '@/shared/toast/toastStore'
 
 const DEFAULT_TOAST_DURATION = 3000
 

@@ -1,6 +1,6 @@
 import { onMounted, reactive, ref } from 'vue'
 import router from '@/router'
-import { login, register } from '@/modules/user/api/auth.api'
+import { register } from '@/modules/user/api/auth.api'
 import { getAllDepartments } from '@/modules/user/api/user.lookup'
 import { getLaravelErrorMessage } from '@/modules/user/helpers/getLaravelErrorMessage'
 import { initializeAuthorizedSession } from '@/modules/user/services/session.service'
@@ -45,7 +45,7 @@ export const useRegisterForm = () => {
             first_name: form.first_name.trim(),
             last_name: form.last_name.trim(),
             middle_name: form.middle_name.trim(),
-            email: form.email.trim(),
+            email: form.email.trim().toLowerCase(),
             password: form.password,
             department_id: form.department_id,
             remember: form.remember
@@ -74,14 +74,8 @@ export const useRegisterForm = () => {
         try {
             await register(registerPayload)
 
-            const loginResponse = await login({
-                email: registerPayload.email,
-                password: registerPayload.password,
-                remember: registerPayload.remember
-            })
-
-            await initializeAuthorizedSession(loginResponse.token)
-            await router.replace({ name: 'home' })
+            await initializeAuthorizedSession()
+            await router.replace({ name: 'profile' })
         } catch (error: unknown) {
             const errorMessage = getLaravelErrorMessage(error)
             showToast(errorMessage ?? 'Ошибка регистрации', 'error')

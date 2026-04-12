@@ -58,9 +58,7 @@ export const useTicketChat = (ticketId: number) => {
             return
         }
 
-        const channel = echo.private(`ticket.${ticketId}`)
-
-        channel.listen('.ticket.log.created', async (ticketLog: TicketLog) => {
+        echo.private(`ticket.${ticketId}`).listen('.ticket.log.created', async (ticketLog: TicketLog) => {
             await appendLog(ticketLog)
         })
     }
@@ -72,8 +70,7 @@ export const useTicketChat = (ticketId: number) => {
             return
         }
 
-        const channel = echo.private(`ticket.${ticketId}`)
-        channel.stopListening('.ticket.log.created')
+        echo.leave(`ticket.${ticketId}`)
     }
 
     onMounted(() => {

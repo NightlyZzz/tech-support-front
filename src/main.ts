@@ -15,17 +15,17 @@ import { initUser } from '@/modules/user/composables/useInitUser'
 const bootstrap = async (): Promise<void> => {
     try {
         await initUser()
-
-        const application = createApp(App)
-
-        application.use(router)
-
-        await router.isReady()
-
-        application.mount('#app')
     } catch (error) {
         console.error('Application bootstrap failed', error)
     }
+
+    const application = createApp(App)
+
+    application.use(router)
+
+    await router.isReady()
+
+    application.mount('#app')
 }
 
 void bootstrap()

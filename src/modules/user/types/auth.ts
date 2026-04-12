@@ -10,6 +10,6 @@ export interface LoginRequest {
     remember: boolean
 }
 
-export interface AuthTokenResponse {
-    token: string
+export interface AuthActionResponse {
+    message: string
 }

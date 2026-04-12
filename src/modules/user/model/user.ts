@@ -2,7 +2,6 @@ import type { UserData } from '@/modules/user/types/user'
 
 export class User {
     constructor(
-            private token: string,
             private id: number,
             private email: string,
             private firstName: string,
@@ -16,9 +15,8 @@ export class User {
     ) {
     }
 
-    static fromApi(data: Partial<UserData>, fallbackToken = ''): User {
+    static fromApi(data: Partial<UserData>): User {
         return new User(
-                data.token ?? fallbackToken,
                 Number(data.id ?? 0),
                 data.email ?? '',
                 data.first_name ?? '',
@@ -34,7 +32,6 @@ export class User {
 
     toStorage(): UserData {
         return {
-            token: this.token,
             id: this.id,
             email: this.email,
             first_name: this.firstName,
@@ -46,10 +43,6 @@ export class User {
             department_id: this.department,
             department_name: this.departmentName
         }
-    }
-
-    getToken(): string {
-        return this.token
     }
 
     getId(): number {

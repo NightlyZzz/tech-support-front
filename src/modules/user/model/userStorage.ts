@@ -1,18 +1,9 @@
 import type { UserData } from '@/modules/user/types/user'
 
-const TOKEN_STORAGE_KEY = 'token'
 const USER_DATA_STORAGE_KEY = 'user_data'
 
-export const getUserToken = (): string | null => {
-    return localStorage.getItem(TOKEN_STORAGE_KEY)
-}
-
-export const setUserToken = (token: string): void => {
-    localStorage.setItem(TOKEN_STORAGE_KEY, token)
-}
-
-export const removeUserToken = (): void => {
-    localStorage.removeItem(TOKEN_STORAGE_KEY)
+export const hasStoredUserData = (): boolean => {
+    return getUserData() !== null
 }
 
 export const getUserData = (): UserData | null => {
@@ -39,6 +30,5 @@ export const removeUserData = (): void => {
 }
 
 export const clearUserStorage = (): void => {
-    removeUserToken()
     removeUserData()
 }

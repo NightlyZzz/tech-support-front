@@ -1,10 +1,7 @@
 import { publicApi } from '@/shared/api/public.api'
 import type { Department } from '@/modules/user/types/department'
 import type { EditUserRole } from '@/modules/user/types/edit-user'
-
-export interface LookupResponse<TItem> {
-    data: TItem[]
-}
+import type { LookupResponse } from '@/shared/types/lookup'
 
 export const getAllDepartments = async (): Promise<LookupResponse<Department>> => {
     const response = await publicApi.get<LookupResponse<Department>>('/public/departments')

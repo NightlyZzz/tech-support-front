@@ -1,19 +1,23 @@
 import router from '@/router'
 import { initUser } from '@/modules/user/composables/useInitUser'
+import { unsubscribeFromCurrentUserUpdates } from '@/modules/user/composables/useUserRealtime'
 import { clearUserState } from '@/modules/user/model/userState'
-import { clearUserStorage, setUserToken } from '@/modules/user/model/userStorage'
-import { createEcho, disconnectEcho } from '@/shared/realtime/echo'
+import { clearUserStorage } from '@/modules/user/model/userStorage'
+import { disconnectEcho } from '@/shared/realtime/echo'
 
-export const initializeAuthorizedSession = async (token: string): Promise<void> => {
-    setUserToken(token)
+export const initializeAuthorizedSession = async (): Promise<void> => {
+    clearClientSession()
 
-    disconnectEcho()
-    createEcho()
-
-    await initUser()
+    try {
+        await initUser(true)
+    } catch {
+        clearClientSession()
+        throw new Error('Failed to initialize authorized session')
+    }
 }
 
 export const clearClientSession = (): void => {
+    unsubscribeFromCurrentUserUpdates()
     disconnectEcho()
     clearUserStorage()
     clearUserState()

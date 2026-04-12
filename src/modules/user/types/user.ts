@@ -11,7 +11,6 @@ export interface UserData {
     role_name: string
     department_id: number
     department_name: string
-    token?: string
 }
 
 export interface CurrentUserResponse {

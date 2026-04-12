@@ -2,10 +2,10 @@ import { ref } from 'vue'
 
 export type ToastType = 'success' | 'error' | 'info'
 
-export type Toast = {
+export interface ToastItem {
     id: number
     message: string
     type: ToastType
 }
 
-export const toasts = ref<Toast[]>([])
+export const toasts = ref<ToastItem[]>([])

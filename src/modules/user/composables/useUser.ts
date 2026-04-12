@@ -18,8 +18,7 @@ export const useUser = () => {
             return
         }
 
-        const fallbackToken = user.value?.getToken() ?? ''
-        setUserState(User.fromApi(userData, fallbackToken))
+        setUserState(User.fromApi(userData))
     }
 
     const userId = computed<number | null>(() => user.value?.getId() ?? null)

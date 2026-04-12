@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import AuthView from '@/views/auth/AuthView.vue'
 import ProfileView from '@/views/user/ProfileView.vue'
 import HomeView from '@/views/HomeView.vue'
@@ -8,45 +8,9 @@ import AllTicketsView from '@/views/ticket/AllTicketsView.vue'
 import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import TicketLog from '@/views/ticket/TicketLog.vue'
-import { Role } from '@/enums/role'
-import { getUserToken } from '@/modules/user/model/userStorage'
 import { getUser } from '@/modules/user/model/userState'
-
-type RouteRole = 'admin' | 'employee' | 'user'
-
-const getDefaultAuthorizedRouteName = () => {
-    return 'profile'
-}
-
-const hasRouteAccess = (routeLocation: RouteLocationNormalized): boolean => {
-    const requiredRole = routeLocation.meta.role as RouteRole | undefined
-
-    if (!requiredRole) {
-        return true
-    }
-
-    const currentUser = getUser().value
-
-    if (!currentUser) {
-        return false
-    }
-
-    const currentUserRole = currentUser.getRole()
-
-    if (requiredRole === 'admin') {
-        return currentUserRole === Role.Admin
-    }
-
-    if (requiredRole === 'employee') {
-        return currentUserRole >= Role.Employee
-    }
-
-    if (requiredRole === 'user') {
-        return currentUserRole === Role.User
-    }
-
-    return true
-}
+import { hasStoredUserData } from '@/modules/user/model/userStorage'
+import { resolveNavigationGuard } from '@/router/guard'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -110,33 +74,17 @@ const router = createRouter({
         {
             path: '/:pathMatch(.*)*',
             redirect: () => {
-                return getUserToken() ? { name: getDefaultAuthorizedRouteName() } : { name: 'auth' }
+                return hasStoredUserData() ? { name: 'profile' } : { name: 'auth' }
             }
         }
     ]
 })
 
 router.beforeEach((routeLocation) => {
-    const hasToken = !!getUserToken()
-    const requiresAuth = !!routeLocation.meta.requiresAuth
-
-    if (routeLocation.name === 'home') {
-        return hasToken ? { name: getDefaultAuthorizedRouteName() } : { name: 'auth' }
-    }
-
-    if (requiresAuth && !hasToken) {
-        return { name: 'auth' }
-    }
-
-    if (routeLocation.name === 'auth' && hasToken) {
-        return { name: getDefaultAuthorizedRouteName() }
-    }
-
-    if (!hasRouteAccess(routeLocation)) {
-        return { name: getDefaultAuthorizedRouteName() }
-    }
-
-    return true
+    return resolveNavigationGuard(routeLocation, {
+        hasToken: hasStoredUserData(),
+        currentUser: getUser().value
+    })
 })
 
 export default router

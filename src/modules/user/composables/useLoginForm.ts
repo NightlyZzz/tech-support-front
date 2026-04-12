@@ -24,14 +24,14 @@ export const useLoginForm = () => {
         isSubmitting.value = true
 
         try {
-            const loginResponse = await login({
-                email: form.email.trim(),
+            await login({
+                email: form.email.trim().toLowerCase(),
                 password: form.password,
                 remember: form.remember
             })
 
-            await initializeAuthorizedSession(loginResponse.token)
-            await router.replace({ name: 'home' })
+            await initializeAuthorizedSession()
+            await router.replace({ name: 'profile' })
         } catch (error: unknown) {
             const errorMessage = getLaravelErrorMessage(error)
             showToast(errorMessage ?? 'Неверный email или пароль', 'error')
