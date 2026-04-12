@@ -7,7 +7,7 @@ export const hasStoredUserData = (): boolean => {
 }
 
 export const getUserData = (): UserData | null => {
-    const rawValue = localStorage.getItem(USER_DATA_STORAGE_KEY)
+    const rawValue = sessionStorage.getItem(USER_DATA_STORAGE_KEY)
 
     if (!rawValue) {
         return null
@@ -22,11 +22,11 @@ export const getUserData = (): UserData | null => {
 }
 
 export const setUserData = (data: UserData): void => {
-    localStorage.setItem(USER_DATA_STORAGE_KEY, JSON.stringify(data))
+    sessionStorage.setItem(USER_DATA_STORAGE_KEY, JSON.stringify(data))
 }
 
 export const removeUserData = (): void => {
-    localStorage.removeItem(USER_DATA_STORAGE_KEY)
+    sessionStorage.removeItem(USER_DATA_STORAGE_KEY)
 }
 
 export const clearUserStorage = (): void => {

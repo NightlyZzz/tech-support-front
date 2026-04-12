@@ -9,7 +9,6 @@ import AllUsersView from '@/views/user/AllUsersView.vue'
 import EditUserView from '@/views/user/EditUserView.vue'
 import TicketLog from '@/views/ticket/TicketLog.vue'
 import { getUser } from '@/modules/user/model/userState'
-import { hasStoredUserData } from '@/modules/user/model/userStorage'
 import { resolveNavigationGuard } from '@/router/guard'
 
 const router = createRouter({
@@ -74,7 +73,7 @@ const router = createRouter({
         {
             path: '/:pathMatch(.*)*',
             redirect: () => {
-                return hasStoredUserData() ? { name: 'profile' } : { name: 'auth' }
+                return getUser().value ? { name: 'profile' } : { name: 'auth' }
             }
         }
     ]
@@ -82,7 +81,7 @@ const router = createRouter({
 
 router.beforeEach((routeLocation) => {
     return resolveNavigationGuard(routeLocation, {
-        hasToken: hasStoredUserData(),
+        hasToken: Boolean(getUser().value),
         currentUser: getUser().value
     })
 })

@@ -4,7 +4,6 @@ import axios, {
     type InternalAxiosRequestConfig
 } from 'axios'
 import router from '@/router'
-import { hasStoredUserData } from '@/modules/user/model/userStorage'
 import { BACKEND_URL } from '@/shared/utils/constants'
 import { getEcho } from '@/shared/realtime/echo'
 import { clearClientSession } from '@/modules/user/services/session.service'
@@ -56,7 +55,7 @@ export const handleApiClientError = async (error: {
                 requestUrl.includes('/auth/register') ||
                 requestUrl.includes('/sanctum/csrf-cookie')
 
-        if (!isAuthRequest && hasStoredUserData()) {
+        if (!isAuthRequest) {
             clearClientSession()
 
             if (currentRouteName !== 'auth') {
