@@ -3,7 +3,9 @@ FROM node:20 AS dev
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
 COPY . .
 
 EXPOSE 80
@@ -15,8 +17,11 @@ FROM node:20 AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
 COPY . .
+
 RUN npm run build
 
 FROM nginx:alpine AS prod
