@@ -113,7 +113,7 @@
                         <Menu class="size-5"/>
                     </Button>
 
-                    <SheetContent side="right" class="w-[320px] sm:w-[360px]">
+                    <SheetContent side="right" class="w-[320px] sm:w-90">
                         <SheetHeader>
                             <SheetTitle>{{ COMPANY_NAME }}</SheetTitle>
                             <SheetDescription>
