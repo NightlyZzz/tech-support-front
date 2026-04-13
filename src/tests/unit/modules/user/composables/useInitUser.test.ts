@@ -57,7 +57,8 @@ describe('useInitUser', () => {
                 role_id: 1,
                 role_name: 'Пользователь',
                 department_id: 2,
-                department_name: 'Отдел'
+                department_name: 'Отдел',
+                requires_google_registration_completion: false
             }
         })
 
@@ -74,7 +75,8 @@ describe('useInitUser', () => {
             role_id: 1,
             role_name: 'Пользователь',
             department_id: 2,
-            department_name: 'Отдел'
+            department_name: 'Отдел',
+            requires_google_registration_completion: false
         })
         expect(setUserMock).toHaveBeenCalledWith({
             id: 10,
@@ -86,7 +88,8 @@ describe('useInitUser', () => {
             role_id: 1,
             role_name: 'Пользователь',
             department_id: 2,
-            department_name: 'Отдел'
+            department_name: 'Отдел',
+            requires_google_registration_completion: false
         })
         expect(subscribeToCurrentUserUpdatesMock).toHaveBeenCalledTimes(1)
     })

@@ -5,11 +5,15 @@ import type { UserData } from '@/modules/user/types/user'
 import {
     getAuthRoute,
     getDefaultAuthorizedRoute,
+    getGoogleCompletionRoute,
     hasRouteAccess,
     resolveNavigationGuard
 } from '@/router/guard'
 
-const createUser = (roleId: Role): User => {
+const createUser = (
+        roleId: Role,
+        requiresGoogleRegistrationCompletion = false
+): User => {
     const userData: UserData = {
         id: 1,
         email: 'user@example.com',
@@ -19,8 +23,9 @@ const createUser = (roleId: Role): User => {
         secondary_email: null,
         role_id: roleId,
         role_name: roleId === Role.Admin ? 'Администратор' : roleId === Role.Employee ? 'Сотрудник' : 'Пользователь',
-        department_id: 1,
-        department_name: 'Department'
+        department_id: requiresGoogleRegistrationCompletion ? null : 1,
+        department_name: requiresGoogleRegistrationCompletion ? '' : 'Department',
+        requires_google_registration_completion: requiresGoogleRegistrationCompletion
     }
 
     return User.fromApi(userData)
@@ -57,6 +62,21 @@ describe('router guard', () => {
         expect(result).toEqual(getDefaultAuthorizedRoute())
     })
 
+    it('redirects authorized incomplete google user from home to completion page', () => {
+        const result = resolveNavigationGuard(
+                {
+                    name: 'home',
+                    meta: {}
+                } as never,
+                {
+                    hasToken: true,
+                    currentUser: createUser(Role.User, true)
+                }
+        )
+
+        expect(result).toEqual(getGoogleCompletionRoute())
+    })
+
     it('redirects guest from protected route to auth', () => {
         const result = resolveNavigationGuard(
                 {
@@ -87,6 +107,21 @@ describe('router guard', () => {
         )
 
         expect(result).toEqual(getDefaultAuthorizedRoute())
+    })
+
+    it('redirects incomplete google user away from auth page to completion page', () => {
+        const result = resolveNavigationGuard(
+                {
+                    name: 'auth',
+                    meta: {}
+                } as never,
+                {
+                    hasToken: true,
+                    currentUser: createUser(Role.User, true)
+                }
+        )
+
+        expect(result).toEqual(getGoogleCompletionRoute())
     })
 
     it('allows user on own role route', () => {
@@ -173,6 +208,57 @@ describe('router guard', () => {
                 {
                     hasToken: true,
                     currentUser: createUser(Role.Employee)
+                }
+        )
+
+        expect(result).toEqual(getDefaultAuthorizedRoute())
+    })
+
+    it('redirects incomplete google user from protected route to completion page', () => {
+        const result = resolveNavigationGuard(
+                {
+                    name: 'profile',
+                    meta: {
+                        requiresAuth: true
+                    }
+                } as never,
+                {
+                    hasToken: true,
+                    currentUser: createUser(Role.User, true)
+                }
+        )
+
+        expect(result).toEqual(getGoogleCompletionRoute())
+    })
+
+    it('allows incomplete google user on completion page', () => {
+        const result = resolveNavigationGuard(
+                {
+                    name: 'google-registration-complete',
+                    meta: {
+                        requiresAuth: true
+                    }
+                } as never,
+                {
+                    hasToken: true,
+                    currentUser: createUser(Role.User, true)
+                }
+        )
+
+        expect(result).toBe(true)
+    })
+
+    it('redirects completed user away from completion page', () => {
+        const result = resolveNavigationGuard(
+                {
+                    name: 'google-registration-complete',
+                    meta: {
+                        requiresAuth: true
+                    }
+                } as never,
+                {
+                    hasToken: true,
+                    currentUser: createUser(Role.User)
                 }
         )
 

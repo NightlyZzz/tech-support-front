@@ -65,7 +65,7 @@
         <CardContent class="space-y-4">
             <div
                     :ref="setMessagesContainerRef"
-                    class="max-h-[560px] min-h-[360px] overflow-y-auto rounded-2xl border bg-muted/20 p-4"
+                    class="max-h-140 min-h-90 overflow-y-auto rounded-2xl border bg-muted/20 p-4"
             >
                 <TicketMessagesList
                         :logs="logs"
