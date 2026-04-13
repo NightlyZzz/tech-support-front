@@ -49,13 +49,13 @@
 
 <template>
     <Card
-            class="group cursor-pointer rounded-3xl border-border/80 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+            class="group min-w-0 cursor-pointer rounded-3xl border-border/80 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
             @click="handleClick"
     >
         <CardHeader class="space-y-4">
-            <div class="flex items-start justify-between gap-4">
-                <div class="space-y-1">
-                    <CardTitle class="text-xl leading-tight">
+            <div class="flex min-w-0 items-start justify-between gap-4">
+                <div class="min-w-0 space-y-1">
+                    <CardTitle class="wrap-break-word text-xl leading-tight">
                         {{ ticket.getTypeName() }}
                     </CardTitle>
                     <p class="text-sm text-muted-foreground">
@@ -65,7 +65,7 @@
 
                 <Badge
                         variant="outline"
-                        :class="cn('rounded-full px-3 py-1 text-xs font-medium', getStatusClasses(ticket.getStatusId()))"
+                        :class="cn('shrink-0 rounded-full px-3 py-1 text-xs font-medium', getStatusClasses(ticket.getStatusId()))"
                 >
                     {{ ticket.getStatusName() }}
                 </Badge>
@@ -76,32 +76,32 @@
             <div class="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
                 <div
                         v-if="showUser"
-                        class="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2"
+                        class="flex min-w-0 items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2"
                 >
-                    <UserRound class="size-4 text-foreground"/>
+                    <UserRound class="size-4 shrink-0 text-foreground"/>
                     <span class="truncate">
                         {{ ticket.getSenderName() }}
                     </span>
                 </div>
 
-                <div class="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
-                    <CalendarDays class="size-4 text-foreground"/>
-                    <span>{{ formatDate(ticket.getCreatedAt()) }}</span>
+                <div class="flex min-w-0 items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
+                    <CalendarDays class="size-4 shrink-0 text-foreground"/>
+                    <span class="truncate">{{ formatDate(ticket.getCreatedAt()) }}</span>
                 </div>
 
-                <div class="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
-                    <Clock3 class="size-4 text-foreground"/>
-                    <span>{{ formatTime(ticket.getCreatedAt()) }}</span>
+                <div class="flex min-w-0 items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
+                    <Clock3 class="size-4 shrink-0 text-foreground"/>
+                    <span class="truncate">{{ formatTime(ticket.getCreatedAt()) }}</span>
                 </div>
             </div>
 
-            <div class="rounded-2xl border bg-background/70 p-4">
+            <div class="min-w-0 rounded-2xl border bg-background/70 p-4">
                 <div class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                    <FileText class="size-4"/>
+                    <FileText class="size-4 shrink-0"/>
                     Описание
                 </div>
 
-                <p class="text-sm leading-6 text-muted-foreground">
+                <p class="overflow-hidden wrap-break-word text-sm leading-6 text-muted-foreground">
                     {{ truncate(ticket.getDescription(), 140) }}
                 </p>
             </div>

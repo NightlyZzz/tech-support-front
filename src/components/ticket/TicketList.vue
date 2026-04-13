@@ -29,7 +29,7 @@
 <template>
     <div
             v-if="tickets.length === 0"
-            class="flex min-h-[240px] flex-col items-center justify-center gap-4 rounded-3xl border border-dashed bg-card px-6 py-10 text-center shadow-sm"
+            class="flex min-h-60 flex-col items-center justify-center gap-4 rounded-3xl border border-dashed bg-card px-6 py-10 text-center shadow-sm"
     >
         <div class="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
             <Inbox class="size-7"/>
@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <div v-else class="grid gap-4 xl:grid-cols-2">
+    <div v-else class="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <TicketCard
                 v-for="ticket in tickets"
                 :key="ticket.getId()"

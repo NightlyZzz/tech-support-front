@@ -16,7 +16,7 @@
 <template>
     <div
             v-if="logs.length === 0"
-            class="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed bg-background/70 px-6 py-10 text-center text-sm text-muted-foreground"
+            class="flex min-h-55 items-center justify-center rounded-2xl border border-dashed bg-background/70 px-6 py-10 text-center text-sm text-muted-foreground"
     >
         Сообщений пока нет
     </div>
@@ -25,9 +25,9 @@
         <div
                 v-for="message in logs"
                 :key="message.id"
-                :class="cn('flex', isOwnMessage(message) ? 'justify-end' : 'justify-start')"
+                :class="cn('flex min-w-0', isOwnMessage(message) ? 'justify-end' : 'justify-start')"
         >
-            <div class="flex max-w-[85%] flex-col gap-1">
+            <div class="flex min-w-0 max-w-[85%] flex-col gap-1">
                 <div
                         :class="cn(
                         'px-1 text-xs',
@@ -39,7 +39,7 @@
 
                 <div
                         :class="cn(
-                        'rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm',
+                        'overflow-hidden wrap-break-word rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm',
                         isOwnMessage(message)
                             ? 'rounded-br-md bg-primary text-primary-foreground'
                             : 'rounded-bl-md border bg-card text-card-foreground'

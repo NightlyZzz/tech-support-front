@@ -29,17 +29,17 @@
 </script>
 
 <template>
-    <Card class="rounded-3xl">
+    <Card class="min-w-0 rounded-3xl">
         <CardHeader>
-            <CardTitle class="text-xl">
+            <CardTitle class="wrap-break-word text-xl">
                 Заявка #{{ ticketId }}
             </CardTitle>
         </CardHeader>
 
         <CardContent class="space-y-4">
             <div class="grid gap-3 text-sm">
-                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <Ticket class="size-4 text-foreground"/>
+                <div class="flex min-w-0 items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <Ticket class="size-4 shrink-0 text-foreground"/>
                     <div class="min-w-0">
                         <div class="text-xs text-muted-foreground">
                             Тип
@@ -50,8 +50,8 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <UserRound class="size-4 text-foreground"/>
+                <div class="flex min-w-0 items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <UserRound class="size-4 shrink-0 text-foreground"/>
                     <div class="min-w-0">
                         <div class="text-xs text-muted-foreground">
                             Пользователь
@@ -62,8 +62,8 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <Phone class="size-4 text-foreground"/>
+                <div class="flex min-w-0 items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <Phone class="size-4 shrink-0 text-foreground"/>
                     <div class="min-w-0">
                         <div class="text-xs text-muted-foreground">
                             Телефон
@@ -74,8 +74,8 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <CalendarDays class="size-4 text-foreground"/>
+                <div class="flex min-w-0 items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <CalendarDays class="size-4 shrink-0 text-foreground"/>
                     <div class="min-w-0">
                         <div class="text-xs text-muted-foreground">
                             Создана
@@ -87,13 +87,13 @@
                 </div>
             </div>
 
-            <div class="rounded-2xl border bg-background/70 p-4">
+            <div class="min-w-0 rounded-2xl border bg-background/70 p-4">
                 <div class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                    <FileText class="size-4"/>
+                    <FileText class="size-4 shrink-0"/>
                     Описание
                 </div>
 
-                <p class="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                <p class="max-w-full overflow-hidden whitespace-pre-wrap wrap-break-word text-sm leading-6 text-muted-foreground">
                     {{ descriptionText }}
                 </p>
             </div>
