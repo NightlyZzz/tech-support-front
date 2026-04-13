@@ -1,8 +1,12 @@
-import type { RegisterForm } from '@/modules/user/types/register'
+import type {
+    GoogleRegistrationCompletionRequest,
+    RegisterForm
+} from '@/modules/user/types/register'
 import type { AuthActionResponse, LoginRequest } from '@/modules/user/types/auth'
 import type { CurrentUserResponse } from '@/modules/user/types/user'
 import { apiClient } from '@/shared/api/client'
 import { webApi } from '@/shared/api/public.api'
+import { BACKEND_APP_URL } from '@/shared/utils/constants'
 
 export const ensureCsrfCookie = async (): Promise<void> => {
     await webApi.get('/sanctum/csrf-cookie')
@@ -22,6 +26,15 @@ export const register = async (data: RegisterForm): Promise<AuthActionResponse> 
     return response.data
 }
 
+export const completeGoogleRegistration = async (
+        data: GoogleRegistrationCompletionRequest
+): Promise<AuthActionResponse> => {
+    await ensureCsrfCookie()
+
+    const response = await apiClient.post<AuthActionResponse>('/auth/google/complete-registration', data)
+    return response.data
+}
+
 export const getCurrentUser = async (): Promise<CurrentUserResponse> => {
     const response = await apiClient.get<CurrentUserResponse>('/user')
     return response.data
@@ -33,4 +46,8 @@ export const logoutRequest = async (allDevices = false): Promise<void> => {
     await apiClient.post('/auth/logout', {
         all_devices: allDevices
     })
+}
+
+export const getGoogleAuthRedirectUrl = (): string => {
+    return BACKEND_APP_URL + '/auth/google/redirect'
 }

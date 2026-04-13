@@ -12,6 +12,7 @@ export interface NavigationGuardContext {
 const DEFAULT_AUTHORIZED_ROUTE_NAME = 'profile'
 const AUTH_ROUTE_NAME = 'auth'
 const HOME_ROUTE_NAME = 'home'
+const GOOGLE_COMPLETION_ROUTE_NAME = 'google-registration-complete'
 
 export const getDefaultAuthorizedRoute = (): RouteLocationRaw => {
     return { name: DEFAULT_AUTHORIZED_ROUTE_NAME }
@@ -19,6 +20,10 @@ export const getDefaultAuthorizedRoute = (): RouteLocationRaw => {
 
 export const getAuthRoute = (): RouteLocationRaw => {
     return { name: AUTH_ROUTE_NAME }
+}
+
+export const getGoogleCompletionRoute = (): RouteLocationRaw => {
+    return { name: GOOGLE_COMPLETION_ROUTE_NAME }
 }
 
 export const hasRouteAccess = (
@@ -57,17 +62,30 @@ export const resolveNavigationGuard = (
         context: NavigationGuardContext
 ): true | RouteLocationRaw => {
     const requiresAuth = Boolean(routeLocation.meta.requiresAuth)
+    const requiresGoogleCompletion = context.currentUser?.getRequiresGoogleRegistrationCompletion() ?? false
 
     if (routeLocation.name === HOME_ROUTE_NAME) {
-        return context.hasToken ? getDefaultAuthorizedRoute() : getAuthRoute()
+        if (!context.hasToken) {
+            return getAuthRoute()
+        }
+
+        return requiresGoogleCompletion ? getGoogleCompletionRoute() : getDefaultAuthorizedRoute()
     }
 
     if (requiresAuth && !context.hasToken) {
         return getAuthRoute()
     }
 
+    if (requiresGoogleCompletion && routeLocation.name !== GOOGLE_COMPLETION_ROUTE_NAME) {
+        return getGoogleCompletionRoute()
+    }
+
+    if (!requiresGoogleCompletion && routeLocation.name === GOOGLE_COMPLETION_ROUTE_NAME) {
+        return context.hasToken ? getDefaultAuthorizedRoute() : getAuthRoute()
+    }
+
     if (routeLocation.name === AUTH_ROUTE_NAME && context.hasToken) {
-        return getDefaultAuthorizedRoute()
+        return requiresGoogleCompletion ? getGoogleCompletionRoute() : getDefaultAuthorizedRoute()
     }
 
     if (!hasRouteAccess(routeLocation, context.currentUser)) {

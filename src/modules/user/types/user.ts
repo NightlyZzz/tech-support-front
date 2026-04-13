@@ -9,8 +9,9 @@ export interface UserData {
     secondary_email: string | null
     role_id: number
     role_name: string
-    department_id: number
+    department_id: number | null
     department_name: string
+    requires_google_registration_completion: boolean
 }
 
 export interface CurrentUserResponse {

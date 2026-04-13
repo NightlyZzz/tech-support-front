@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AuthView from '@/views/auth/AuthView.vue'
+import CompleteGoogleRegistrationView from '@/views/auth/CompleteGoogleRegistrationView.vue'
 import ProfileView from '@/views/user/ProfileView.vue'
 import HomeView from '@/views/HomeView.vue'
 import CreateTicketView from '@/views/ticket/CreateTicketView.vue'
@@ -27,6 +28,12 @@ const router = createRouter({
             path: '/auth',
             name: 'auth',
             component: AuthView
+        },
+        {
+            path: '/auth/google/complete',
+            name: 'google-registration-complete',
+            component: CompleteGoogleRegistrationView,
+            meta: { requiresAuth: true }
         },
         {
             path: '/profile',

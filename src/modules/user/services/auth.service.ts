@@ -1,4 +1,4 @@
-import { logoutRequest } from '@/modules/user/api/auth.api'
+import { getGoogleAuthRedirectUrl, logoutRequest } from '@/modules/user/api/auth.api'
 import { unsubscribeFromCurrentUserUpdates } from '@/modules/user/composables/useUserRealtime'
 import { clearClientSession, redirectToAuth } from '@/modules/user/services/session.service'
 
@@ -15,4 +15,8 @@ export const logout = async (allDevices = false): Promise<void> => {
     }
 
     await performLocalLogout()
+}
+
+export const redirectToGoogleAuth = (): void => {
+    window.location.href = getGoogleAuthRedirectUrl()
 }

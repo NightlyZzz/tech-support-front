@@ -11,7 +11,8 @@ export class User {
             private roleName: string,
             private department: number,
             private departmentName: string,
-            private secondaryEmail: string | null
+            private secondaryEmail: string | null,
+            private requiresGoogleCompletion: boolean
     ) {
     }
 
@@ -26,7 +27,8 @@ export class User {
                 data.role_name ?? '',
                 Number(data.department_id ?? 0),
                 data.department_name ?? '',
-                data.secondary_email ?? null
+                data.secondary_email ?? null,
+                Boolean(data.requires_google_registration_completion)
         )
     }
 
@@ -40,8 +42,9 @@ export class User {
             secondary_email: this.secondaryEmail,
             role_id: this.role,
             role_name: this.roleName,
-            department_id: this.department,
-            department_name: this.departmentName
+            department_id: this.department > 0 ? this.department : null,
+            department_name: this.departmentName,
+            requires_google_registration_completion: this.requiresGoogleCompletion
         }
     }
 
@@ -83,6 +86,10 @@ export class User {
 
     getSecondaryEmail(): string | null {
         return this.secondaryEmail
+    }
+
+    getRequiresGoogleRegistrationCompletion(): boolean {
+        return this.requiresGoogleCompletion
     }
 
     getFullName(): string {

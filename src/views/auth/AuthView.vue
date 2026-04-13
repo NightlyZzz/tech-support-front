@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import { computed, ref } from 'vue'
+    import { computed, onMounted, ref } from 'vue'
+    import { useRoute, useRouter } from 'vue-router'
     import LoginForm from '@/components/auth/LoginForm.vue'
     import RegisterForm from '@/components/auth/RegisterForm.vue'
     import { Button } from '@/components/ui/button'
@@ -11,11 +12,16 @@
         CardTitle
     } from '@/components/ui/card'
     import { cn } from '@/lib/utils'
+    import { redirectToGoogleAuth } from '@/modules/user/services/auth.service'
+    import { showToast } from '@/shared/toast/toastService'
     import { COMPANY_NAME } from '@/shared/utils/constants'
 
     type Mode = 'login' | 'register'
 
+    const route = useRoute()
+    const router = useRouter()
     const mode = ref<Mode>('login')
+    const isProcessingGoogleAuth = ref(false)
 
     const isLogin = computed(() => mode.value === 'login')
 
@@ -32,6 +38,28 @@
     const setMode = (value: Mode): void => {
         mode.value = value
     }
+
+    const handleGoogleAuth = (): void => {
+        if (isProcessingGoogleAuth.value) {
+            return
+        }
+
+        redirectToGoogleAuth()
+    }
+
+    const handleGoogleCallbackError = async (): Promise<void> => {
+        const provider = String(route.query.provider ?? '')
+        const status = String(route.query.status ?? '')
+
+        if (provider !== 'google' || status !== 'error') {
+            return
+        }
+
+        await router.replace({ name: 'auth' })
+        showToast('Не удалось выполнить вход через Google', 'error')
+    }
+
+    onMounted(handleGoogleCallbackError)
 </script>
 
 <template>
@@ -80,6 +108,24 @@
             <CardContent :class="cn('pt-0')">
                 <LoginForm v-if="isLogin"/>
                 <RegisterForm v-else/>
+
+                <div class="my-6 flex items-center gap-3">
+                    <div class="h-px flex-1 bg-border"></div>
+                    <span class="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                        или
+                    </span>
+                    <div class="h-px flex-1 bg-border"></div>
+                </div>
+
+                <Button
+                        type="button"
+                        variant="outline"
+                        class="w-full"
+                        :disabled="isProcessingGoogleAuth"
+                        @click="handleGoogleAuth"
+                >
+                    {{ isProcessingGoogleAuth ? 'Загрузка...' : 'Продолжить через Google' }}
+                </Button>
             </CardContent>
         </Card>
     </div>

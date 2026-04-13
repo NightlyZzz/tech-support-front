@@ -18,6 +18,11 @@ export interface RegisterRequest {
     remember: boolean
 }
 
+export interface GoogleRegistrationCompletionRequest {
+    department_id: number
+    password: string
+}
+
 export interface LaravelError {
     message: string
     errors?: Record<string, string[]>
