@@ -93,6 +93,7 @@ export const buildUpdatedUserData = (
         role_name: currentUser.role_name,
         department_id: form.department_id ?? currentUser.department_id,
         department_name: selectedDepartmentName,
-        secondary_email: normalizedSecondaryEmail === '' ? null : normalizedSecondaryEmail
+        secondary_email: normalizedSecondaryEmail === '' ? null : normalizedSecondaryEmail,
+        requires_google_registration_completion: currentUser.requires_google_registration_completion
     }
 }

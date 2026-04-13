@@ -25,7 +25,8 @@ describe('userStorage', () => {
             role_id: 1,
             role_name: 'Пользователь',
             department_id: 2,
-            department_name: 'Отдел'
+            department_name: 'Отдел',
+            requires_google_registration_completion: false
         }
 
         expect(hasStoredUserData()).toBe(false)
@@ -55,7 +56,8 @@ describe('userStorage', () => {
             role_id: 1,
             role_name: 'Пользователь',
             department_id: 2,
-            department_name: 'Отдел'
+            department_name: 'Отдел',
+            requires_google_registration_completion: false
         }
 
         setUserData(userData)
@@ -76,7 +78,8 @@ describe('userStorage', () => {
             role_id: 1,
             role_name: 'Пользователь',
             department_id: 2,
-            department_name: 'Отдел'
+            department_name: 'Отдел',
+            requires_google_registration_completion: false
         })
 
         clearUserStorage()
