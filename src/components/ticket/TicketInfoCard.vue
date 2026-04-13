@@ -1,5 +1,7 @@
 <script setup lang="ts">
     import { computed } from 'vue'
+    import { CalendarDays, FileText, Phone, Ticket, UserRound } from 'lucide-vue-next'
+    import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
     import type { TicketInfoCardTicket } from '@/modules/ticket/types/ticket-info'
 
     const props = defineProps<{
@@ -27,39 +29,74 @@
 </script>
 
 <template>
-    <div class="ticket-panel-card">
-        <p class="ticket-panel-title">Заявка</p>
-        <div class="ticket-id-label">#{{ ticketId }}</div>
+    <Card class="rounded-3xl">
+        <CardHeader>
+            <CardTitle class="text-xl">
+                Заявка #{{ ticketId }}
+            </CardTitle>
+        </CardHeader>
 
-        <div class="ticket-field">
-            <span class="ticket-field-label">Тип</span>
-            <span class="ticket-field-value">{{ typeName }}</span>
-        </div>
+        <CardContent class="space-y-4">
+            <div class="grid gap-3 text-sm">
+                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <Ticket class="size-4 text-foreground"/>
+                    <div class="min-w-0">
+                        <div class="text-xs text-muted-foreground">
+                            Тип
+                        </div>
+                        <div class="truncate font-medium text-foreground">
+                            {{ typeName }}
+                        </div>
+                    </div>
+                </div>
 
-        <div class="ticket-field">
-            <span class="ticket-field-label">Пользователь</span>
-            <span class="ticket-field-value">{{ displayedUserName }}</span>
-        </div>
+                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <UserRound class="size-4 text-foreground"/>
+                    <div class="min-w-0">
+                        <div class="text-xs text-muted-foreground">
+                            Пользователь
+                        </div>
+                        <div class="truncate font-medium text-foreground">
+                            {{ displayedUserName }}
+                        </div>
+                    </div>
+                </div>
 
-        <div class="ticket-field">
-            <span class="ticket-field-label">Телефон</span>
-            <span class="ticket-field-value mono">
-                {{ formattedPhoneNumber }}
-            </span>
-        </div>
+                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <Phone class="size-4 text-foreground"/>
+                    <div class="min-w-0">
+                        <div class="text-xs text-muted-foreground">
+                            Телефон
+                        </div>
+                        <div class="truncate font-medium text-foreground">
+                            {{ formattedPhoneNumber }}
+                        </div>
+                    </div>
+                </div>
 
-        <div class="ticket-field">
-            <span class="ticket-field-label">Создана</span>
-            <span class="ticket-field-value">{{ createdAtText }}</span>
-        </div>
+                <div class="flex items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+                    <CalendarDays class="size-4 text-foreground"/>
+                    <div class="min-w-0">
+                        <div class="text-xs text-muted-foreground">
+                            Создана
+                        </div>
+                        <div class="truncate font-medium text-foreground">
+                            {{ createdAtText }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="ticket-divider"></div>
+            <div class="rounded-2xl border bg-background/70 p-4">
+                <div class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                    <FileText class="size-4"/>
+                    Описание
+                </div>
 
-        <div class="ticket-field">
-            <span class="ticket-field-label">Описание</span>
-            <span class="ticket-field-value ticket-description-text">
-                {{ descriptionText }}
-            </span>
-        </div>
-    </div>
+                <p class="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                    {{ descriptionText }}
+                </p>
+            </div>
+        </CardContent>
+    </Card>
 </template>

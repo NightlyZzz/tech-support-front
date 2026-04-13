@@ -1,32 +1,44 @@
 <script setup lang="ts">
     import BaseButton from '@/components/base/BaseButton.vue'
+    import {
+        Dialog,
+        DialogContent,
+        DialogDescription,
+        DialogHeader,
+        DialogTitle
+    } from '@/components/ui/dialog'
 
-    defineProps<{
+    const props = defineProps<{
         open: boolean
         loading: boolean
     }>()
 
-    defineEmits<{
+    const emit = defineEmits<{
         (event: 'close'): void
         (event: 'logoutCurrent'): void
         (event: 'logoutAll'): void
     }>()
+
+    const updateOpen = (value: boolean): void => {
+        if (!value) {
+            emit('close')
+        }
+    }
 </script>
 
 <template>
-    <div
-            v-if="open"
-            class="modal-overlay"
-            @click.self="$emit('close')"
-    >
-        <div class="modal-card">
-            <h3 class="modal-title">Выход из аккаунта</h3>
+    <Dialog :open="props.open" @update:open="updateOpen">
+        <DialogContent class="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>
+                    Выход из аккаунта
+                </DialogTitle>
+                <DialogDescription>
+                    Выберите, нужно выйти только на этом устройстве или завершить все активные сессии
+                </DialogDescription>
+            </DialogHeader>
 
-            <p class="modal-text">
-                Хотите выйти только на текущем устройстве или на всех устройствах?
-            </p>
-
-            <div class="modal-actions">
+            <div class="flex flex-col gap-3">
                 <BaseButton
                         type="button"
                         variant="primary"
@@ -57,11 +69,6 @@
                     Отмена
                 </BaseButton>
             </div>
-        </div>
-    </div>
+        </DialogContent>
+    </Dialog>
 </template>
-
-<style scoped>
-    @import '@/assets/base.css';
-    @import '@/assets/profile.css';
-</style>

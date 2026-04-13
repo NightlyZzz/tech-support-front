@@ -1,12 +1,21 @@
 <script setup lang="ts">
-    type SelectValue = number | null
+    import type { AcceptableValue } from 'reka-ui'
+    import {
+        Select,
+        SelectContent,
+        SelectItem,
+        SelectTrigger,
+        SelectValue
+    } from '@/components/ui/select'
+
+    type SelectValueType = number | null
 
     const props = withDefaults(defineProps<{
         id?: string
         label?: string
         placeholder?: string
         items: readonly unknown[]
-        modelValue: SelectValue
+        modelValue: SelectValueType
         valueKey: string
         labelKey: string
     }>(), {
@@ -16,7 +25,7 @@
     })
 
     const emit = defineEmits<{
-        (event: 'update:modelValue', value: SelectValue): void
+        (event: 'update:modelValue', value: SelectValueType): void
     }>()
 
     const getItemRecord = (item: unknown): Record<string, unknown> => {
@@ -61,45 +70,45 @@
         return ''
     }
 
-    const onChange = (event: Event): void => {
-        const target = event.target as HTMLSelectElement
-        const nextValue = target.value
-
-        if (nextValue === '') {
+    const onUpdateValue = (value: AcceptableValue): void => {
+        if (value === '' || value === null || value === undefined) {
             emit('update:modelValue', null)
             return
         }
 
-        const parsedValue = Number(nextValue)
+        const parsedValue = Number(String(value))
 
         emit('update:modelValue', Number.isNaN(parsedValue) ? null : parsedValue)
     }
 </script>
 
 <template>
-    <div class="field">
-        <label v-if="label" :for="id">{{ label }}</label>
-
-        <select
-                :id="id"
-                :value="modelValue ?? ''"
-                @change="onChange"
+    <div class="flex flex-col gap-2">
+        <label
+                v-if="label"
+                :for="id"
+                class="text-sm font-medium text-foreground"
         >
-            <option
-                    v-if="placeholder"
-                    disabled
-                    value=""
-            >
-                {{ placeholder }}
-            </option>
+            {{ label }}
+        </label>
 
-            <option
-                    v-for="(item, index) in items"
-                    :key="getItemKey(item, index)"
-                    :value="getItemValue(item)"
-            >
-                {{ getItemLabel(item) }}
-            </option>
-        </select>
+        <Select
+                :model-value="modelValue === null ? '' : String(modelValue)"
+                @update:model-value="onUpdateValue"
+        >
+            <SelectTrigger :id="id" class="w-full">
+                <SelectValue :placeholder="placeholder || 'Выберите значение'"/>
+            </SelectTrigger>
+
+            <SelectContent>
+                <SelectItem
+                        v-for="(item, index) in items"
+                        :key="getItemKey(item, index)"
+                        :value="getItemValue(item)"
+                >
+                    {{ getItemLabel(item) }}
+                </SelectItem>
+            </SelectContent>
+        </Select>
     </div>
 </template>

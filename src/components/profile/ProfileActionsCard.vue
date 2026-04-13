@@ -1,5 +1,13 @@
 <script setup lang="ts">
+    import { LogOut, Save, Trash2 } from 'lucide-vue-next'
     import BaseButton from '@/components/base/BaseButton.vue'
+    import {
+        Card,
+        CardContent,
+        CardDescription,
+        CardHeader,
+        CardTitle
+    } from '@/components/ui/card'
 
     defineProps<{
         loading: boolean
@@ -13,36 +21,44 @@
 </script>
 
 <template>
-    <div class="card">
-        <p class="card-title">Действия</p>
+    <Card class="rounded-3xl">
+        <CardHeader>
+            <CardTitle class="text-xl">
+                Действия
+            </CardTitle>
+            <CardDescription>
+                Сохранение профиля и управление сессией
+            </CardDescription>
+        </CardHeader>
 
-        <div class="action-row">
+        <CardContent class="space-y-3">
             <BaseButton
                     variant="primary"
                     :loading="loading"
+                    :full-width="true"
                     @click="$emit('save')"
             >
+                <Save class="size-4"/>
                 Сохранить изменения
             </BaseButton>
 
             <BaseButton
                     variant="secondary"
+                    :full-width="true"
                     @click="$emit('logout')"
             >
+                <LogOut class="size-4"/>
                 Выйти
             </BaseButton>
 
             <BaseButton
                     variant="danger"
+                    :full-width="true"
                     @click="$emit('delete')"
             >
+                <Trash2 class="size-4"/>
                 Удалить аккаунт
             </BaseButton>
-        </div>
-    </div>
+        </CardContent>
+    </Card>
 </template>
-
-<style scoped>
-    @import '@/assets/base.css';
-    @import '@/assets/profile.css';
-</style>

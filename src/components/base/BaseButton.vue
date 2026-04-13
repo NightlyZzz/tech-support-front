@@ -1,4 +1,8 @@
 <script setup lang="ts">
+    import { computed } from 'vue'
+    import { LoaderCircle } from 'lucide-vue-next'
+    import { Button } from '@/components/ui/button'
+
     const props = withDefaults(defineProps<{
         type?: 'button' | 'submit' | 'reset'
         variant?: 'primary' | 'secondary' | 'danger'
@@ -14,20 +18,33 @@
         loading: false,
         disabled: false
     })
+
+    const mappedVariant = computed(() => {
+        if (props.variant === 'secondary') {
+            return 'outline'
+        }
+
+        if (props.variant === 'danger') {
+            return 'destructive'
+        }
+
+        return 'default'
+    })
+
+    const mappedSize = computed(() => {
+        return props.size === 'sm' ? 'sm' : 'default'
+    })
 </script>
 
 <template>
-    <button
+    <Button
             :type="props.type"
-            :class="[
-            'btn',
-            `btn--${props.variant}`,
-            props.size === 'sm' ? 'btn--sm' : '',
-            props.fullWidth ? 'btn--full' : '',
-            props.loading ? 'btn-loading' : ''
-        ]"
+            :variant="mappedVariant"
+            :size="mappedSize"
             :disabled="props.disabled || props.loading"
+            :class="props.fullWidth ? 'w-full' : ''"
     >
+        <LoaderCircle v-if="props.loading" class="size-4 animate-spin"/>
         <slot/>
-    </button>
+    </Button>
 </template>

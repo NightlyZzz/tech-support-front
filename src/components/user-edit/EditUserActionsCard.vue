@@ -1,5 +1,13 @@
 <script setup lang="ts">
+    import { Save, Trash2 } from 'lucide-vue-next'
     import BaseButton from '@/components/base/BaseButton.vue'
+    import {
+        Card,
+        CardContent,
+        CardDescription,
+        CardHeader,
+        CardTitle
+    } from '@/components/ui/card'
 
     defineEmits<{
         (event: 'save'): void
@@ -8,28 +16,34 @@
 </script>
 
 <template>
-    <div class="card">
-        <p class="card-title">Действия</p>
+    <Card class="rounded-3xl">
+        <CardHeader>
+            <CardTitle class="text-xl">
+                Действия
+            </CardTitle>
+            <CardDescription>
+                Сохранение изменений и удаление пользователя
+            </CardDescription>
+        </CardHeader>
 
-        <div class="action-row">
+        <CardContent class="space-y-3">
             <BaseButton
                     variant="primary"
+                    :full-width="true"
                     @click="$emit('save')"
             >
+                <Save class="size-4"/>
                 Сохранить изменения
             </BaseButton>
 
             <BaseButton
                     variant="danger"
+                    :full-width="true"
                     @click="$emit('delete')"
             >
+                <Trash2 class="size-4"/>
                 Удалить пользователя
             </BaseButton>
-        </div>
-    </div>
+        </CardContent>
+    </Card>
 </template>
-
-<style scoped>
-    @import '@/assets/base.css';
-    @import '@/assets/profile.css';
-</style>

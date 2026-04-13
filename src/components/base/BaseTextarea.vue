@@ -1,5 +1,7 @@
 <script setup lang="ts">
-    withDefaults(defineProps<{
+    import { Textarea } from '@/components/ui/textarea'
+
+    const props = withDefaults(defineProps<{
         id?: string
         label?: string
         modelValue: string
@@ -8,6 +10,7 @@
         maxlength?: number
         required?: boolean
         disabled?: boolean
+        textareaClass?: string
     }>(), {
         id: undefined,
         label: undefined,
@@ -15,32 +18,39 @@
         rows: 3,
         maxlength: undefined,
         required: false,
-        disabled: false
+        disabled: false,
+        textareaClass: ''
     })
 
     const emit = defineEmits<{
         (event: 'update:modelValue', value: string): void
     }>()
 
-    const handleInput = (event: Event): void => {
-        const target = event.target as HTMLTextAreaElement
-        emit('update:modelValue', target.value)
+    const handleUpdateModelValue = (value: string | number): void => {
+        emit('update:modelValue', String(value))
     }
 </script>
 
 <template>
-    <div class="field">
-        <label v-if="label" :for="id">{{ label }}</label>
+    <div class="flex flex-col gap-2">
+        <label
+                v-if="label"
+                :for="id"
+                class="text-sm font-medium text-foreground"
+        >
+            {{ label }}
+        </label>
 
-        <textarea
+        <Textarea
                 :id="id"
-                :value="modelValue"
+                :model-value="modelValue"
                 :placeholder="placeholder"
                 :rows="rows"
                 :maxlength="maxlength"
                 :required="required"
                 :disabled="disabled"
-                @input="handleInput"
-        ></textarea>
+                :class="props.textareaClass"
+                @update:model-value="handleUpdateModelValue"
+        />
     </div>
 </template>

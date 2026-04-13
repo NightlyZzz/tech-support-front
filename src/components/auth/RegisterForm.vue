@@ -15,7 +15,7 @@
 </script>
 
 <template>
-    <form @submit.prevent="handleRegister" class="auth-form">
+    <form class="flex flex-col gap-5" @submit.prevent="handleRegister">
         <BaseInput
                 id="reg-email"
                 v-model="form.email"
@@ -26,7 +26,7 @@
                 :disabled="isSubmitting"
         />
 
-        <div class="auth-two-columns">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <BaseInput
                     id="reg-last"
                     v-model="form.last_name"
@@ -58,26 +58,31 @@
                 :disabled="isSubmitting"
         />
 
-        <div class="field">
-            <label for="reg-password">Пароль</label>
+        <div class="flex flex-col gap-2">
+            <label for="reg-password" class="text-sm font-medium text-foreground">
+                Пароль
+            </label>
 
-            <div class="password-wrapper">
-                <BaseInput
-                        id="reg-password"
-                        v-model="form.password"
-                        :type="showPassword ? 'text' : 'password'"
-                        placeholder="Минимум 8 символов"
-                        :required="true"
-                        :minlength="8"
-                        :disabled="isSubmitting"
-                />
-
-                <label class="check-label auth-checkbox-inline">
-                    <input v-model="showPassword" type="checkbox" :disabled="isSubmitting">
-                    Показать пароль
-                </label>
-            </div>
+            <BaseInput
+                    id="reg-password"
+                    v-model="form.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="Минимум 8 символов"
+                    :required="true"
+                    :minlength="8"
+                    :disabled="isSubmitting"
+            />
         </div>
+
+        <label class="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+                    v-model="showPassword"
+                    type="checkbox"
+                    class="size-4 rounded border-input accent-primary"
+                    :disabled="isSubmitting"
+            >
+            Показать пароль
+        </label>
 
         <BaseSelect
                 id="reg-department"
@@ -90,8 +95,13 @@
                 @update:model-value="updateDepartmentId"
         />
 
-        <label class="check-label">
-            <input v-model="form.remember" type="checkbox" :disabled="isSubmitting">
+        <label class="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+                    v-model="form.remember"
+                    type="checkbox"
+                    class="size-4 rounded border-input accent-primary"
+                    :disabled="isSubmitting"
+            >
             Запомнить меня
         </label>
 

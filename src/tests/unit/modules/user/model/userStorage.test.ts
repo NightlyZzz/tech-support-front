@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
     clearUserStorage,
     getUserData,
@@ -9,6 +9,11 @@ import {
 import type { UserData } from '@/modules/user/types/user'
 
 describe('userStorage', () => {
+    beforeEach(() => {
+        sessionStorage.clear()
+        localStorage.clear()
+    })
+
     it('stores and reads user data', () => {
         const userData: UserData = {
             id: 1,
@@ -32,10 +37,10 @@ describe('userStorage', () => {
     })
 
     it('returns null and clears corrupted user data', () => {
-        localStorage.setItem('user_data', '{broken json')
+        sessionStorage.setItem('user_data', '{broken json')
 
         expect(getUserData()).toBeNull()
-        expect(localStorage.getItem('user_data')).toBeNull()
+        expect(sessionStorage.getItem('user_data')).toBeNull()
         expect(hasStoredUserData()).toBe(false)
     })
 

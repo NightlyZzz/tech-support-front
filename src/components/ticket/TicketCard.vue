@@ -1,6 +1,11 @@
 <script setup lang="ts">
+    import { CalendarDays, Clock3, FileText, UserRound } from 'lucide-vue-next'
     import BaseButton from '@/components/base/BaseButton.vue'
-    import { formatDate, formatTime, getStatusBadge, truncate } from '@/shared/utils/utils'
+    import { Badge } from '@/components/ui/badge'
+    import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+    import { TicketStatus } from '@/enums/ticketStatus'
+    import { formatDate, formatTime, truncate } from '@/shared/utils/utils'
+    import { cn } from '@/lib/utils'
     import type { TicketListItem } from '@/modules/ticket/types/ticket-list-item'
 
     const props = withDefaults(defineProps<{
@@ -24,40 +29,85 @@
     const handleTake = (): void => {
         emit('take', props.ticket)
     }
+
+    const getStatusClasses = (statusId: number): string => {
+        if (statusId === TicketStatus.Pending) {
+            return 'border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+        }
+
+        if (statusId === TicketStatus.Review) {
+            return 'border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400'
+        }
+
+        if (statusId === TicketStatus.Resolved) {
+            return 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+        }
+
+        return 'border-border bg-secondary text-secondary-foreground'
+    }
 </script>
 
 <template>
-    <div class="ticket-card animate-in" @click="handleClick">
-        <div class="ticket-card-head">
-            <div class="ticket-card-head-main">
-                <div class="ticket-card-title">{{ ticket.getTypeName() }}</div>
-                <div class="ticket-card-id">#{{ ticket.getId() }}</div>
+    <Card
+            class="group cursor-pointer rounded-3xl border-border/80 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+            @click="handleClick"
+    >
+        <CardHeader class="space-y-4">
+            <div class="flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                    <CardTitle class="text-xl leading-tight">
+                        {{ ticket.getTypeName() }}
+                    </CardTitle>
+                    <p class="text-sm text-muted-foreground">
+                        Заявка #{{ ticket.getId() }}
+                    </p>
+                </div>
+
+                <Badge
+                        variant="outline"
+                        :class="cn('rounded-full px-3 py-1 text-xs font-medium', getStatusClasses(ticket.getStatusId()))"
+                >
+                    {{ ticket.getStatusName() }}
+                </Badge>
+            </div>
+        </CardHeader>
+
+        <CardContent class="space-y-4">
+            <div class="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+                <div
+                        v-if="showUser"
+                        class="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2"
+                >
+                    <UserRound class="size-4 text-foreground"/>
+                    <span class="truncate">
+                        {{ ticket.getSenderName() }}
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
+                    <CalendarDays class="size-4 text-foreground"/>
+                    <span>{{ formatDate(ticket.getCreatedAt()) }}</span>
+                </div>
+
+                <div class="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2">
+                    <Clock3 class="size-4 text-foreground"/>
+                    <span>{{ formatTime(ticket.getCreatedAt()) }}</span>
+                </div>
             </div>
 
-            <span :class="['badge', getStatusBadge(ticket.getStatusId())]">
-                {{ ticket.getStatusName() }}
-            </span>
-        </div>
+            <div class="rounded-2xl border bg-background/70 p-4">
+                <div class="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                    <FileText class="size-4"/>
+                    Описание
+                </div>
 
-        <div class="ticket-card-meta">
-            <div v-if="showUser" class="ticket-card-row">
-                <b>Пользователь:</b> {{ ticket.getSenderName() }}
+                <p class="text-sm leading-6 text-muted-foreground">
+                    {{ truncate(ticket.getDescription(), 140) }}
+                </p>
             </div>
+        </CardContent>
 
-            <div class="ticket-card-row">
-                <b>Дата:</b> {{ formatDate(ticket.getCreatedAt()) }}
-            </div>
-
-            <div class="ticket-card-row">
-                <b>Время:</b> {{ formatTime(ticket.getCreatedAt()) }}
-            </div>
-        </div>
-
-        <div class="ticket-card-desc">
-            <b>Описание:</b> {{ truncate(ticket.getDescription(), 80) }}
-        </div>
-
-        <div v-if="canTake" class="ticket-card-actions">
+        <CardFooter v-if="canTake" class="pt-0">
             <BaseButton
                     variant="primary"
                     size="sm"
@@ -65,6 +115,6 @@
             >
                 Взять в работу
             </BaseButton>
-        </div>
-    </div>
+        </CardFooter>
+    </Card>
 </template>

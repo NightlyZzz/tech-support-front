@@ -1,5 +1,13 @@
 <script setup lang="ts">
+    import { Mail } from 'lucide-vue-next'
     import BaseInput from '@/components/base/BaseInput.vue'
+    import {
+        Card,
+        CardContent,
+        CardDescription,
+        CardHeader,
+        CardTitle
+    } from '@/components/ui/card'
 
     defineProps<{
         email: string
@@ -13,10 +21,25 @@
 </script>
 
 <template>
-    <div class="card">
-        <p class="card-title">Почта</p>
+    <Card class="rounded-3xl">
+        <CardHeader class="space-y-3">
+            <div class="flex items-center gap-3">
+                <div class="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Mail class="size-5"/>
+                </div>
 
-        <div class="profile-card-stack">
+                <div>
+                    <CardTitle class="text-xl">
+                        Почта
+                    </CardTitle>
+                    <CardDescription>
+                        Адреса для входа и уведомлений
+                    </CardDescription>
+                </div>
+            </div>
+        </CardHeader>
+
+        <CardContent class="space-y-4">
             <BaseInput
                     id="profile-email"
                     :model-value="email"
@@ -32,11 +55,6 @@
                     type="email"
                     @update:model-value="emit('update:secondaryEmail', $event)"
             />
-        </div>
-    </div>
+        </CardContent>
+    </Card>
 </template>
-
-<style scoped>
-    @import '@/assets/base.css';
-    @import '@/assets/profile.css';
-</style>

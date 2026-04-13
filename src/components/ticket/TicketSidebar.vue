@@ -23,7 +23,7 @@
 </script>
 
 <template>
-    <aside class="ticket-panel">
+    <aside class="flex flex-col gap-6">
         <TicketInfoCard
                 :ticket-id="ticketId"
                 :ticket="ticket"
@@ -41,7 +41,3 @@
         />
     </aside>
 </template>
-
-<style scoped>
-    @import '@/assets/ticket.css';
-</style>

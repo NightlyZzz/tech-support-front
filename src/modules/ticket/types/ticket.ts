@@ -16,11 +16,9 @@ export interface TicketApi {
     employee_name?: string | null
 }
 
-export interface TicketTypeOption extends LookupItem {
-}
+export type TicketTypeOption = LookupItem
 
-export interface TicketStatusOption extends LookupItem {
-}
+export type TicketStatusOption = LookupItem
 
 export interface TicketResponse {
     data: TicketApi

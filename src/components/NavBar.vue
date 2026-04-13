@@ -1,6 +1,18 @@
 <script setup lang="ts">
     import { computed, ref, watch } from 'vue'
     import { useRoute } from 'vue-router'
+    import { Menu, Moon, PlusCircle, Sun, Ticket, User, Users } from 'lucide-vue-next'
+    import { useColorMode } from '@vueuse/core'
+    import { Button } from '@/components/ui/button'
+    import {
+        Sheet,
+        SheetContent,
+        SheetDescription,
+        SheetHeader,
+        SheetTitle
+    } from '@/components/ui/sheet'
+    import { Separator } from '@/components/ui/separator'
+    import { cn } from '@/lib/utils'
     import { COMPANY_NAME } from '@/shared/utils/constants'
     import { useUser } from '@/modules/user/composables/useUser'
 
@@ -8,30 +20,47 @@
         name: string
         route: string
         show: boolean
+        icon: unknown
     }
 
-    const mobileOpen = ref(false)
-
     const route = useRoute()
+    const mobileOpen = ref(false)
+    const colorMode = useColorMode({
+        attribute: 'class',
+        initialValue: 'light'
+    })
+
     const { user, isAdmin, isEmployee, isUser } = useUser()
 
     const isAuthenticated = computed(() => user.value !== null)
+    const isDark = computed(() => colorMode.value === 'dark')
 
     const links = computed<NavigationLink[]>(() => {
         return [
-            { name: 'Мои заявки', route: 'my-tickets', show: true },
-            { name: 'Создать заявку', route: 'create-ticket', show: isUser.value },
-            { name: 'Все заявки', route: 'all-tickets', show: isEmployee.value },
-            { name: 'Пользователи', route: 'all-users', show: isAdmin.value }
-        ].filter(linkItem => linkItem.show)
+            { name: 'Мои заявки', route: 'my-tickets', show: true, icon: Ticket },
+            { name: 'Создать заявку', route: 'create-ticket', show: isUser.value, icon: PlusCircle },
+            { name: 'Все заявки', route: 'all-tickets', show: isEmployee.value, icon: Ticket },
+            { name: 'Пользователи', route: 'all-users', show: isAdmin.value, icon: Users }
+        ].filter((linkItem) => linkItem.show)
     })
 
-    const toggleMobile = () => {
-        mobileOpen.value = !mobileOpen.value
+    const closeMobile = (): void => {
+        mobileOpen.value = false
     }
 
-    const closeMobile = () => {
-        mobileOpen.value = false
+    const toggleTheme = (): void => {
+        colorMode.value = isDark.value ? 'light' : 'dark'
+    }
+
+    const getLinkClasses = (routeName: string): string => {
+        const isActive = route.name === routeName
+
+        return cn(
+                'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+                isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+        )
     }
 
     watch(
@@ -43,64 +72,96 @@
 </script>
 
 <template>
-    <nav v-if="isAuthenticated" class="navbar">
-        <router-link class="navbar-brand" :to="{ name: 'home' }">
-            <span class="navbar-brand-dot"></span>
-            <span class="navbar-brand-name">{{ COMPANY_NAME }}</span>
-        </router-link>
-
-        <div class="navbar-links">
+    <header
+            v-if="isAuthenticated"
+            class="fixed inset-x-0 top-0 z-50 border-b bg-background/80 backdrop-blur-xl"
+    >
+        <div class="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <router-link
-                    v-for="linkItem in links"
-                    :key="linkItem.route"
-                    class="navbar-link"
-                    :to="{ name: linkItem.route }"
+                    :to="{ name: 'home' }"
+                    class="flex min-w-0 items-center gap-3"
             >
-                {{ linkItem.name }}
+                <span class="size-3 shrink-0 rounded-full bg-primary shadow-[0_0_24px_rgba(0,0,0,0.18)] dark:shadow-[0_0_24px_rgba(255,255,255,0.18)]"></span>
+                <span class="truncate text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                    {{ COMPANY_NAME }}
+                </span>
             </router-link>
+
+            <nav class="hidden items-center gap-1 lg:flex">
+                <router-link
+                        v-for="linkItem in links"
+                        :key="linkItem.route"
+                        :to="{ name: linkItem.route }"
+                        :class="getLinkClasses(linkItem.route)"
+                >
+                    <component :is="linkItem.icon" class="size-4"/>
+                    {{ linkItem.name }}
+                </router-link>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <Button
+                        variant="outline"
+                        size="icon"
+                        type="button"
+                        @click="toggleTheme"
+                >
+                    <Sun v-if="isDark" class="size-4"/>
+                    <Moon v-else class="size-4"/>
+                </Button>
+
+                <router-link
+                        :to="{ name: 'profile' }"
+                        class="hidden sm:inline-flex"
+                        :class="getLinkClasses('profile')"
+                >
+                    <User class="size-4"/>
+                    Аккаунт
+                </router-link>
+
+                <Sheet v-model:open="mobileOpen">
+                    <Button
+                            variant="outline"
+                            size="icon"
+                            type="button"
+                            class="lg:hidden"
+                            @click="mobileOpen = true"
+                    >
+                        <Menu class="size-5"/>
+                    </Button>
+
+                    <SheetContent side="right" class="w-[320px] sm:w-[360px]">
+                        <SheetHeader>
+                            <SheetTitle>{{ COMPANY_NAME }}</SheetTitle>
+                            <SheetDescription>
+                                Навигация по системе
+                            </SheetDescription>
+                        </SheetHeader>
+
+                        <div class="mt-6 flex flex-col gap-2">
+                            <router-link
+                                    v-for="linkItem in links"
+                                    :key="linkItem.route"
+                                    :to="{ name: linkItem.route }"
+                                    :class="getLinkClasses(linkItem.route)"
+                            >
+                                <component :is="linkItem.icon" class="size-4"/>
+                                {{ linkItem.name }}
+                            </router-link>
+
+                            <Separator class="my-2"/>
+
+                            <router-link
+                                    :to="{ name: 'profile' }"
+                                    :class="getLinkClasses('profile')"
+                            >
+                                <User class="size-4"/>
+                                Аккаунт
+                            </router-link>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
         </div>
-
-        <div class="navbar-right" style="display:flex;align-items:center;gap:12px;">
-            <router-link class="navbar-account" :to="{ name: 'profile' }">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                </svg>
-                Аккаунт
-            </router-link>
-        </div>
-
-        <button type="button" class="navbar-toggle" @click="toggleMobile">
-            <span :style="mobileOpen ? 'transform:rotate(45deg) translate(5px,5px)' : ''"></span>
-            <span :style="mobileOpen ? 'opacity:0' : ''"></span>
-            <span :style="mobileOpen ? 'transform:rotate(-45deg) translate(5px,-5px)' : ''"></span>
-        </button>
-    </nav>
-
-    <div v-if="isAuthenticated" :class="['navbar-drawer', mobileOpen ? 'open' : '']">
-        <router-link
-                v-for="linkItem in links"
-                :key="linkItem.route"
-                class="navbar-link"
-                :to="{ name: linkItem.route }"
-        >
-            {{ linkItem.name }}
-        </router-link>
-
-        <div style="height:1px;background:var(--c-border);margin:4px 0;"></div>
-
-        <router-link
-                class="navbar-link"
-                :to="{ name: 'profile' }"
-        >
-            Аккаунт
-        </router-link>
-    </div>
+    </header>
 </template>
-
-<style scoped>
-    @import '@/assets/navbar.css';
-</style>

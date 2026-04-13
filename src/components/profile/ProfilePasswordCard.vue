@@ -1,5 +1,13 @@
 <script setup lang="ts">
+    import { LockKeyhole } from 'lucide-vue-next'
     import BaseInput from '@/components/base/BaseInput.vue'
+    import {
+        Card,
+        CardContent,
+        CardDescription,
+        CardHeader,
+        CardTitle
+    } from '@/components/ui/card'
 
     defineProps<{
         newPassword: string
@@ -18,30 +26,43 @@
 </script>
 
 <template>
-    <div class="card">
-        <p class="card-title">Смена пароля</p>
+    <Card class="rounded-3xl">
+        <CardHeader class="space-y-3">
+            <div class="flex items-center gap-3">
+                <div class="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <LockKeyhole class="size-5"/>
+                </div>
 
-        <BaseInput
-                id="profile-new-password"
-                :model-value="newPassword"
-                label="Новый пароль"
-                :type="showPassword ? 'text' : 'password'"
-                placeholder="Оставьте пустым"
-                @update:model-value="emit('update:newPassword', $event)"
-        />
+                <div>
+                    <CardTitle class="text-xl">
+                        Смена пароля
+                    </CardTitle>
+                    <CardDescription>
+                        Оставьте поле пустым, если не хотите менять пароль
+                    </CardDescription>
+                </div>
+            </div>
+        </CardHeader>
 
-        <label class="check-label profile-checkbox-offset">
-            <input
-                    :checked="showPassword"
-                    type="checkbox"
-                    @change="updateShowPassword"
-            >
-            Показать пароль
-        </label>
-    </div>
+        <CardContent class="space-y-4">
+            <BaseInput
+                    id="profile-new-password"
+                    :model-value="newPassword"
+                    label="Новый пароль"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="Оставьте пустым"
+                    @update:model-value="emit('update:newPassword', $event)"
+            />
+
+            <label class="flex items-center gap-2 text-sm text-muted-foreground">
+                <input
+                        :checked="showPassword"
+                        type="checkbox"
+                        class="size-4 rounded border-input accent-primary"
+                        @change="updateShowPassword"
+                >
+                Показать пароль
+            </label>
+        </CardContent>
+    </Card>
 </template>
-
-<style scoped>
-    @import '@/assets/base.css';
-    @import '@/assets/profile.css';
-</style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { Input } from '@/components/ui/input'
+
     withDefaults(defineProps<{
         id?: string
         label?: string
@@ -26,19 +28,24 @@
         (event: 'update:modelValue', value: string): void
     }>()
 
-    const handleInput = (event: Event): void => {
-        const target = event.target as HTMLInputElement
-        emit('update:modelValue', target.value)
+    const handleUpdateModelValue = (value: string | number): void => {
+        emit('update:modelValue', String(value))
     }
 </script>
 
 <template>
-    <div class="field">
-        <label v-if="label" :for="id">{{ label }}</label>
+    <div class="flex flex-col gap-2">
+        <label
+                v-if="label"
+                :for="id"
+                class="text-sm font-medium text-foreground"
+        >
+            {{ label }}
+        </label>
 
-        <input
+        <Input
                 :id="id"
-                :value="modelValue"
+                :model-value="modelValue"
                 :type="type"
                 :placeholder="placeholder"
                 :required="required"
@@ -46,7 +53,7 @@
                 :minlength="minlength"
                 :maxlength="maxlength"
                 :autocomplete="autocomplete"
-                @input="handleInput"
-        >
+                @update:model-value="handleUpdateModelValue"
+        />
     </div>
 </template>

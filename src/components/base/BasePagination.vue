@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { computed } from 'vue'
+    import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-vue-next'
     import BaseButton from '@/components/base/BaseButton.vue'
 
     type PaginationItem = number | 'ellipsis'
@@ -57,43 +58,47 @@
 </script>
 
 <template>
-    <div v-if="lastPage > 1" class="pagination">
+    <div
+            v-if="lastPage > 1"
+            class="flex flex-wrap items-center justify-center gap-2"
+    >
         <BaseButton
                 type="button"
                 variant="secondary"
-                class="pagination-button"
+                size="sm"
                 :disabled="modelValue === 1"
                 @click="changePage(modelValue - 1)"
         >
-            ←
+            <ChevronLeft class="size-4"/>
         </BaseButton>
 
         <template v-for="(pageItem, index) in pages" :key="`${pageItem}-${index}`">
             <BaseButton
                     v-if="typeof pageItem === 'number'"
                     type="button"
+                    size="sm"
                     :variant="pageItem === modelValue ? 'primary' : 'secondary'"
-                    :class="['pagination-button', pageItem === modelValue ? 'is-active' : '']"
                     @click="changePage(pageItem)"
             >
                 {{ pageItem }}
             </BaseButton>
 
-            <span v-else class="pagination-dots">...</span>
+            <div
+                    v-else
+                    class="flex h-9 w-9 items-center justify-center text-muted-foreground"
+            >
+                <MoreHorizontal class="size-4"/>
+            </div>
         </template>
 
         <BaseButton
                 type="button"
                 variant="secondary"
-                class="pagination-button"
+                size="sm"
                 :disabled="modelValue === lastPage"
                 @click="changePage(modelValue + 1)"
         >
-            →
+            <ChevronRight class="size-4"/>
         </BaseButton>
     </div>
 </template>
-
-<style scoped>
-    @import '@/assets/pagination.css';
-</style>

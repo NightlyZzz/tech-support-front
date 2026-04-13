@@ -1,5 +1,13 @@
 <script setup lang="ts">
+    import { UserRound } from 'lucide-vue-next'
     import BaseInput from '@/components/base/BaseInput.vue'
+    import {
+        Card,
+        CardContent,
+        CardDescription,
+        CardHeader,
+        CardTitle
+    } from '@/components/ui/card'
 
     defineProps<{
         lastName: string
@@ -15,11 +23,26 @@
 </script>
 
 <template>
-    <div class="card">
-        <p class="card-title">Личные данные</p>
+    <Card class="rounded-3xl">
+        <CardHeader class="space-y-3">
+            <div class="flex items-center gap-3">
+                <div class="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <UserRound class="size-5"/>
+                </div>
 
-        <div class="profile-card-stack">
-            <div class="profile-two-columns">
+                <div>
+                    <CardTitle class="text-xl">
+                        Личные данные
+                    </CardTitle>
+                    <CardDescription>
+                        Основная информация о пользователе
+                    </CardDescription>
+                </div>
+            </div>
+        </CardHeader>
+
+        <CardContent class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <BaseInput
                         id="profile-last-name"
                         :model-value="lastName"
@@ -44,11 +67,6 @@
                     type="text"
                     @update:model-value="emit('update:middleName', $event)"
             />
-        </div>
-    </div>
+        </CardContent>
+    </Card>
 </template>
-
-<style scoped>
-    @import '@/assets/base.css';
-    @import '@/assets/profile.css';
-</style>

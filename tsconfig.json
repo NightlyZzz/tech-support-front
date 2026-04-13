@@ -9,7 +9,11 @@
     }
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "lib": ["es2015"],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "types": ["vitest/globals"]
   }
 }

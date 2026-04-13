@@ -7,6 +7,7 @@ import router from '@/router'
 import { BACKEND_URL } from '@/shared/utils/constants'
 import { getEcho } from '@/shared/realtime/echo'
 import { clearClientSession } from '@/modules/user/services/session.service'
+import { hasStoredUserData } from '@/modules/user/model/userStorage'
 
 export const apiClient = axios.create({
     baseURL: BACKEND_URL,
@@ -55,7 +56,7 @@ export const handleApiClientError = async (error: {
                 requestUrl.includes('/auth/register') ||
                 requestUrl.includes('/sanctum/csrf-cookie')
 
-        if (!isAuthRequest) {
+        if (!isAuthRequest && hasStoredUserData()) {
             clearClientSession()
 
             if (currentRouteName !== 'auth') {
