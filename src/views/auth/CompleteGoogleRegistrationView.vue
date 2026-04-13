@@ -1,9 +1,7 @@
 <script setup lang="ts">
-    import { onMounted, reactive, ref } from 'vue'
-    import { useRouter } from 'vue-router'
     import BaseButton from '@/components/base/BaseButton.vue'
-    import BaseSelect from '@/components/base/BaseSelect.vue'
     import BaseInput from '@/components/base/BaseInput.vue'
+    import BaseSelect from '@/components/base/BaseSelect.vue'
     import {
         Card,
         CardContent,
@@ -11,76 +9,17 @@
         CardHeader,
         CardTitle
     } from '@/components/ui/card'
-    import { completeGoogleRegistration } from '@/modules/user/api/auth.api'
-    import { getAllDepartments } from '@/modules/user/api/user.lookup'
-    import { getLaravelErrorMessage } from '@/modules/user/helpers/getLaravelErrorMessage'
-    import { initializeAuthorizedSession } from '@/modules/user/services/session.service'
-    import { showToast } from '@/shared/toast/toastService'
-    import type { Department } from '@/modules/user/types/department'
+    import { useCompleteGoogleRegistrationForm } from '@/modules/user/composables/useCompleteGoogleRegistrationForm'
 
-    const router = useRouter()
-
-    const form = reactive({
-        department_id: null as number | null,
-        password: ''
-    })
-
-    const departments = ref<Department[]>([])
-    const showPassword = ref(false)
-    const isSubmitting = ref(false)
-    const isLoadingDepartments = ref(false)
-
-    const updateDepartmentId = (value: number | null): void => {
-        form.department_id = value
-    }
-
-    const loadDepartments = async (): Promise<void> => {
-        isLoadingDepartments.value = true
-
-        try {
-            const departmentsResponse = await getAllDepartments()
-            departments.value = departmentsResponse.data ?? []
-        } catch {
-            departments.value = []
-        } finally {
-            isLoadingDepartments.value = false
-        }
-    }
-
-    const handleSubmit = async (): Promise<void> => {
-        if (isSubmitting.value) {
-            return
-        }
-
-        if (form.department_id === null) {
-            showToast('Выберите подразделение', 'error')
-            return
-        }
-
-        if (form.password.length < 8) {
-            showToast('Пароль должен содержать не менее 8 символов', 'error')
-            return
-        }
-
-        isSubmitting.value = true
-
-        try {
-            await completeGoogleRegistration({
-                department_id: form.department_id,
-                password: form.password
-            })
-
-            await initializeAuthorizedSession()
-            await router.replace({ name: 'profile' })
-        } catch (error: unknown) {
-            const errorMessage = getLaravelErrorMessage(error)
-            showToast(errorMessage ?? 'Не удалось завершить регистрацию через Google', 'error')
-        } finally {
-            isSubmitting.value = false
-        }
-    }
-
-    onMounted(loadDepartments)
+    const {
+        form,
+        departments,
+        showPassword,
+        isSubmitting,
+        isLoadingDepartments,
+        updateDepartmentId,
+        handleSubmit
+    } = useCompleteGoogleRegistrationForm()
 </script>
 
 <template>
