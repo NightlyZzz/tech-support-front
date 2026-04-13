@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import { computed, ref, watch } from 'vue'
     import { useRoute } from 'vue-router'
-    import { Menu, Moon, PlusCircle, Sun, Ticket, User, Users } from 'lucide-vue-next'
-    import { useColorMode } from '@vueuse/core'
+    import { Menu, PlusCircle, Ticket, User, Users } from 'lucide-vue-next'
     import { Button } from '@/components/ui/button'
+    import ThemeToggleButton from '@/components/common/ThemeToggleButton.vue'
     import {
         Sheet,
         SheetContent,
@@ -25,15 +25,10 @@
 
     const route = useRoute()
     const mobileOpen = ref(false)
-    const colorMode = useColorMode({
-        attribute: 'class',
-        initialValue: 'light'
-    })
 
     const { user, isAdmin, isEmployee, isUser } = useUser()
 
     const isAuthenticated = computed(() => user.value !== null)
-    const isDark = computed(() => colorMode.value === 'dark')
 
     const links = computed<NavigationLink[]>(() => {
         return [
@@ -46,10 +41,6 @@
 
     const closeMobile = (): void => {
         mobileOpen.value = false
-    }
-
-    const toggleTheme = (): void => {
-        colorMode.value = isDark.value ? 'light' : 'dark'
     }
 
     const getLinkClasses = (routeName: string): string => {
@@ -100,15 +91,7 @@
             </nav>
 
             <div class="flex items-center gap-2">
-                <Button
-                        variant="outline"
-                        size="icon"
-                        type="button"
-                        @click="toggleTheme"
-                >
-                    <Sun v-if="isDark" class="size-4"/>
-                    <Moon v-else class="size-4"/>
-                </Button>
+                <ThemeToggleButton/>
 
                 <router-link
                         :to="{ name: 'profile' }"

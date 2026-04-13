@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import LoginForm from '@/components/auth/LoginForm.vue'
     import RegisterForm from '@/components/auth/RegisterForm.vue'
+    import ThemeToggleButton from '@/components/common/ThemeToggleButton.vue'
     import { Button } from '@/components/ui/button'
     import {
         Card,
@@ -25,7 +26,11 @@
 
 <template>
     <div class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,120,120,0.10),transparent_35%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.12),transparent_35%)]"></div>
+
+        <div class="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+            <ThemeToggleButton/>
+        </div>
 
         <Card class="relative z-10 w-full max-w-xl border-border/80 bg-card/95 shadow-2xl backdrop-blur">
             <CardHeader class="space-y-5">
